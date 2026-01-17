@@ -26,7 +26,7 @@ object MistakeRepository {
      *         stmt.executeQuery().use { rs ->
      *             buildList {
      *                 while (rs.next()) {
-     *                     add(mapRowToMistakeDto(rs))
+     *                     add(rs.mapRowToMistakeDto())
      *                 }
      *             }
      *         }
@@ -35,32 +35,40 @@ object MistakeRepository {
      */
     fun getAllMistakes(): List<MistakeDto> {
         // Mock data for demonstration
-        return listOf(
-            MistakeDto(
-                id = 1,
-                playerName = "Roguetank",
-                dungeon = "Deadmines",
-                type = MistakeType.yeet,
-                description = "Got yeeted off the ship by a Defias Pirate",
-                timestamp = System.currentTimeMillis() - 3600000
-            ),
-            MistakeDto(
-                id = 2,
-                playerName = "HealzgoBRRR",
-                dungeon = "Shadowfang Keep",
-                type = MistakeType.death,
-                description = "Aggro'd the entire courtyard and got one-shot",
-                timestamp = System.currentTimeMillis() - 7200000
-            ),
-            MistakeDto(
-                id = 3,
-                playerName = "LeroyJenkins",
-                dungeon = "Blackrock Depths",
-                type = MistakeType.wipe,
-                description = "Pulled all of Domicile, party wiped spectacularly",
-                timestamp = System.currentTimeMillis() - 10800000
+        val now = System.currentTimeMillis()
+        
+        return buildList {
+            add(
+                MistakeDto(
+                    id = 1,
+                    playerName = "Roguetank",
+                    dungeon = "Deadmines",
+                    type = MistakeType.yeet,
+                    description = "Got yeeted off the ship by a Defias Pirate",
+                    timestamp = now - 3_600_000 // 1 hour ago
+                )
             )
-        )
+            add(
+                MistakeDto(
+                    id = 2,
+                    playerName = "HealzgoBRRR",
+                    dungeon = "Shadowfang Keep",
+                    type = MistakeType.death,
+                    description = "Aggro'd the entire courtyard and got one-shot",
+                    timestamp = now - 7_200_000 // 2 hours ago
+                )
+            )
+            add(
+                MistakeDto(
+                    id = 3,
+                    playerName = "LeroyJenkins",
+                    dungeon = "Blackrock Depths",
+                    type = MistakeType.wipe,
+                    description = "Pulled all of Domicile, party wiped spectacularly",
+                    timestamp = now - 10_800_000 // 3 hours ago
+                )
+            )
+        }
     }
     
     /**
@@ -70,14 +78,16 @@ object MistakeRepository {
      * Note: Null-safe access used for potentially nullable columns.
      * MistakeType enum is parsed from string value.
      */
-    private fun mapRowToMistakeDto(rs: ResultSet): MistakeDto {
+    private fun ResultSet.mapRowToMistakeDto(): MistakeDto {
+        val typeString = getString("type") ?: "death"
+        
         return MistakeDto(
-            id = rs.getInt("id"),
-            playerName = rs.getString("player_name") ?: "",
-            dungeon = rs.getString("dungeon") ?: "",
-            type = MistakeType.valueOf(rs.getString("type") ?: "death"),
-            description = rs.getString("description") ?: "",
-            timestamp = rs.getLong("timestamp")
+            id = getInt("id"),
+            playerName = getString("player_name") ?: "",
+            dungeon = getString("dungeon") ?: "",
+            type = MistakeType.valueOf(typeString),
+            description = getString("description") ?: "",
+            timestamp = getLong("timestamp")
         )
     }
     

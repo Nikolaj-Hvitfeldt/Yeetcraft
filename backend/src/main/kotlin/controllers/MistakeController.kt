@@ -20,11 +20,11 @@ object MistakeController {
      * TODO: Accept query parameters for filtering (player, dungeon, type, date range)
      */
     suspend fun getAllMistakes(call: ApplicationCall) {
-        try {
+        runCatching {
             val mistakes = MistakeService.getAllMistakes()
             call.respond(MistakeListResponse(mistakes = mistakes))
-        } catch (e: Exception) {
-            logger.error("Error fetching mistakes", e)
+        }.onFailure { exception ->
+            logger.error("Error fetching mistakes", exception)
             call.respond(
                 status = HttpStatusCode.InternalServerError,
                 message = ErrorResponse(

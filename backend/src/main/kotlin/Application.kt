@@ -16,19 +16,20 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 
+private val logger = LoggerFactory.getLogger("Application")
+
 /**
  * Main application entry point for Ktor server.
  */
 fun main() {
-    val logger = LoggerFactory.getLogger("Application")
-    
     // Validate configuration before starting
-    try {
-        Config.validate()
-    } catch (e: IllegalArgumentException) {
-        logger.error("Configuration validation failed, exiting", e)
-        System.exit(1)
-    }
+    Config.validate().fold(
+        onSuccess = { /* Configuration valid, continue */ },
+        onFailure = { exception ->
+            logger.error("Configuration validation failed, exiting", exception)
+            System.exit(1)
+        }
+    )
     
     val server = embeddedServer(Netty, port = Config.serverPort, host = Config.serverHost) {
         module()
@@ -48,31 +49,50 @@ fun main() {
  * Sets up all routing and database connections.
  */
 fun Application.module() {
-    val logger = LoggerFactory.getLogger("Application")
+    configureSerialization()
+    configureCors()
+    configureErrorHandling()
+    initializeDatabase()
+    setupRoutes()
     
-    // Configure JSON serialization
+    logger.info("Application module configured successfully")
+}
+
+/**
+ * Configures JSON serialization with environment-specific settings.
+ */
+private fun Application.configureSerialization() {
     install(ContentNegotiation) {
-        json(Json {
-            // Pretty print only in development
-            prettyPrint = Config.isDevelopment
-            isLenient = true
-            ignoreUnknownKeys = true
-        })
+        json(
+            Json {
+                prettyPrint = Config.isDevelopment
+                isLenient = true
+                ignoreUnknownKeys = true
+            }
+        )
     }
+}
+
+/**
+ * Configures CORS for development environment.
+ */
+private fun Application.configureCors() {
+    if (!Config.isDevelopment) return
     
-    // Configure CORS for development (allows frontend on different port)
-    if (Config.isDevelopment) {
-        install(CORS) {
-            anyHost()
-            allowMethod(io.ktor.http.HttpMethod.Get)
-            allowMethod(io.ktor.http.HttpMethod.Post)
-            allowMethod(io.ktor.http.HttpMethod.Put)
-            allowMethod(io.ktor.http.HttpMethod.Delete)
-            allowHeader(io.ktor.http.HttpHeaders.ContentType)
-        }
+    install(CORS) {
+        anyHost()
+        allowMethod(io.ktor.http.HttpMethod.Get)
+        allowMethod(io.ktor.http.HttpMethod.Post)
+        allowMethod(io.ktor.http.HttpMethod.Put)
+        allowMethod(io.ktor.http.HttpMethod.Delete)
+        allowHeader(io.ktor.http.HttpHeaders.ContentType)
     }
-    
-    // Configure status pages for error handling
+}
+
+/**
+ * Configures global error handling via StatusPages.
+ */
+private fun Application.configureErrorHandling() {
     install(StatusPages) {
         exception<Throwable> { call, cause ->
             logger.error("Unhandled exception", cause)
@@ -82,12 +102,11 @@ fun Application.module() {
             )
         }
     }
-    
-    // Initialize database connection
+}
+
+/**
+ * Initializes database connection on application startup.
+ */
+private fun Application.initializeDatabase() {
     databaseConfig()
-    
-    // Set up all API routes
-    setupRoutes()
-    
-    logger.info("Application module configured successfully")
 }
