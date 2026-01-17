@@ -1,17 +1,12 @@
 package com.yeetcraft.repositories
 
 import com.yeetcraft.config.Database
-import com.yeetcraft.controllers.MistakeDto
+import com.yeetcraft.dto.MistakeDto
+import com.yeetcraft.dto.MistakeType
 import java.sql.ResultSet
 
 /**
  * Mistake repository layer.
- * 
- * Architecture notes:
- * - Repositories handle all database access using plain SQL
- * - They return domain models or DTOs
- * - For lightweight ORM usage, consider Exposed (commented below as alternative)
- * - Plain SQL chosen for minimal dependencies and full control
  */
 object MistakeRepository {
     /**
@@ -45,7 +40,7 @@ object MistakeRepository {
                 id = 1,
                 playerName = "Roguetank",
                 dungeon = "Deadmines",
-                type = "yeet",
+                type = MistakeType.yeet,
                 description = "Got yeeted off the ship by a Defias Pirate",
                 timestamp = System.currentTimeMillis() - 3600000
             ),
@@ -53,7 +48,7 @@ object MistakeRepository {
                 id = 2,
                 playerName = "HealzgoBRRR",
                 dungeon = "Shadowfang Keep",
-                type = "death",
+                type = MistakeType.death,
                 description = "Aggro'd the entire courtyard and got one-shot",
                 timestamp = System.currentTimeMillis() - 7200000
             ),
@@ -61,7 +56,7 @@ object MistakeRepository {
                 id = 3,
                 playerName = "LeroyJenkins",
                 dungeon = "Blackrock Depths",
-                type = "wipe",
+                type = MistakeType.wipe,
                 description = "Pulled all of Domicile, party wiped spectacularly",
                 timestamp = System.currentTimeMillis() - 10800000
             )
@@ -71,14 +66,17 @@ object MistakeRepository {
     /**
      * Helper function to map database row to DTO.
      * TODO: Implement when database queries are added
+     * 
+     * Note: Null-safe access used for potentially nullable columns.
+     * MistakeType enum is parsed from string value.
      */
     private fun mapRowToMistakeDto(rs: ResultSet): MistakeDto {
         return MistakeDto(
             id = rs.getInt("id"),
-            playerName = rs.getString("player_name"),
-            dungeon = rs.getString("dungeon"),
-            type = rs.getString("type"),
-            description = rs.getString("description"),
+            playerName = rs.getString("player_name") ?: "",
+            dungeon = rs.getString("dungeon") ?: "",
+            type = MistakeType.valueOf(rs.getString("type") ?: "death"),
+            description = rs.getString("description") ?: "",
             timestamp = rs.getLong("timestamp")
         )
     }

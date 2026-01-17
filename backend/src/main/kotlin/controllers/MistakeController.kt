@@ -1,33 +1,18 @@
 package com.yeetcraft.controllers
 
+import com.yeetcraft.dto.ErrorResponse
+import com.yeetcraft.dto.MistakeListResponse
 import com.yeetcraft.services.MistakeService
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.response.*
-import kotlinx.serialization.Serializable
+import org.slf4j.LoggerFactory
 
 /**
  * Mistake controller for WoW dungeon mistakes (wipes, deaths, yeets).
- * 
- * Architecture notes:
- * - Controller receives HTTP request, extracts parameters if needed
- * - Delegates to service layer for business logic
- * - Formats response as JSON DTO
  */
 object MistakeController {
-    @Serializable
-    data class MistakeDto(
-        val id: Int,
-        val playerName: String,
-        val dungeon: String,
-        val type: String, // "wipe", "death", "yeet"
-        val description: String,
-        val timestamp: Long
-    )
-    
-    @Serializable
-    data class MistakeListResponse(
-        val mistakes: List<MistakeDto>
-    )
+    private val logger = LoggerFactory.getLogger(MistakeController::class.java)
     
     /**
      * GET /api/mistakes
@@ -35,11 +20,33 @@ object MistakeController {
      * TODO: Accept query parameters for filtering (player, dungeon, type, date range)
      */
     suspend fun getAllMistakes(call: ApplicationCall) {
-        val mistakes = MistakeService.getAllMistakes()
-        call.respond(MistakeListResponse(mistakes = mistakes))
+        try {
+            val mistakes = MistakeService.getAllMistakes()
+            call.respond(MistakeListResponse(mistakes = mistakes))
+        } catch (e: Exception) {
+            logger.error("Error fetching mistakes", e)
+            call.respond(
+                status = HttpStatusCode.InternalServerError,
+                message = ErrorResponse(
+                    error = "Internal server error",
+                    message = "Failed to fetch mistakes"
+                )
+            )
+        }
     }
     
     // TODO: Add more controller methods as needed:
-    // suspend fun getMistakeById(call: ApplicationCall) { ... }
+    // suspend fun getMistakeById(call: ApplicationCall) { 
+    //     try {
+    //         val id = call.parameters["id"]?.toIntOrNull()
+    //             ?: return call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid ID"))
+    //         val mistake = MistakeService.getMistakeById(id)
+    //             ?: return call.respond(HttpStatusCode.NotFound, ErrorResponse("Mistake not found"))
+    //         call.respond(mistake)
+    //     } catch (e: Exception) {
+    //         logger.error("Error fetching mistake", e)
+    //         call.respond(HttpStatusCode.InternalServerError, ErrorResponse("Internal server error"))
+    //     }
+    // }
     // suspend fun createMistake(call: ApplicationCall) { ... }
 }
