@@ -1,0 +1,174 @@
+/**
+ * Main application styles.
+ * 
+ * Architecture notes:
+ * - Plain CSS for simplicity
+ * - Inspired by HLTV.org dark theme aesthetic
+ * - Minimal, clean design focused on content
+ */
+
+.app {
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid #333;
+}
+
+h1 {
+  font-size: 2.5rem;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #888;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.health-status {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: #2a2a2a;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.status-ok {
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.status-error {
+  color: #f87171;
+  font-weight: 600;
+}
+
+main {
+  margin-top: 2rem;
+}
+
+.mistakes-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #fff;
+}
+
+.empty-state {
+  text-align: center;
+  color: #888;
+  padding: 3rem;
+  background-color: #2a2a2a;
+  border-radius: 8px;
+}
+
+.mistakes-list {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+}
+
+.mistake-card {
+  background-color: #2a2a2a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: border-color 0.2s;
+}
+
+.mistake-card:hover {
+  border-color: #555;
+}
+
+.mistake-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.player-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.mistake-type {
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.type-wipe {
+  background-color: #dc2626;
+  color: #fff;
+}
+
+.type-death {
+  background-color: #ea580c;
+  color: #fff;
+}
+
+.type-yeet {
+  background-color: #ca8a04;
+  color: #fff;
+}
+
+.mistake-dungeon {
+  color: #60a5fa;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.mistake-description {
+  color: #d1d5db;
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.mistake-timestamp {
+  color: #888;
+  font-size: 0.875rem;
+}
+
+.error {
+  background-color: #dc2626;
+  color: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #888;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .app {
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .mistakes-list {
+    grid-template-columns: 1fr;
+  }
+}
