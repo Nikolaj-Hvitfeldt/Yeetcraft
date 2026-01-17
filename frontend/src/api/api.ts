@@ -1,15 +1,5 @@
 import { HealthResponse, MistakeListResponse } from './types'
 
-/**
- * API client module.
- * 
- * Architecture notes:
- * - Centralized API calls with typed responses
- * - Base URL configured via environment variable (defaults to localhost:8080)
- * - Error handling in one place
- * - Easy to add authentication headers later if needed
- */
-
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 
 /**

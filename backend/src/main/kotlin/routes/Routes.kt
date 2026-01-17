@@ -8,11 +8,6 @@ import io.ktor.server.routing.*
 
 /**
  * Central route configuration.
- * 
- * Architecture notes:
- * - Routes are thin: they only define URL patterns and delegate to controllers
- * - All business logic lives in controllers → services → repositories
- * - API endpoints are prefixed with /api for clear separation
  */
 fun Application.setupRoutes() {
     routing {
