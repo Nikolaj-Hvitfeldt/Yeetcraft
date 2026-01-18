@@ -1,34 +1,38 @@
 package com.yeetcraft.controllers
 
+import com.yeetcraft.dto.HealthResponse
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.response.*
-import kotlinx.serialization.Serializable
+import org.slf4j.LoggerFactory
 
 /**
  * Health check controller.
- * 
- * Architecture notes:
- * - Controllers handle HTTP request/response logic
- * - They delegate business logic to services
- * - This is a simple example with no service layer (health check is trivial)
  */
 object HealthController {
-    @Serializable
-    data class HealthResponse(
-        val status: String,
-        val timestamp: Long
-    )
+    private val logger = LoggerFactory.getLogger(HealthController::class.java)
     
     /**
      * GET /api/health
      * Simple health check endpoint to verify server is running.
      */
     suspend fun getHealth(call: ApplicationCall) {
-        call.respond(
-            HealthResponse(
-                status = "ok",
-                timestamp = System.currentTimeMillis()
+        runCatching {
+            call.respond(
+                HealthResponse(
+                    status = "ok",
+                    timestamp = System.currentTimeMillis()
+                )
             )
-        )
+        }.onFailure { exception ->
+            logger.error("Error in health check", exception)
+            call.respond(
+                status = HttpStatusCode.InternalServerError,
+                message = HealthResponse(
+                    status = "error",
+                    timestamp = System.currentTimeMillis()
+                )
+            )
+        }
     }
 }
