@@ -2,6 +2,7 @@ package com.yeetcraft.routes
 
 import com.yeetcraft.controllers.HealthController
 import com.yeetcraft.controllers.MistakeController
+import com.yeetcraft.middleware.validateApiKey
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -12,13 +13,18 @@ import io.ktor.server.routing.*
 fun Application.setupRoutes() {
     routing {
         route("/api") {
-            // Health check endpoint
+            // Health check endpoint (always public)
             get("/health") {
                 HealthController.getHealth(call)
             }
             
-            // Example endpoint with mock data (WoW theme)
+            // Protected endpoints
             route("/mistakes") {
+                // Uncomment to enable API key protection:
+                // intercept(ApplicationCallPipeline.Call) {
+                //     validateApiKey(call)
+                // }
+                
                 get {
                     MistakeController.getAllMistakes(call)
                 }

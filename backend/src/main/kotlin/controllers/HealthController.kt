@@ -26,7 +26,13 @@ object HealthController {
             )
         }.onFailure { exception ->
             logger.error("Error in health check", exception)
-            call.respond(status = HttpStatusCode.InternalServerError)
+            call.respond(
+                status = HttpStatusCode.InternalServerError,
+                message = HealthResponse(
+                    status = "error",
+                    timestamp = System.currentTimeMillis()
+                )
+            )
         }
     }
 }

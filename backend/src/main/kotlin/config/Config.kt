@@ -13,6 +13,9 @@ import org.slf4j.LoggerFactory
  * - DB_USER (Supabase database user)
  * - DB_PASSWORD (Supabase database password)
  * - DB_SSL_MODE (default: require)
+ * 
+ * For URL-based access control (share links with friends):
+ * - API_KEY (shared token, accessed via ?token=your-key in URL)
  */
 object Config {
     private val logger = LoggerFactory.getLogger(Config::class.java)
@@ -31,6 +34,11 @@ object Config {
     
     // Environment-based configuration
     val isDevelopment: Boolean = getEnv("ENVIRONMENT")?.lowercase() != "production"
+    
+    // Access control configuration (optional)
+    // Shared API key for URL-based token authentication
+    // Friends access via: yoursite.com?token=your-api-key
+    val apiKey: String? = getEnv("API_KEY")
     
     /**
      * Builds JDBC connection URL for Supabase Postgres.
