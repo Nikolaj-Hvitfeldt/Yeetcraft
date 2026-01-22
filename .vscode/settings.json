@@ -6,5 +6,6 @@
   "tailwindCSS.includeLanguages": {
     "typescript": "javascript",
     "typescriptreact": "javascript"
-  }
+  },
+  "java.configuration.updateBuildConfiguration": "automatic"
 }
