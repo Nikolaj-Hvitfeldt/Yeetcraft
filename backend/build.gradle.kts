@@ -13,6 +13,19 @@ repositories {
     mavenCentral()
 }
 
+sourceSets {
+    main {
+        kotlin {
+            srcDirs("src/main")
+        }
+    }
+    test {
+        kotlin {
+            srcDirs("src/test")
+        }
+    }
+}
+
 dependencies {
     // Ktor server
     implementation("io.ktor:ktor-server-core:2.3.5")

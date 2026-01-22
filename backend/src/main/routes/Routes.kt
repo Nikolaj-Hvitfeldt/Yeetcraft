@@ -2,29 +2,28 @@ package com.yeetcraft.routes
 
 import com.yeetcraft.controllers.HealthController
 import com.yeetcraft.controllers.MistakeController
-import com.yeetcraft.middleware.validateApiKey
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 /**
  * Central route configuration.
+ * 
+ * Architecture notes:
+ * - Routes are thin: they only define URL patterns and delegate to controllers
+ * - All business logic lives in controllers → services → repositories
+ * - API endpoints are prefixed with /api for clear separation
  */
 fun Application.setupRoutes() {
     routing {
         route("/api") {
-            // Health check endpoint (always public)
+            // Health check endpoint
             get("/health") {
                 HealthController.getHealth(call)
             }
             
-            // Protected endpoints
+            // Example endpoint with mock data (WoW theme)
             route("/mistakes") {
-                // Uncomment to enable API key protection:
-                // intercept(ApplicationCallPipeline.Call) {
-                //     validateApiKey(call)
-                // }
-                
                 get {
                     MistakeController.getAllMistakes(call)
                 }
