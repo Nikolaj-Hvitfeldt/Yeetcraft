@@ -26,7 +26,6 @@ data class MistakeListResponse(
  */
 @Serializable
 enum class MistakeType {
-    wipe,
     death,
     yeet
 }

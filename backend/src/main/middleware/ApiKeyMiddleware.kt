@@ -48,8 +48,8 @@ suspend fun ApplicationCall.validateApiKey(): Boolean {
     if (providedKey != expectedKey) {
         logger.warn("Invalid API key attempt")
         respond(
-            status = HttpStatusCode.Unauthorized,
-            message = ErrorResponse(
+            HttpStatusCode.Unauthorized,
+            ErrorResponse(
                 error = "Unauthorized",
                 message = "Invalid or missing access token. Please use the shared link."
             )

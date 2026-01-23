@@ -1,13 +1,13 @@
 /**
- * Global styles with Tailwind CSS.
+ * Yeetcraft - Warcraft-themed global styles
  * 
- * Architecture notes:
- * - Tailwind CSS for utility-first styling
- * - Global styles and custom CSS variables here
- * 
- * Note: @tailwind and @apply directives are Tailwind-specific and processed by PostCSS.
- * The CSS linter is configured to ignore these (see .vscode/settings.json).
+ * Color palette inspired by World of Warcraft UI:
+ * - Deep browns and blacks for backgrounds
+ * - Gold/bronze accents for highlights and borders
+ * - Class-inspired colors for mistake types
  */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -18,41 +18,246 @@
     @apply box-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-dark-bg text-gray-300;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-      sans-serif;
+    @apply bg-warcraft-bg text-warcraft-text;
+    font-family: 'Crimson Text', Georgia, serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     line-height: 1.6;
+    background-image: 
+      radial-gradient(ellipse at top center, rgba(38, 29, 20, 0.8) 0%, transparent 50%),
+      linear-gradient(180deg, #0d0a06 0%, #0a0705 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
   }
 
-  code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-      monospace;
+  /* Subtle texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 0;
   }
 
   #root {
-    @apply min-h-screen;
+    @apply min-h-screen relative;
+    z-index: 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cinzel', 'Times New Roman', serif;
+    @apply text-warcraft-gold font-semibold tracking-wide;
+  }
+
+  code {
+    font-family: 'Fira Code', 'Consolas', monospace;
+    @apply bg-warcraft-surface px-2 py-0.5 rounded text-warcraft-gold-light text-sm;
   }
 }
 
 @layer components {
-  /* Custom component styles that complement Tailwind */
+  /* Warcraft-style panel/card */
+  .wc-panel {
+    @apply bg-warcraft-surface border-2 border-warcraft-border rounded-lg;
+    @apply shadow-warcraft;
+    background-image: linear-gradient(180deg, rgba(52, 39, 24, 0.5) 0%, rgba(26, 18, 9, 0.8) 100%);
+  }
+
+  .wc-panel-gold {
+    @apply wc-panel border-warcraft-border-gold;
+    box-shadow: 
+      0 0 20px rgba(255, 193, 7, 0.1),
+      inset 0 1px 0 rgba(255, 193, 7, 0.1);
+  }
+
+  /* Gold divider line */
+  .wc-divider {
+    @apply h-px bg-gradient-to-r from-transparent via-warcraft-border-gold to-transparent;
+  }
+
+  /* Tab buttons */
+  .wc-tab {
+    @apply px-6 py-3 font-warcraft text-sm uppercase tracking-wider;
+    @apply text-warcraft-text-muted transition-all duration-200;
+    @apply border-b-2 border-transparent;
+    @apply hover:text-warcraft-gold hover:bg-warcraft-surface/50;
+  }
+
+  .wc-tab-active {
+    @apply text-warcraft-gold border-warcraft-gold;
+    @apply bg-warcraft-surface/70;
+    text-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+  }
+
+  /* Mistake badges - WoW item quality themed */
   .mistake-badge {
-    @apply px-3 py-1 rounded text-xs font-bold uppercase tracking-wide;
+    @apply px-3 py-1 rounded text-xs font-bold uppercase tracking-wider;
+    @apply border;
   }
-  
-  .mistake-badge-wipe {
-    @apply bg-mistake-wipe text-white;
-  }
-  
+
   .mistake-badge-death {
-    @apply bg-mistake-death text-white;
+    background-color: rgba(0, 112, 221, 0.2);
+    color: #0070dd;
+    border-color: rgba(0, 112, 221, 0.4);
   }
-  
+
   .mistake-badge-yeet {
-    @apply bg-mistake-yeet text-white;
+    background-color: rgba(163, 53, 238, 0.2);
+    color: #a335ee;
+    border-color: rgba(163, 53, 238, 0.4);
   }
+
+  /* Rank number styling */
+  .rank-number {
+    @apply w-10 h-10 flex items-center justify-center rounded-full;
+    @apply font-warcraft font-bold text-lg;
+    @apply border-2;
+  }
+
+  .rank-1 {
+    @apply bg-rank-first/20 border-rank-first text-rank-first;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+  }
+  .rank-2 {
+    @apply bg-rank-second/20 border-rank-second text-rank-second;
+  }
+  .rank-3 {
+    @apply bg-rank-third/20 border-rank-third text-rank-third;
+  }
+  .rank-default {
+    @apply bg-warcraft-surface border-warcraft-border text-warcraft-text-muted;
+  }
+
+  /* Stat counter */
+  .stat-counter {
+    @apply flex flex-col items-center justify-center px-3 py-1;
+    @apply min-w-[60px] rounded;
+    @apply bg-warcraft-bg/50 border border-warcraft-border/30;
+  }
+
+  .stat-counter-value {
+    @apply text-xl font-bold font-warcraft;
+  }
+
+  .stat-counter-label {
+    @apply text-xs uppercase tracking-wide text-warcraft-text-muted;
+  }
+
+  /* Gold button */
+  .wc-button {
+    @apply px-6 py-2 font-warcraft text-sm uppercase tracking-wider;
+    @apply bg-gradient-to-b from-warcraft-gold to-warcraft-gold-dark;
+    @apply text-warcraft-bg font-semibold;
+    @apply border border-warcraft-gold-light rounded;
+    @apply shadow-warcraft transition-all duration-200;
+    @apply hover:from-warcraft-gold-light hover:to-warcraft-gold;
+    @apply hover:shadow-warcraft-lg;
+    @apply active:scale-95;
+  }
+
+  /* Loading spinner */
+  .wc-spinner {
+    @apply w-8 h-8 border-2 border-warcraft-border rounded-full;
+    @apply border-t-warcraft-gold animate-spin;
+  }
+
+  /* Staggered animation delays for list items */
+  .stagger-1 { animation-delay: 0.05s; }
+  .stagger-2 { animation-delay: 0.1s; }
+  .stagger-3 { animation-delay: 0.15s; }
+  .stagger-4 { animation-delay: 0.2s; }
+  .stagger-5 { animation-delay: 0.25s; }
+  .stagger-6 { animation-delay: 0.3s; }
+  .stagger-7 { animation-delay: 0.35s; }
+  .stagger-8 { animation-delay: 0.4s; }
+  .stagger-9 { animation-delay: 0.45s; }
+  .stagger-10 { animation-delay: 0.5s; }
+
+  /* Table styles */
+  .wc-table {
+    @apply w-full;
+  }
+
+  .wc-table-container {
+    @apply overflow-x-auto;
+  }
+
+  .wc-table-element {
+    @apply w-full border-collapse;
+  }
+
+  .wc-table-header {
+    @apply px-6 py-3 text-left text-warcraft-text-dark text-xs uppercase tracking-wider;
+    @apply border-b border-warcraft-border bg-warcraft-bg/30;
+    @apply font-warcraft;
+  }
+
+  .wc-table-header-sortable {
+    @apply cursor-pointer select-none;
+    @apply hover:bg-warcraft-surface-hover transition-colors;
+  }
+
+  .wc-table-header-sorted {
+    @apply text-warcraft-gold;
+  }
+
+  .wc-table-sort-indicator {
+    @apply text-warcraft-gold text-sm;
+  }
+
+  .wc-table-row {
+    @apply border-b border-warcraft-border/50 last:border-b-0;
+    @apply transition-all duration-200;
+    @apply hover:bg-warcraft-surface-hover;
+  }
+
+  .wc-table-cell {
+    @apply px-6 py-4;
+  }
+
+  .wc-table-empty {
+    @apply text-center;
+  }
+
+  .wc-table-pagination {
+    @apply flex items-center justify-between px-6 py-4;
+    @apply border-t border-warcraft-border bg-warcraft-bg/30;
+  }
+}
+
+/* Custom scrollbar for Warcraft theme */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1209;
+  border-left: 1px solid #5c4a32;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #5c4a32 0%, #3d3121 100%);
+  border-radius: 5px;
+  border: 1px solid #8b7355;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #8b7355 0%, #5c4a32 100%);
+}
+
+/* Selection color */
+::selection {
+  background: rgba(255, 193, 7, 0.3);
+  color: #ffd54f;
 }

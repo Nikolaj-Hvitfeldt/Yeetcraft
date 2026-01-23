@@ -7,7 +7,7 @@ export interface HealthResponse {
  * Mistake type enum matching backend MistakeType.
  * JSON serialization uses lowercase string values.
  */
-export type MistakeType = 'wipe' | 'death' | 'yeet'
+export type MistakeType = 'death' | 'yeet'
 
 export interface MistakeDto {
   id: number
@@ -29,7 +29,3 @@ export interface ErrorResponse {
   error: string
   message?: string
 }
-
-// TODO: Add more types as backend endpoints are added:
-// export interface CreateMistakeRequest { ... }
-// export interface PlayerStats { ... }

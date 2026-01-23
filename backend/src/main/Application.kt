@@ -2,13 +2,19 @@ package com.yeetcraft
 
 import com.yeetcraft.config.Config
 import com.yeetcraft.config.databaseConfig
+import com.yeetcraft.dto.ErrorResponse
 import com.yeetcraft.routes.setupRoutes
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.response.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import org.slf4j.LoggerFactory
+import java.sql.SQLException
 
 /**
  * Main application entry point for Ktor server.
@@ -38,9 +44,101 @@ fun Application.module() {
         })
     }
     
-    // Initialize database connection
-    databaseConfig()
+    // Configure centralized error handling
+    install(StatusPages) {
+        exception<Throwable> { call, cause ->
+            call.handleException(cause)
+        }
+        
+        status(HttpStatusCode.NotFound) { call, status ->
+            call.respond(
+                status,
+                ErrorResponse(
+                    error = "Not Found",
+                    message = "The requested resource was not found."
+                )
+            )
+        }
+        
+        status(HttpStatusCode.InternalServerError) { call, status ->
+            call.respond(
+                status,
+                ErrorResponse(
+                    error = "Internal Server Error",
+                    message = "An unexpected error occurred."
+                )
+            )
+        }
+    }
+    
+    // Initialize database connection (commented out since we're using mock data)
+    // databaseConfig()
     
     // Set up all API routes
     setupRoutes()
+}
+
+/**
+ * Centralized exception handler for all unhandled exceptions.
+ * Returns appropriate HTTP status codes and error messages.
+ */
+private suspend fun ApplicationCall.handleException(cause: Throwable) {
+    val logger = LoggerFactory.getLogger("ErrorHandler")
+    
+    when (cause) {
+        is SQLException -> {
+            logger.error("Database error: ${cause.message}", cause)
+            respond(
+                HttpStatusCode.InternalServerError,
+                ErrorResponse(
+                    error = "Database Error",
+                    message = "A database error occurred. Please try again later."
+                )
+            )
+        }
+        
+        is IllegalArgumentException -> {
+            logger.warn("Validation error: ${cause.message}")
+            respond(
+                HttpStatusCode.BadRequest,
+                ErrorResponse(
+                    error = "Bad Request",
+                    message = cause.message ?: "Invalid request parameters."
+                )
+            )
+        }
+        
+        is IllegalStateException -> {
+            logger.warn("Invalid state: ${cause.message}")
+            respond(
+                HttpStatusCode.BadRequest,
+                ErrorResponse(
+                    error = "Bad Request",
+                    message = cause.message ?: "Invalid operation."
+                )
+            )
+        }
+        
+        is RuntimeException -> {
+            logger.error("Runtime error: ${cause.message}", cause)
+            respond(
+                HttpStatusCode.InternalServerError,
+                ErrorResponse(
+                    error = "Internal Server Error",
+                    message = cause.message ?: "An unexpected error occurred."
+                )
+            )
+        }
+        
+        else -> {
+            logger.error("Unhandled exception: ${cause.message}", cause)
+            respond(
+                HttpStatusCode.InternalServerError,
+                ErrorResponse(
+                    error = "Internal Server Error",
+                    message = "An unexpected error occurred."
+                )
+            )
+        }
+    }
 }
