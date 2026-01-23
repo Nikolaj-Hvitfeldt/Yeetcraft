@@ -117,24 +117,6 @@
     border-color: rgba(163, 53, 238, 0.4);
   }
 
-  /* Leaderboard row */
-  .leaderboard-row {
-    @apply flex items-center gap-4 px-6 py-4;
-    @apply border-b border-warcraft-border/50 last:border-b-0;
-    @apply transition-all duration-200;
-    @apply hover:bg-warcraft-surface-hover;
-  }
-
-  .leaderboard-row:nth-child(1) {
-    @apply bg-rank-first/5;
-  }
-  .leaderboard-row:nth-child(2) {
-    @apply bg-rank-second/5;
-  }
-  .leaderboard-row:nth-child(3) {
-    @apply bg-rank-third/5;
-  }
-
   /* Rank number styling */
   .rank-number {
     @apply w-10 h-10 flex items-center justify-center rounded-full;
@@ -200,6 +182,57 @@
   .stagger-8 { animation-delay: 0.4s; }
   .stagger-9 { animation-delay: 0.45s; }
   .stagger-10 { animation-delay: 0.5s; }
+
+  /* Table styles */
+  .wc-table {
+    @apply w-full;
+  }
+
+  .wc-table-container {
+    @apply overflow-x-auto;
+  }
+
+  .wc-table-element {
+    @apply w-full border-collapse;
+  }
+
+  .wc-table-header {
+    @apply px-6 py-3 text-left text-warcraft-text-dark text-xs uppercase tracking-wider;
+    @apply border-b border-warcraft-border bg-warcraft-bg/30;
+    @apply font-warcraft;
+  }
+
+  .wc-table-header-sortable {
+    @apply cursor-pointer select-none;
+    @apply hover:bg-warcraft-surface-hover transition-colors;
+  }
+
+  .wc-table-header-sorted {
+    @apply text-warcraft-gold;
+  }
+
+  .wc-table-sort-indicator {
+    @apply text-warcraft-gold text-sm;
+  }
+
+  .wc-table-row {
+    @apply border-b border-warcraft-border/50 last:border-b-0;
+    @apply transition-all duration-200;
+    @apply hover:bg-warcraft-surface-hover;
+  }
+
+  .wc-table-cell {
+    @apply px-6 py-4;
+  }
+
+  .wc-table-empty {
+    @apply text-center;
+  }
+
+  .wc-table-pagination {
+    @apply flex items-center justify-between px-6 py-4;
+    @apply border-t border-warcraft-border bg-warcraft-bg/30;
+  }
 }
 
 /* Custom scrollbar for Warcraft theme */

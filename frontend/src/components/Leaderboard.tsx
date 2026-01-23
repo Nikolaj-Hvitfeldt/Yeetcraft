@@ -1,6 +1,8 @@
+import { useMemo } from 'react'
+import { type ColumnDef } from '@tanstack/react-table'
 import { PlayerStats, FilterTab } from '../hooks'
 import { FilterTabs } from './FilterTabs'
-import { LeaderboardRow } from './LeaderboardRow'
+import { Table } from './Table'
 import { SkullIcon } from './SkullIcon'
 
 interface LeaderboardProps {
@@ -11,66 +13,117 @@ interface LeaderboardProps {
 
 /**
  * Main leaderboard panel with tabs and player rankings.
+ * Uses TanStack Table for sorting and future pagination.
  */
 export function Leaderboard({ leaderboard, activeTab, onTabChange }: LeaderboardProps) {
+  const columns = useMemo<ColumnDef<PlayerStats>[]>(() => {
+    const baseColumns: ColumnDef<PlayerStats>[] = [
+      {
+        id: 'rank',
+        header: '#',
+        size: 60,
+        enableSorting: false,
+        cell: ({ row, table }) => {
+          const sortedRows = table.getSortedRowModel().rows
+          const rank = sortedRows.findIndex((r) => r.id === row.id) + 1
+          const rankClass =
+            rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-default'
+          return (
+            <div className="flex justify-center">
+              <div className={`rank-number ${rankClass}`}>{rank}</div>
+            </div>
+          )
+        },
+      },
+      {
+        accessorKey: 'playerName',
+        header: 'Player',
+        enableSorting: true,
+        cell: ({ getValue }) => (
+          <span className="text-lg font-semibold text-warcraft-text truncate block">
+            {getValue() as string}
+          </span>
+        ),
+      },
+    ]
+
+    // Add count column based on active tab
+    if (activeTab === 'all') {
+      baseColumns.push({
+        accessorKey: 'total',
+        header: 'Total',
+        size: 100,
+        enableSorting: true,
+        cell: ({ getValue }) => (
+          <div className="text-center">
+            <span className="text-2xl font-warcraft font-bold text-warcraft-gold">
+              {getValue() as number}
+            </span>
+          </div>
+        ),
+      })
+      baseColumns.push({
+        id: 'breakdown',
+        header: 'Breakdown',
+        size: 150,
+        enableSorting: false,
+        cell: ({ row }) => (
+          <div className="hidden sm:flex justify-center gap-2">
+            {row.original.deaths > 0 && (
+              <span className="mistake-badge mistake-badge-death" title="Deaths">
+                {row.original.deaths}
+              </span>
+            )}
+            {row.original.yeets > 0 && (
+              <span className="mistake-badge mistake-badge-yeet" title="Yeets">
+                {row.original.yeets}
+              </span>
+            )}
+          </div>
+        ),
+      })
+    } else {
+      const columnLabel = activeTab.charAt(0).toUpperCase() + activeTab.slice(1) + 's'
+      baseColumns.push({
+        accessorKey: activeTab,
+        header: columnLabel,
+        size: 100,
+        enableSorting: true,
+        cell: ({ getValue }) => (
+          <div className="text-center">
+            <span className="text-2xl font-warcraft font-bold text-warcraft-gold">
+              {getValue() as number}
+            </span>
+          </div>
+        ),
+      })
+    }
+
+    return baseColumns
+  }, [activeTab])
+
   return (
     <main className="wc-panel-gold animate-slide-up" style={{ animationDelay: '0.2s' }}>
       {/* Tab Navigation */}
       <FilterTabs activeTab={activeTab} onTabChange={onTabChange} />
 
-      {/* Leaderboard Header */}
-      <LeaderboardHeader activeTab={activeTab} />
-
-      {/* Leaderboard Rows */}
-      <div className="divide-y divide-warcraft-border/30">
-        {leaderboard.length === 0 ? (
-          <EmptyState />
-        ) : (
-          leaderboard.map((player, index) => (
-            <LeaderboardRow
-              key={player.playerName}
-              player={player}
-              rank={index + 1}
-              activeTab={activeTab}
-              animationIndex={index + 1}
-            />
-          ))
-        )}
-      </div>
+      {/* Leaderboard Table */}
+      {leaderboard.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <div className="overflow-hidden">
+          <Table
+            data={leaderboard}
+            columns={columns}
+            enableSorting={true}
+            enablePagination={false}
+          />
+        </div>
+      )}
 
       {/* Footer */}
       <LeaderboardFooter playerCount={leaderboard.length} />
     </main>
-  )
-}
-
-interface LeaderboardHeaderProps {
-  activeTab: FilterTab
-}
-
-function LeaderboardHeader({ activeTab }: LeaderboardHeaderProps) {
-  const columnLabel =
-    activeTab === 'all'
-      ? 'Total'
-      : activeTab.charAt(0).toUpperCase() + activeTab.slice(1) + 's'
-
-  return (
-    <div className="flex items-center gap-4 px-6 py-3 border-b border-warcraft-border bg-warcraft-bg/30">
-      <span className="w-10 text-center text-warcraft-text-dark text-xs uppercase tracking-wider">
-        #
-      </span>
-      <span className="flex-1 text-warcraft-text-dark text-xs uppercase tracking-wider">
-        Player
-      </span>
-      <span className="w-20 text-center text-warcraft-text-dark text-xs uppercase tracking-wider">
-        {columnLabel}
-      </span>
-      {activeTab === 'all' && (
-        <span className="w-32 text-center text-warcraft-text-dark text-xs uppercase tracking-wider hidden sm:block">
-          Breakdown
-        </span>
-      )}
-    </div>
   )
 }
 

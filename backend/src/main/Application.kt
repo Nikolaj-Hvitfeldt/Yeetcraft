@@ -47,13 +47,13 @@ fun Application.module() {
     // Configure centralized error handling
     install(StatusPages) {
         exception<Throwable> { call, cause ->
-            handleException(call, cause)
+            call.handleException(cause)
         }
         
         status(HttpStatusCode.NotFound) { call, status ->
             call.respond(
-                status = status,
-                message = ErrorResponse(
+                status,
+                ErrorResponse(
                     error = "Not Found",
                     message = "The requested resource was not found."
                 )
@@ -62,8 +62,8 @@ fun Application.module() {
         
         status(HttpStatusCode.InternalServerError) { call, status ->
             call.respond(
-                status = status,
-                message = ErrorResponse(
+                status,
+                ErrorResponse(
                     error = "Internal Server Error",
                     message = "An unexpected error occurred."
                 )
@@ -71,8 +71,8 @@ fun Application.module() {
         }
     }
     
-    // Initialize database connection
-    databaseConfig()
+    // Initialize database connection (commented out since we're using mock data)
+    // databaseConfig()
     
     // Set up all API routes
     setupRoutes()
@@ -89,8 +89,8 @@ private suspend fun ApplicationCall.handleException(cause: Throwable) {
         is SQLException -> {
             logger.error("Database error: ${cause.message}", cause)
             respond(
-                status = HttpStatusCode.InternalServerError,
-                message = ErrorResponse(
+                HttpStatusCode.InternalServerError,
+                ErrorResponse(
                     error = "Database Error",
                     message = "A database error occurred. Please try again later."
                 )
@@ -100,8 +100,8 @@ private suspend fun ApplicationCall.handleException(cause: Throwable) {
         is IllegalArgumentException -> {
             logger.warn("Validation error: ${cause.message}")
             respond(
-                status = HttpStatusCode.BadRequest,
-                message = ErrorResponse(
+                HttpStatusCode.BadRequest,
+                ErrorResponse(
                     error = "Bad Request",
                     message = cause.message ?: "Invalid request parameters."
                 )
@@ -111,8 +111,8 @@ private suspend fun ApplicationCall.handleException(cause: Throwable) {
         is IllegalStateException -> {
             logger.warn("Invalid state: ${cause.message}")
             respond(
-                status = HttpStatusCode.BadRequest,
-                message = ErrorResponse(
+                HttpStatusCode.BadRequest,
+                ErrorResponse(
                     error = "Bad Request",
                     message = cause.message ?: "Invalid operation."
                 )
@@ -122,8 +122,8 @@ private suspend fun ApplicationCall.handleException(cause: Throwable) {
         is RuntimeException -> {
             logger.error("Runtime error: ${cause.message}", cause)
             respond(
-                status = HttpStatusCode.InternalServerError,
-                message = ErrorResponse(
+                HttpStatusCode.InternalServerError,
+                ErrorResponse(
                     error = "Internal Server Error",
                     message = cause.message ?: "An unexpected error occurred."
                 )
@@ -133,8 +133,8 @@ private suspend fun ApplicationCall.handleException(cause: Throwable) {
         else -> {
             logger.error("Unhandled exception: ${cause.message}", cause)
             respond(
-                status = HttpStatusCode.InternalServerError,
-                message = ErrorResponse(
+                HttpStatusCode.InternalServerError,
+                ErrorResponse(
                     error = "Internal Server Error",
                     message = "An unexpected error occurred."
                 )

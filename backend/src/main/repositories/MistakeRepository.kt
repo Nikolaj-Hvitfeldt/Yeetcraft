@@ -1,7 +1,8 @@
 package com.yeetcraft.repositories
 
 import com.yeetcraft.config.Database
-import com.yeetcraft.controllers.MistakeDto
+import com.yeetcraft.dto.MistakeDto
+import com.yeetcraft.dto.MistakeType
 import java.sql.ResultSet
 
 /**
@@ -45,7 +46,7 @@ object MistakeRepository {
                 id = 1,
                 playerName = "Roguetank",
                 dungeon = "Deadmines",
-                type = "yeet",
+                type = MistakeType.yeet,
                 description = "Got yeeted off the ship by a Defias Pirate",
                 timestamp = System.currentTimeMillis() - 3600000
             ),
@@ -53,7 +54,7 @@ object MistakeRepository {
                 id = 2,
                 playerName = "HealzgoBRRR",
                 dungeon = "Shadowfang Keep",
-                type = "death",
+                type = MistakeType.death,
                 description = "Aggro'd the entire courtyard and got one-shot",
                 timestamp = System.currentTimeMillis() - 7200000
             ),
@@ -61,7 +62,7 @@ object MistakeRepository {
                 id = 3,
                 playerName = "LeroyJenkins",
                 dungeon = "Blackrock Depths",
-                type = "wipe",
+                type = MistakeType.death,
                 description = "Pulled all of Domicile, party wiped spectacularly",
                 timestamp = System.currentTimeMillis() - 10800000
             )
@@ -77,7 +78,7 @@ object MistakeRepository {
             id = rs.getInt("id"),
             playerName = rs.getString("player_name"),
             dungeon = rs.getString("dungeon"),
-            type = rs.getString("type"),
+            type = MistakeType.valueOf(rs.getString("type")),
             description = rs.getString("description"),
             timestamp = rs.getLong("timestamp")
         )

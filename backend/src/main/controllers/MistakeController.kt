@@ -1,12 +1,13 @@
 package com.yeetcraft.controllers
 
+import com.yeetcraft.dto.MistakeDto
+import com.yeetcraft.dto.MistakeListResponse
 import com.yeetcraft.services.MistakeService
 import io.ktor.server.application.*
 import io.ktor.server.response.*
-import kotlinx.serialization.Serializable
 
 /**
- * Mistake controller for WoW dungeon mistakes (wipes, deaths, yeets).
+ * Mistake controller for WoW dungeon mistakes (deaths, yeets).
  * 
  * Architecture notes:
  * - Controller receives HTTP request, extracts parameters if needed
@@ -14,21 +15,6 @@ import kotlinx.serialization.Serializable
  * - Formats response as JSON DTO
  */
 object MistakeController {
-    @Serializable
-    data class MistakeDto(
-        val id: Int,
-        val playerName: String,
-        val dungeon: String,
-        val type: String, // "wipe", "death", "yeet"
-        val description: String,
-        val timestamp: Long
-    )
-    
-    @Serializable
-    data class MistakeListResponse(
-        val mistakes: List<MistakeDto>
-    )
-    
     /**
      * GET /api/mistakes
      * Returns all mistakes (currently returns mock data).

@@ -30,4 +30,7 @@ object Config {
      */
     val dbUrl: String
         get() = "jdbc:postgresql://$dbHost:$dbPort/$dbName?sslmode=$dbSslMode"
+    
+    // API Key configuration (optional, for URL-based token auth)
+    val apiKey: String? = System.getenv("API_KEY")
 }
