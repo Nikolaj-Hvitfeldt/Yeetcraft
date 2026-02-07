@@ -1,4 +1,4 @@
-import { HealthResponse, MistakeListResponse } from './types'
+import { HealthResponse, LeaderboardResponse, MistakeListResponse } from './types'
 import { getAccessToken } from '../utils/token'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
@@ -48,11 +48,28 @@ export async function fetchHealth(): Promise<HealthResponse> {
 
 /**
  * GET /api/mistakes
- * Fetch all mistakes.
- * TODO: Add query parameters for filtering (player, dungeon, type, date range)
+ * Optional query params: player, character, dungeon, type.
  */
-export async function fetchMistakes(): Promise<MistakeListResponse> {
-  return fetchApi<MistakeListResponse>('/api/mistakes')
+export async function fetchMistakes(params?: {
+  player?: string
+  character?: number
+  dungeon?: string
+  type?: 'death' | 'yeet'
+}): Promise<MistakeListResponse> {
+  const search = new URLSearchParams()
+  if (params?.player) search.set('player', params.player)
+  if (params?.character != null) search.set('character', String(params.character))
+  if (params?.dungeon) search.set('dungeon', params.dungeon)
+  if (params?.type) search.set('type', params.type)
+  const qs = search.toString()
+  return fetchApi<MistakeListResponse>(`/api/mistakes${qs ? `?${qs}` : ''}`)
+}
+
+/**
+ * GET /api/leaderboard?by=player|character
+ */
+export async function fetchLeaderboard(by: 'player' | 'character'): Promise<LeaderboardResponse> {
+  return fetchApi<LeaderboardResponse>(`/api/leaderboard?by=${by}`)
 }
 
 // TODO: Add more API functions as backend endpoints are added:

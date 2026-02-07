@@ -1,25 +1,46 @@
--- Example database schema for mistakes table.
--- This is optional - currently the app uses mock data.
--- To use real database, uncomment the SQL in MistakeRepository.kt and run this schema.
+-- Yeetcraft schema: players, characters, dungeons, mistakes.
+-- Apply once (e.g. run in Supabase SQL editor). No migration from previous schema.
 
--- TODO: Run this in your Supabase SQL editor to create the mistakes table
-
-CREATE TABLE IF NOT EXISTS mistakes (
+-- Players (one per human)
+CREATE TABLE IF NOT EXISTS players (
     id SERIAL PRIMARY KEY,
-    player_name VARCHAR(50) NOT NULL,
-    dungeon VARCHAR(100) NOT NULL,
-    type VARCHAR(20) NOT NULL CHECK (type IN ('wipe', 'death', 'yeet')),
-    description TEXT NOT NULL,
-    timestamp BIGINT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    name VARCHAR(50) NOT NULL UNIQUE,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_mistakes_player_name ON mistakes(player_name);
-CREATE INDEX IF NOT EXISTS idx_mistakes_dungeon ON mistakes(dungeon);
+-- Characters (alts per player)
+CREATE TABLE IF NOT EXISTS characters (
+    id SERIAL PRIMARY KEY,
+    player_id INT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+    name VARCHAR(50) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (player_id, name)
+);
+
+CREATE INDEX IF NOT EXISTS idx_characters_player_id ON characters(player_id);
+
+-- Dungeons
+CREATE TABLE IF NOT EXISTS dungeons (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    slug VARCHAR(100) NOT NULL UNIQUE,
+    expansion VARCHAR(50)
+);
+
+-- Mistakes (polymorphic by type: death, yeet; player derived via character)
+CREATE TABLE IF NOT EXISTS mistakes (
+    id SERIAL PRIMARY KEY,
+    character_id INT NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+    dungeon_id INT NOT NULL REFERENCES dungeons(id),
+    type VARCHAR(20) NOT NULL CHECK (type IN ('death', 'yeet')),
+    description TEXT,
+    timestamp BIGINT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_mistakes_character_id ON mistakes(character_id);
+CREATE INDEX IF NOT EXISTS idx_mistakes_dungeon_id ON mistakes(dungeon_id);
 CREATE INDEX IF NOT EXISTS idx_mistakes_type ON mistakes(type);
 CREATE INDEX IF NOT EXISTS idx_mistakes_timestamp ON mistakes(timestamp DESC);
-
--- TODO: Add more tables as needed:
--- - players (for player profiles)
--- - dungeons (for dungeon metadata)
--- - statistics (for aggregated stats)
+CREATE INDEX IF NOT EXISTS idx_mistakes_character_dungeon ON mistakes(character_id, dungeon_id);

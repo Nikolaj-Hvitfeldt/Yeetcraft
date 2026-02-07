@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { type CellContext, type ColumnDef, type Table as ReactTable } from '@tanstack/react-table'
-import { PlayerStats, FilterTab } from '../hooks'
+import { PlayerStats, FilterTab, type LeaderboardBy } from '../hooks'
 import { FilterTabs } from './FilterTabs'
 import { Table } from './Table'
 import { SkullIcon } from './SkullIcon'
@@ -26,10 +26,9 @@ function getRank(table: ReactTable<PlayerStats>, rowId: string): number {
 }
 
 /**
- * Main leaderboard panel with tabs and player rankings.
- * Uses TanStack Table for sorting and future pagination.
+ * Main leaderboard panel with tabs and player/character rankings.
  */
-export function Leaderboard({ leaderboard, activeTab, onTabChange }: LeaderboardProps) {
+export function Leaderboard({ leaderboard, leaderboardBy, onLeaderboardByChange, activeTab, onTabChange }: LeaderboardProps) {
   const columns = useMemo<ColumnDef<PlayerStats>[]>(() => {
     const baseColumns: ColumnDef<PlayerStats>[] = [
       {
@@ -52,17 +51,45 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
           )
         },
       },
-      {
-        accessorKey: 'playerName',
-        header: 'Player',
-        meta: { align: 'center' },
-        enableSorting: true,
-        cell: ({ getValue }) => {
-          const value = getValue()
-          if (typeof value !== 'string') return null
-          return <span className="text-lg font-semibold text-warcraft-text truncate block">{value}</span>
-        },
-      },
+      ...(leaderboardBy === 'character'
+        ? [
+            {
+              id: 'characterName',
+              accessorKey: 'characterName',
+              header: 'Character',
+              meta: { align: 'center' as const },
+              enableSorting: true,
+              cell: ({ getValue }: CellContext<PlayerStats, unknown>) => {
+                const value = getValue()
+                const name = value ?? (typeof value === 'string' ? value : '')
+                return <span className="text-lg font-semibold text-warcraft-text truncate block">{String(name || '—')}</span>
+              },
+            } as ColumnDef<PlayerStats>,
+            {
+              accessorKey: 'playerName',
+              header: 'Player',
+              meta: { align: 'center' as const },
+              enableSorting: true,
+              cell: ({ getValue }: CellContext<PlayerStats, unknown>) => {
+                const value = getValue()
+                if (typeof value !== 'string') return null
+                return <span className="text-warcraft-text truncate block">{value}</span>
+              },
+            } as ColumnDef<PlayerStats>,
+          ]
+        : [
+            {
+              accessorKey: 'playerName',
+              header: 'Player',
+              meta: { align: 'center' as const },
+              enableSorting: true,
+              cell: ({ getValue }: CellContext<PlayerStats, unknown>) => {
+                const value = getValue()
+                if (typeof value !== 'string') return null
+                return <span className="text-lg font-semibold text-warcraft-text truncate block">{value}</span>
+              },
+            } as ColumnDef<PlayerStats>,
+          ]),
     ]
 
     function countCell({ getValue, row, table }: CellContext<PlayerStats, unknown>) {
@@ -143,10 +170,27 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
     }
 
     return baseColumns
-  }, [activeTab])
+  }, [activeTab, leaderboardBy])
 
   return (
     <main className="wc-panel-gold animate-slide-up" style={{ animationDelay: '0.2s' }}>
+      {/* Leaderboard by: Player | Character */}
+      <div className="flex justify-center gap-2 px-4 pt-4 pb-2">
+        <button
+          type="button"
+          onClick={() => onLeaderboardByChange('player')}
+          className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${leaderboardBy === 'player' ? 'bg-warcraft-gold text-warcraft-bg' : 'text-warcraft-text-muted hover:text-warcraft-text'}`}
+        >
+          By player
+        </button>
+        <button
+          type="button"
+          onClick={() => onLeaderboardByChange('character')}
+          className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${leaderboardBy === 'character' ? 'bg-warcraft-gold text-warcraft-bg' : 'text-warcraft-text-muted hover:text-warcraft-text'}`}
+        >
+          By character
+        </button>
+      </div>
       {/* Tab Navigation */}
       <FilterTabs activeTab={activeTab} onTabChange={onTabChange} />
 
@@ -167,7 +211,7 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
       )}
 
       {/* Footer */}
-      <LeaderboardFooter playerCount={leaderboard.length} />
+      <LeaderboardFooter playerCount={leaderboard.length} leaderboardBy={leaderboardBy} />
     </main>
   )
 }
@@ -181,12 +225,14 @@ function EmptyState() {
   )
 }
 
-function LeaderboardFooter({ playerCount }: LeaderboardFooterProps) {
+function LeaderboardFooter({ playerCount, leaderboardBy }: LeaderboardFooterProps) {
+  const label = leaderboardBy === 'character'
+    ? (playerCount === 1 ? 'character' : 'characters')
+    : (playerCount === 1 ? 'player' : 'players')
   return (
     <div className="px-6 py-4 border-t border-warcraft-border bg-warcraft-bg/30">
       <p className="text-center text-warcraft-text-dark text-sm">
-        {/* TODO: Dungeon filter dropdown will go here */}
-        Showing all dungeons • {playerCount} {playerCount === 1 ? 'player' : 'players'} ranked
+        Showing all dungeons • {playerCount} {label} ranked
       </p>
     </div>
   )
@@ -194,10 +240,13 @@ function LeaderboardFooter({ playerCount }: LeaderboardFooterProps) {
 
 interface LeaderboardProps {
   leaderboard: PlayerStats[]
+  leaderboardBy: LeaderboardBy
+  onLeaderboardByChange: (by: LeaderboardBy) => void
   activeTab: FilterTab
   onTabChange: (tab: FilterTab) => void
 }
 
 interface LeaderboardFooterProps {
   playerCount: number
+  leaderboardBy: LeaderboardBy
 }

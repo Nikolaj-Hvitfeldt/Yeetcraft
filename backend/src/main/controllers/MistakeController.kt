@@ -1,30 +1,29 @@
 package com.yeetcraft.controllers
 
-import com.yeetcraft.dto.MistakeDto
 import com.yeetcraft.dto.MistakeListResponse
+import com.yeetcraft.dto.MistakeType
 import com.yeetcraft.services.MistakeService
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 
-/**
- * Mistake controller for WoW dungeon mistakes (deaths, yeets).
- * 
- * Architecture notes:
- * - Controller receives HTTP request, extracts parameters if needed
- * - Delegates to service layer for business logic
- * - Formats response as JSON DTO
- */
 object MistakeController {
     /**
      * GET /api/mistakes
-     * Returns all mistakes (currently returns mock data).
-     * TODO: Accept query parameters for filtering (player, dungeon, type, date range)
+     * Query params: player (name or id), character (id), dungeon (slug or id), type (death|yeet).
      */
     suspend fun getAllMistakes(call: ApplicationCall): Unit {
-        val mistakes: List<MistakeDto> = MistakeService.getAllMistakes()
+        val player: String? = call.request.queryParameters["player"]
+        val characterId: Int? = call.request.queryParameters["character"]?.toIntOrNull()
+        val dungeon: String? = call.request.queryParameters["dungeon"]
+        val typeParam: String? = call.request.queryParameters["type"]
+        val type: MistakeType? = typeParam?.let { runCatching { MistakeType.valueOf(it) }.getOrNull() }
+        val mistakes = MistakeService.getAllMistakes(
+            playerNameOrId = player,
+            characterId = characterId,
+            dungeonSlugOrId = dungeon,
+            type = type
+        )
         call.respond(MistakeListResponse(mistakes = mistakes))
     }
-    // TODO: Add more controller methods as needed:
-    // suspend fun getMistakeById(call: ApplicationCall) { ... }
-    // suspend fun createMistake(call: ApplicationCall) { ... }
 }

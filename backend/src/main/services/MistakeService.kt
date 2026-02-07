@@ -1,29 +1,35 @@
 package com.yeetcraft.services
 
 import com.yeetcraft.dto.MistakeDto
+import com.yeetcraft.dto.MistakeType
+import com.yeetcraft.repositories.DungeonRepository
+import com.yeetcraft.repositories.MistakeFilters
 import com.yeetcraft.repositories.MistakeRepository
+import com.yeetcraft.repositories.PlayerRepository
 
-/**
- * Mistake service layer.
- * 
- * Architecture notes:
- * - Services contain business logic and orchestrate multiple repositories if needed
- * - They transform domain models to DTOs for API responses
- * - Currently returns mock data, but structure is ready for database integration
- */
 object MistakeService {
-    /**
-     * Get all mistakes.
-     * TODO: Add filtering, pagination, sorting
-     */
-    fun getAllMistakes(): List<MistakeDto> {
-        // Currently returns mock data
-        // TODO: Replace with MistakeRepository.getAll() once database is set up
-        return MistakeRepository.getAllMistakes()
+    fun getAllMistakes(
+        playerNameOrId: String? = null,
+        characterId: Int? = null,
+        dungeonSlugOrId: String? = null,
+        type: MistakeType? = null
+    ): List<MistakeDto> {
+        var playerId: Int? = null
+        if (playerNameOrId != null) {
+            playerId = playerNameOrId.toIntOrNull()
+                ?: PlayerRepository.findByName(playerNameOrId)?.id
+        }
+        var dungeonId: Int? = null
+        if (dungeonSlugOrId != null) {
+            dungeonId = dungeonSlugOrId.toIntOrNull()
+                ?: DungeonRepository.findBySlug(dungeonSlugOrId)?.id
+        }
+        val filters: MistakeFilters = MistakeFilters(
+            playerId = playerId,
+            characterId = characterId,
+            dungeonId = dungeonId,
+            type = type
+        )
+        return MistakeRepository.getAllMistakes(filters)
     }
-    
-    // TODO: Add more service methods:
-    // fun getMistakeById(id: Int): MistakeDto? { ... }
-    // fun createMistake(mistake: CreateMistakeRequest): MistakeDto { ... }
-    // fun getStatsByPlayer(playerName: String): PlayerStats { ... }
 }

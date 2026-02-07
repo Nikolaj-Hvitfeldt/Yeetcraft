@@ -1,5 +1,7 @@
-export { useMistakes, aggregateByPlayer, calculateTotalStats } from './useMistakes'
+export { useMistakes, aggregateByPlayer, aggregateByCharacter, calculateTotalStats } from './useMistakes'
 export type { PlayerStats, FilterTab } from './useMistakes'
+export { useLeaderboard } from './useLeaderboard'
+export type { LeaderboardBy } from './useLeaderboard'
 export { useHealth } from './useHealth'
 export { useTheme, ThemeProvider } from './useTheme'
 export type { Theme } from './useTheme'

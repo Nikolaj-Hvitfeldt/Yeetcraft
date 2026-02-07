@@ -5,126 +5,72 @@ import com.yeetcraft.dto.MistakeDto
 import com.yeetcraft.dto.MistakeType
 import java.sql.ResultSet
 
-/**
- * Mistake repository layer.
- * 
- * Architecture notes:
- * - Repositories handle all database access using plain SQL
- * - They return domain models or DTOs
- * - For lightweight ORM usage, consider Exposed (commented below as alternative)
- * - Plain SQL chosen for minimal dependencies and full control
- */
+data class MistakeFilters(
+    val playerId: Int? = null,
+    val characterId: Int? = null,
+    val dungeonId: Int? = null,
+    val type: MistakeType? = null
+)
+
 object MistakeRepository {
-    private const val MILLISECONDS_PER_SECOND: Long = 1_000
-    private const val SECONDS_PER_MINUTE: Long = 60
-    private const val MINUTES_PER_HOUR: Long = 60
+    private const val BASE_QUERY: String = """
+        SELECT m.id, m.type, m.description, m.timestamp,
+               c.name AS character_name, p.name AS player_name, d.name AS dungeon_name
+        FROM mistakes m
+        JOIN characters c ON c.id = m.character_id
+        JOIN players p ON p.id = c.player_id
+        JOIN dungeons d ON d.id = m.dungeon_id
+    """
 
-    private const val ONE_HOUR_MILLISECONDS: Long = MINUTES_PER_HOUR * SECONDS_PER_MINUTE * MILLISECONDS_PER_SECOND
-    private const val TWO_HOURS_MILLISECONDS: Long = 2 * ONE_HOUR_MILLISECONDS
-    private const val THREE_HOURS_MILLISECONDS: Long = 3 * ONE_HOUR_MILLISECONDS
-
-    /**
-     * Get all mistakes from database.
-     * Currently returns mock data for demonstration.
-     * 
-     * TODO: Replace with actual database query:
-     * 
-     * Database.getConnection().use { connection ->
-     *     val query = """
-     *         SELECT id, player_name, dungeon, type, description, timestamp
-     *         FROM mistakes
-     *         ORDER BY timestamp DESC
-     *     """.trimIndent()
-     *     
-     *     connection.prepareStatement(query).use { stmt ->
-     *         stmt.executeQuery().use { rs ->
-     *             buildList {
-     *                 while (rs.next()) {
-     *                     add(mapRowToMistakeDto(rs))
-     *                 }
-     *             }
-     *         }
-     *     }
-     * }
-     */
-    fun getAllMistakes(): List<MistakeDto> {
-        // Mock data for demonstration
-        val currentTimestampMilliseconds: Long = System.currentTimeMillis()
-        return listOf(
-            MistakeDto(
-                id = 1,
-                playerName = "Roguetank",
-                dungeon = "Deadmines",
-                type = MistakeType.yeet,
-                description = "Got yeeted off the ship by a Defias Pirate",
-                timestamp = currentTimestampMilliseconds - ONE_HOUR_MILLISECONDS
-            ),
-            MistakeDto(
-                id = 2,
-                playerName = "HealzgoBRRR",
-                dungeon = "Shadowfang Keep",
-                type = MistakeType.death,
-                description = "Aggro'd the entire courtyard and got one-shot",
-                timestamp = currentTimestampMilliseconds - TWO_HOURS_MILLISECONDS
-            ),
-            MistakeDto(
-                id = 3,
-                playerName = "LeroyJenkins",
-                dungeon = "Blackrock Depths",
-                type = MistakeType.death,
-                description = "Pulled all of Domicile, party wiped spectacularly",
-                timestamp = currentTimestampMilliseconds - THREE_HOURS_MILLISECONDS
-            )
-        )
+    fun getAllMistakes(filters: MistakeFilters = MistakeFilters()): List<MistakeDto> {
+        val whereClauses: MutableList<String> = mutableListOf()
+        val params: MutableList<Any> = mutableListOf()
+        if (filters.playerId != null) {
+            whereClauses.add("p.id = ?")
+            params.add(filters.playerId)
+        }
+        if (filters.characterId != null) {
+            whereClauses.add("m.character_id = ?")
+            params.add(filters.characterId)
+        }
+        if (filters.dungeonId != null) {
+            whereClauses.add("m.dungeon_id = ?")
+            params.add(filters.dungeonId)
+        }
+        if (filters.type != null) {
+            whereClauses.add("m.type = ?")
+            params.add(filters.type.name)
+        }
+        val whereSql: String = if (whereClauses.isEmpty()) "" else " WHERE " + whereClauses.joinToString(" AND ")
+        val query: String = BASE_QUERY + whereSql + " ORDER BY m.timestamp DESC"
+        return Database.getConnection().use { connection ->
+            connection.prepareStatement(query).use { stmt ->
+                params.forEachIndexed { index, value ->
+                    when (value) {
+                        is Int -> stmt.setInt(index + 1, value)
+                        is String -> stmt.setString(index + 1, value)
+                    }
+                }
+                stmt.executeQuery().use { rs ->
+                    buildList {
+                        while (rs.next()) {
+                            add(mapRowToMistakeDto(rs))
+                        }
+                    }
+                }
+            }
+        }
     }
-    
-    /**
-     * Helper function to map database row to DTO.
-     * TODO: Implement when database queries are added
-     */
-    private fun mapRowToMistakeDto(resultSet: ResultSet): MistakeDto {
+
+    private fun mapRowToMistakeDto(rs: ResultSet): MistakeDto {
         return MistakeDto(
-            id = resultSet.getInt("id"),
-            playerName = resultSet.getString("player_name"),
-            dungeon = resultSet.getString("dungeon"),
-            type = MistakeType.valueOf(resultSet.getString("type")),
-            description = resultSet.getString("description"),
-            timestamp = resultSet.getLong("timestamp")
+            id = rs.getInt("id"),
+            playerName = rs.getString("player_name"),
+            characterName = rs.getString("character_name"),
+            dungeon = rs.getString("dungeon_name"),
+            type = MistakeType.valueOf(rs.getString("type")),
+            description = rs.getString("description") ?: "",
+            timestamp = rs.getLong("timestamp")
         )
     }
-    
-    // TODO: Add more repository methods:
-    // fun getMistakeById(id: Int): MistakeDto? { ... }
-    // fun createMistake(mistake: CreateMistakeRequest): MistakeDto { ... }
-    // fun getMistakesByPlayer(playerName: String): List<MistakeDto> { ... }
-    // fun getMistakesByDungeon(dungeon: String): List<MistakeDto> { ... }
 }
-
-/* 
- * Alternative approach using Exposed (lightweight ORM):
- * 
- * object Mistakes : IntIdTable() {
- *     val playerName = varchar("player_name", 50)
- *     val dungeon = varchar("dungeon", 100)
- *     val type = varchar("type", 20)
- *     val description = text("description")
- *     val timestamp = long("timestamp")
- * }
- * 
- * data class Mistake(id: Int, playerName: String, dungeon: String, type: String, description: String, timestamp: Long)
- * 
- * fun getAllMistakes(): List<MistakeDto> {
- *     return transaction {
- *         Mistakes.selectAll().orderBy(Mistakes.timestamp, SortOrder.DESC).map { row ->
- *             MistakeDto(
- *                 id = row[Mistakes.id].value,
- *                 playerName = row[Mistakes.playerName],
- *                 dungeon = row[Mistakes.dungeon],
- *                 type = row[Mistakes.type],
- *                 description = row[Mistakes.description],
- *                 timestamp = row[Mistakes.timestamp]
- *             )
- *         }
- *     }
- * }
- */

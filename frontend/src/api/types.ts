@@ -12,10 +12,23 @@ export type MistakeType = 'death' | 'yeet'
 export interface MistakeDto {
   id: number
   playerName: string
+  characterName: string
   dungeon: string
   type: MistakeType
   description: string
   timestamp: number
+}
+
+export interface LeaderboardRow {
+  playerName: string
+  characterName?: string | null
+  deaths: number
+  yeets: number
+  total: number
+}
+
+export interface LeaderboardResponse {
+  rows: LeaderboardRow[]
 }
 
 export interface MistakeListResponse {

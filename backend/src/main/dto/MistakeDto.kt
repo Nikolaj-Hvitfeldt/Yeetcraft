@@ -9,6 +9,7 @@ import kotlinx.serialization.Serializable
 data class MistakeDto(
     val id: Int,
     val playerName: String,
+    val characterName: String,
     val dungeon: String,
     val type: MistakeType,
     val description: String,
