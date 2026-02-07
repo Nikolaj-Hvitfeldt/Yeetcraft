@@ -13,12 +13,18 @@ export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme()
 
   return (
-    <div className="inline-flex items-center gap-1 rounded-full border p-0.5"
+    <div
+      role="radiogroup"
+      aria-label="Theme"
+      className="inline-flex items-center gap-1 rounded-full border p-0.5"
       style={{ borderColor: 'var(--theme-border)' }}
     >
       {THEMES.map((t) => (
         <button
           key={t.key}
+          type="button"
+          role="radio"
+          aria-checked={theme === t.key}
           onClick={() => setTheme(t.key)}
           className={`px-3 py-1 text-xs font-warcraft uppercase tracking-wider rounded-full transition-all duration-200 ${
             theme === t.key

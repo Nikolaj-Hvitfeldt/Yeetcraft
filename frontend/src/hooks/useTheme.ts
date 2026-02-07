@@ -1,11 +1,6 @@
-import { createContext, useContext, useState, useEffect, useCallback, createElement, type FC, type ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, createElement, type ReactNode } from 'react'
 
 export type Theme = 'warcraft' | 'midnight'
-
-interface ThemeContextValue {
-  theme: Theme
-  setTheme: (theme: Theme) => void
-}
 
 const STORAGE_KEY = 'yeetcraft-theme'
 const DEFAULT_THEME: Theme = 'warcraft'
@@ -23,7 +18,7 @@ function applyTheme(theme: Theme) {
   document.documentElement.setAttribute('data-theme', theme)
 }
 
-export const ThemeProvider: FC<{ children: ReactNode }> = ({ children }) => {
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(getInitialTheme)
 
   useEffect(() => {
@@ -43,4 +38,9 @@ export function useTheme(): ThemeContextValue {
   const ctx = useContext(ThemeContext)
   if (!ctx) throw new Error('useTheme must be used within a ThemeContext.Provider')
   return ctx
+}
+
+interface ThemeContextValue {
+  theme: Theme
+  setTheme: (theme: Theme) => void
 }

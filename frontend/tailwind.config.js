@@ -34,6 +34,16 @@ export default {
           death: '#0070dd',     // Rare blue
         },
 
+        // WoW item-quality (constant across themes)
+        rarity: {
+          legendary: '#ff8000', // Legendary orange
+          epic: '#a335ee', // Epic purple
+          rare: '#0070dd', // Rare blue
+          uncommon: '#1eff00', // Uncommon green (matches screenshot)
+          common: '#ffffff', // Common white
+          poor: '#9d9d9d', // Poor gray
+        },
+
         // Rank colors (constant across themes)
         rank: {
           first: '#ffd700',

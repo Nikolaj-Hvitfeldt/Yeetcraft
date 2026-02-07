@@ -1,14 +1,28 @@
 import { useMemo } from 'react'
-import { type CellContext, type ColumnDef } from '@tanstack/react-table'
+import { type CellContext, type ColumnDef, type Table as ReactTable } from '@tanstack/react-table'
 import { PlayerStats, FilterTab } from '../hooks'
 import { FilterTabs } from './FilterTabs'
 import { Table } from './Table'
 import { SkullIcon } from './SkullIcon'
 
-interface LeaderboardProps {
-  leaderboard: PlayerStats[]
-  activeTab: FilterTab
-  onTabChange: (tab: FilterTab) => void
+const RANK_CLASS_BY_PLACE: Record<number, string> = {
+  1: 'rank-1',
+  2: 'rank-2',
+  3: 'rank-3',
+}
+
+function getRankColorClass(rank: number): string {
+  if (rank === 1) return 'text-rarity-legendary' // Legendary orange (fixed across themes)
+  if (rank === 2) return 'text-rarity-epic' // Epic purple
+  if (rank === 3) return 'text-rarity-rare' // Rare blue
+  if (rank === 4) return 'text-rarity-uncommon' // Uncommon green (fixed across themes)
+  if (rank === 5) return 'text-rarity-common' // Common white
+  return 'text-rarity-poor' // Poor gray
+}
+
+function getRank(table: ReactTable<PlayerStats>, rowId: string): number {
+  const sortedRows = table.getSortedRowModel().rows
+  return sortedRows.findIndex((r) => r.id === rowId) + 1
 }
 
 /**
@@ -21,14 +35,15 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
       {
         id: 'rank',
         header: '#',
-        size: 60,
-        meta: { align: 'center', headerClassName: 'px-2', cellClassName: 'px-2' },
+        meta: {
+          align: 'center',
+          headerClassName: 'w-10 sm:w-[60px] px-2',
+          cellClassName: 'w-10 sm:w-[60px] px-2',
+        },
         enableSorting: false,
         cell: ({ row, table }) => {
-          const sortedRows = table.getSortedRowModel().rows
-          const rank = sortedRows.findIndex((r) => r.id === row.id) + 1
-          const rankClass =
-            rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-default'
+          const rank = getRank(table, row.id)
+          const rankClass = RANK_CLASS_BY_PLACE[rank] ?? 'rank-default'
 
           return (
             <div className="flex justify-center">
@@ -42,32 +57,25 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
         header: 'Player',
         meta: { align: 'center' },
         enableSorting: true,
-        cell: ({ getValue }) => (
-          <span className="text-lg font-semibold text-warcraft-text truncate block">
-            {getValue() as string}
-          </span>
-        ),
+        cell: ({ getValue }) => {
+          const value = getValue()
+          if (typeof value !== 'string') return null
+          return <span className="text-lg font-semibold text-warcraft-text truncate block">{value}</span>
+        },
       },
     ]
 
     function countCell({ getValue, row, table }: CellContext<PlayerStats, unknown>) {
-      const sortedRows = table.getSortedRowModel().rows
-      const rank = sortedRows.findIndex((r) => r.id === row.id) + 1
+      const rank = getRank(table, row.id)
 
-      const rankColorClass =
-        rank === 1
-          ? 'text-warcraft-gold' // Legendary (orange)
-          : rank === 2
-            ? 'text-mistake-yeet' // Epic (purple)
-            : rank === 3
-              ? 'text-mistake-death' // Rare (blue)
-              : 'text-warcraft-text-muted' // Everyone else
+      const value = getValue()
+      if (typeof value !== 'number') return null
+
+      const rankColorClass = getRankColorClass(rank)
 
       return (
         <div className="text-center">
-          <span className={`text-2xl font-warcraft font-bold ${rankColorClass}`}>
-            {getValue() as number}
-          </span>
+          <span className={`text-2xl font-warcraft font-bold ${rankColorClass}`}>{value}</span>
         </div>
       )
     }
@@ -146,7 +154,7 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
       {leaderboard.length === 0 ? (
         <EmptyState />
       ) : (
-        <div className="overflow-hidden" style={{ minHeight: 0 }}>
+        <div className="overflow-x-auto" style={{ minHeight: 0 }}>
           <Table
             data={leaderboard}
             columns={columns}
@@ -173,10 +181,6 @@ function EmptyState() {
   )
 }
 
-interface LeaderboardFooterProps {
-  playerCount: number
-}
-
 function LeaderboardFooter({ playerCount }: LeaderboardFooterProps) {
   return (
     <div className="px-6 py-4 border-t border-warcraft-border bg-warcraft-bg/30">
@@ -186,4 +190,14 @@ function LeaderboardFooter({ playerCount }: LeaderboardFooterProps) {
       </p>
     </div>
   )
+}
+
+interface LeaderboardProps {
+  leaderboard: PlayerStats[]
+  activeTab: FilterTab
+  onTabChange: (tab: FilterTab) => void
+}
+
+interface LeaderboardFooterProps {
+  playerCount: number
 }

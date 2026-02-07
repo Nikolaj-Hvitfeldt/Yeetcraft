@@ -1,11 +1,6 @@
 import type { CSSProperties } from 'react'
 import { FilterTab } from '../hooks'
 
-interface FilterTabsProps {
-  activeTab: FilterTab
-  onTabChange: (tab: FilterTab) => void
-}
-
 const TABS: { key: FilterTab; label: string }[] = [
   { key: 'all', label: 'All' },
   { key: 'death', label: 'Deaths' },
@@ -22,20 +17,20 @@ function getTabColor(tab: FilterTab) {
  * Filter tabs for switching between death types.
  */
 export function FilterTabs({ activeTab, onTabChange }: FilterTabsProps) {
-  // Keep tabs evenly sized while still aligning with the table columns:
-  // [#] [ALL] [DEATHS] [YEETS]
-  const gridTemplateColumns = '60px 1fr 1fr 1fr'
-
   return (
     <nav
-      className="grid border-b border-warcraft-border"
-      style={{ gridTemplateColumns }}
+      role="tablist"
+      aria-label="Leaderboard tabs"
+      className="grid border-b border-warcraft-border grid-cols-[40px_1fr_1fr_1fr] sm:grid-cols-[60px_1fr_1fr_1fr]"
     >
       {/* Spacer aligns with the table's # column */}
-      <div className="border-b-2 border-transparent" />
+      <div aria-hidden="true" className="border-b-2 border-transparent" />
       {TABS.map((tab) => (
         <button
           key={tab.key}
+          type="button"
+          role="tab"
+          aria-selected={activeTab === tab.key}
           onClick={() => onTabChange(tab.key)}
           style={
             {
@@ -52,4 +47,9 @@ export function FilterTabs({ activeTab, onTabChange }: FilterTabsProps) {
       ))}
     </nav>
   )
+}
+
+interface FilterTabsProps {
+  activeTab: FilterTab
+  onTabChange: (tab: FilterTab) => void
 }

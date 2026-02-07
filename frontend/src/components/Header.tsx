@@ -1,15 +1,9 @@
-import { HealthResponse } from '../api/types'
 import { ThemeSwitcher } from './ThemeSwitcher'
-
-interface HeaderProps {
-  health: HealthResponse | undefined
-}
 
 /**
  * Page header with title, subtitle, and theme switcher.
  */
-export function Header({ health: _health }: HeaderProps) {
-  void _health
+export function Header() {
   return (
     <header className="text-center mb-8 animate-fade-in">
       <div className="flex justify-end mb-4">

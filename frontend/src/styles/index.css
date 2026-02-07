@@ -210,7 +210,7 @@
 
   /* ── Tabs ────────────────────────────────────────────────── */
   .wc-tab {
-    @apply px-6 py-3 font-warcraft text-sm uppercase tracking-wider;
+    @apply px-3 sm:px-6 py-3 font-warcraft text-xs sm:text-sm uppercase tracking-wider;
     @apply transition-all duration-200;
     @apply border-b-2 border-transparent;
     color: var(--theme-text-muted);
@@ -336,7 +336,7 @@
   }
 
   .wc-table-header {
-    @apply px-6 py-3 text-left text-xs uppercase tracking-wider;
+    @apply px-3 sm:px-6 py-3 text-left text-xs uppercase tracking-wider;
     @apply font-warcraft;
     color: var(--theme-text-dark);
     border-bottom: 1px solid var(--theme-border);
@@ -371,7 +371,7 @@
   }
 
   .wc-table-cell {
-    @apply px-6 py-4;
+    @apply px-3 sm:px-6 py-4;
   }
 
   .wc-table-empty {
@@ -382,6 +382,33 @@
     @apply flex items-center justify-between px-6 py-4;
     border-top: 1px solid var(--theme-border);
     background-color: color-mix(in srgb, var(--theme-bg) 30%, transparent);
+  }
+}
+
+@layer utilities {
+  /* Fixed WoW item-quality colors (theme independent) */
+  .text-rarity-legendary {
+    color: #ff8000;
+  }
+
+  .text-rarity-epic {
+    color: #a335ee;
+  }
+
+  .text-rarity-rare {
+    color: #0070dd;
+  }
+
+  .text-rarity-uncommon {
+    color: #1eff00;
+  }
+
+  .text-rarity-common {
+    color: #ffffff;
+  }
+
+  .text-rarity-poor {
+    color: #9d9d9d;
   }
 }
 

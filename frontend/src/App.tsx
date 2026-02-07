@@ -1,6 +1,6 @@
 import { useMemo, useCallback } from 'react'
 import { Routes, Route, useSearchParams } from 'react-router-dom'
-import { useMistakes, useHealth, aggregateByPlayer, calculateTotalStats, type FilterTab, ThemeProvider } from './hooks'
+import { useMistakes, aggregateByPlayer, calculateTotalStats, type FilterTab, ThemeProvider } from './hooks'
 import {
   LoadingSpinner,
   ErrorMessage,
@@ -14,10 +14,9 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import { PlayerProfile } from './components/PlayerProfile'
 import { getAccessToken } from './utils/token'
 
-const VALID_TABS: FilterTab[] = ['all', 'death', 'yeet']
-
 function isValidTab(value: string | null): value is FilterTab {
-  return value !== null && VALID_TABS.includes(value as FilterTab)
+  if (!value) return false
+  return value === 'all' || value === 'death' || value === 'yeet'
 }
 
 /**
@@ -32,13 +31,12 @@ function LeaderboardPage() {
   const handleTabChange = useCallback((tab: FilterTab) => {
     if (tab === 'all') {
       setSearchParams({}, { replace: true })
-    } else {
-      setSearchParams({ tab }, { replace: true })
+      return
     }
+    setSearchParams({ tab }, { replace: true })
   }, [setSearchParams])
 
   // Fetch data with TanStack Query
-  const { data: health } = useHealth()
   const { data: mistakes = [], isLoading, error } = useMistakes()
 
   // Compute derived state
@@ -59,7 +57,7 @@ function LeaderboardPage() {
   return (
     <div className="min-h-screen py-8 px-4">
       <div className="max-w-4xl mx-auto">
-        <Header health={health} />
+        <Header />
         <StatsSummary {...totalStats} />
         <Leaderboard
           leaderboard={leaderboard}
@@ -75,7 +73,7 @@ function LeaderboardPage() {
 /**
  * Main application component with routing, error boundary, and theme.
  */
-function App() {
+export function App() {
   return (
     <ThemeProvider>
       <ErrorBoundary>
@@ -87,5 +85,3 @@ function App() {
     </ThemeProvider>
   )
 }
-
-export default App
