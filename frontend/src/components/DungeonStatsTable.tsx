@@ -1,19 +1,6 @@
 import { useMemo } from 'react'
 import { type ColumnDef } from '@tanstack/react-table'
 import { Table } from './Table'
-import { MistakeDto } from '../api/types'
-
-interface DungeonMistakeStats {
-  playerName: string
-  total: number
-  deaths: number
-  yeets: number
-}
-
-interface DungeonStatsTableProps {
-  stats: DungeonMistakeStats[]
-  enablePagination?: boolean
-}
 
 /**
  * Table component for displaying player stats within a specific dungeon.
@@ -34,47 +21,53 @@ export function DungeonStatsTable({ stats, enablePagination = false }: DungeonSt
         accessorKey: 'playerName',
         header: 'Player',
         enableSorting: true,
-        cell: ({ getValue }) => (
-          <span className="text-lg font-semibold text-warcraft-text">
-            {getValue() as string}
-          </span>
-        ),
+        cell: ({ getValue }) => {
+          const value = getValue()
+          if (typeof value !== 'string') return null
+          return <span className="text-lg font-semibold text-warcraft-text">{value}</span>
+        },
       },
       {
         accessorKey: 'total',
         header: 'Total',
         enableSorting: true,
-        cell: ({ getValue }) => (
-          <div className="text-center">
-            <span className="text-2xl font-warcraft font-bold text-warcraft-gold">
-              {getValue() as number}
-            </span>
-          </div>
-        ),
+        cell: ({ getValue }) => {
+          const value = getValue()
+          if (typeof value !== 'number') return null
+          return (
+            <div className="text-center">
+              <span className="text-2xl font-warcraft font-bold text-warcraft-gold">{value}</span>
+            </div>
+          )
+        },
       },
       {
         accessorKey: 'deaths',
         header: 'Deaths',
         enableSorting: true,
-        cell: ({ getValue }) => (
-          <div className="text-center">
-            <span className="mistake-badge mistake-badge-death">
-              {getValue() as number}
-            </span>
-          </div>
-        ),
+        cell: ({ getValue }) => {
+          const value = getValue()
+          if (typeof value !== 'number') return null
+          return (
+            <div className="text-center">
+              <span className="mistake-badge mistake-badge-death">{value}</span>
+            </div>
+          )
+        },
       },
       {
         accessorKey: 'yeets',
         header: 'Yeets',
         enableSorting: true,
-        cell: ({ getValue }) => (
-          <div className="text-center">
-            <span className="mistake-badge mistake-badge-yeet">
-              {getValue() as number}
-            </span>
-          </div>
-        ),
+        cell: ({ getValue }) => {
+          const value = getValue()
+          if (typeof value !== 'number') return null
+          return (
+            <div className="text-center">
+              <span className="mistake-badge mistake-badge-yeet">{value}</span>
+            </div>
+          )
+        },
       },
     ],
     []
@@ -86,7 +79,20 @@ export function DungeonStatsTable({ stats, enablePagination = false }: DungeonSt
       columns={columns}
       enableSorting={true}
       enablePagination={enablePagination}
+      showSortIndicator={false}
       pageSize={10}
     />
   )
+}
+
+interface DungeonMistakeStats {
+  playerName: string
+  total: number
+  deaths: number
+  yeets: number
+}
+
+interface DungeonStatsTableProps {
+  stats: DungeonMistakeStats[]
+  enablePagination?: boolean
 }

@@ -7,56 +7,58 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Warcraft-themed color palette
+        // Theme-aware colors via CSS custom properties.
+        // These respond to data-theme on <html>.
         warcraft: {
-          // Backgrounds - deep dark browns/blacks
-          bg: '#0d0a06',
-          'bg-light': '#1a1209',
-          surface: '#261d14',
-          'surface-hover': '#342718',
-          
-          // Legendary orange - for totals
-          gold: '#ff8000',
-          'gold-light': '#ffaa44',
-          'gold-dark': '#cc6600',
-          
-          // Bronze/copper borders
-          border: '#5c4a32',
-          'border-light': '#8b7355',
-          'border-gold': '#b8860b',
-          
-          // Text colors
-          text: '#e8dcc8',
-          'text-muted': '#a89880',
-          'text-dark': '#6b5c4a',
+          bg: 'var(--theme-bg)',
+          'bg-light': 'var(--theme-bg-light)',
+          surface: 'var(--theme-surface)',
+          'surface-hover': 'var(--theme-surface-hover)',
+
+          gold: 'var(--theme-accent)',
+          'gold-light': 'var(--theme-accent-light)',
+          'gold-dark': 'var(--theme-accent-dark)',
+
+          border: 'var(--theme-border)',
+          'border-light': 'var(--theme-border-light)',
+          'border-gold': 'var(--theme-border-gold)',
+
+          text: 'var(--theme-text)',
+          'text-muted': 'var(--theme-text-muted)',
+          'text-dark': 'var(--theme-text-dark)',
         },
-        
-        // Mistake type colors - WoW item quality themed
+
+        // Mistake type colors – WoW item quality themed (constant across themes)
         mistake: {
-          yeet: '#a335ee',      // Epic purple - for yeets
-          death: '#0070dd',     // Rare blue - for deaths
+          yeet: '#a335ee',      // Epic purple
+          death: '#0070dd',     // Rare blue
         },
-        
-        // Rank colors
+
+        // WoW item-quality (constant across themes)
+        rarity: {
+          legendary: '#ff8000', // Legendary orange
+          epic: '#a335ee', // Epic purple
+          rare: '#0070dd', // Rare blue
+          uncommon: '#1eff00', // Uncommon green (matches screenshot)
+          common: '#ffffff', // Common white
+          poor: '#9d9d9d', // Poor gray
+        },
+
+        // Rank colors (constant across themes)
         rank: {
-          first: '#ffd700',     // Gold
-          second: '#c0c0c0',    // Silver
-          third: '#cd7f32',     // Bronze
+          first: '#ffd700',
+          second: '#c0c0c0',
+          third: '#cd7f32',
         }
       },
       fontFamily: {
         warcraft: ['Cinzel', 'Times New Roman', 'serif'],
         body: ['Crimson Text', 'Georgia', 'serif'],
       },
-      backgroundImage: {
-        'warcraft-gradient': 'linear-gradient(180deg, #1a1209 0%, #0d0a06 100%)',
-        'gold-gradient': 'linear-gradient(180deg, #ffd54f 0%, #c79100 100%)',
-        'surface-gradient': 'radial-gradient(ellipse at top, #342718 0%, #1a1209 70%)',
-      },
       boxShadow: {
-        'warcraft': '0 0 20px rgba(255, 193, 7, 0.15)',
-        'warcraft-lg': '0 0 40px rgba(255, 193, 7, 0.2)',
-        'inner-gold': 'inset 0 1px 0 rgba(255, 193, 7, 0.1)',
+        'warcraft': 'var(--theme-shadow)',
+        'warcraft-lg': 'var(--theme-shadow-lg)',
+        'inner-gold': 'inset 0 1px 0 var(--theme-glow-color-soft)',
       },
       animation: {
         'glow': 'glow 2s ease-in-out infinite alternate',
@@ -65,8 +67,8 @@ export default {
       },
       keyframes: {
         glow: {
-          '0%': { boxShadow: '0 0 5px rgba(255, 193, 7, 0.2)' },
-          '100%': { boxShadow: '0 0 20px rgba(255, 193, 7, 0.4)' },
+          '0%': { boxShadow: '0 0 5px var(--theme-glow-color-soft)' },
+          '100%': { boxShadow: '0 0 20px var(--theme-glow-color)' },
         },
         fadeIn: {
           '0%': { opacity: '0' },
