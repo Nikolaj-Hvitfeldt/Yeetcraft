@@ -22,8 +22,17 @@ function getTabColor(tab: FilterTab) {
  * Filter tabs for switching between death types.
  */
 export function FilterTabs({ activeTab, onTabChange }: FilterTabsProps) {
+  // Keep tabs evenly sized while still aligning with the table columns:
+  // [#] [ALL] [DEATHS] [YEETS]
+  const gridTemplateColumns = '60px 1fr 1fr 1fr'
+
   return (
-    <nav className="flex border-b border-warcraft-border">
+    <nav
+      className="grid border-b border-warcraft-border"
+      style={{ gridTemplateColumns }}
+    >
+      {/* Spacer aligns with the table's # column */}
+      <div className="border-b-2 border-transparent" />
       {TABS.map((tab) => (
         <button
           key={tab.key}
@@ -34,7 +43,7 @@ export function FilterTabs({ activeTab, onTabChange }: FilterTabsProps) {
               '--wc-tab-active-color': getTabColor(tab.key),
             } as CSSProperties
           }
-          className={`wc-tab flex-1 ${
+          className={`wc-tab w-full ${
             activeTab === tab.key ? 'wc-tab-active' : ''
           }`}
         >

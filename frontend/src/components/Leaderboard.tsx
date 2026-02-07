@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type CellContext, type ColumnDef } from '@tanstack/react-table'
 import { PlayerStats, FilterTab } from '../hooks'
 import { FilterTabs } from './FilterTabs'
 import { Table } from './Table'
@@ -22,13 +22,14 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
         id: 'rank',
         header: '#',
         size: 60,
-        meta: { align: 'center' },
+        meta: { align: 'center', headerClassName: 'px-2', cellClassName: 'px-2' },
         enableSorting: false,
         cell: ({ row, table }) => {
           const sortedRows = table.getSortedRowModel().rows
           const rank = sortedRows.findIndex((r) => r.id === row.id) + 1
           const rankClass =
             rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-default'
+
           return (
             <div className="flex justify-center">
               <div className={`rank-number ${rankClass}`}>{rank}</div>
@@ -39,6 +40,7 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
       {
         accessorKey: 'playerName',
         header: 'Player',
+        meta: { align: 'center' },
         enableSorting: true,
         cell: ({ getValue }) => (
           <span className="text-lg font-semibold text-warcraft-text truncate block">
@@ -48,49 +50,39 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
       },
     ]
 
-    // Count column — shows relevant total based on active tab
-    // Note: data fields are plural (deaths/yeets) while tabs are singular (death/yeet)
-    const countAccessor =
-      activeTab === 'all' ? 'total' : activeTab === 'death' ? 'deaths' : 'yeets'
-    const countLabel =
-      activeTab === 'all'
-        ? 'Total'
-        : activeTab.charAt(0).toUpperCase() + activeTab.slice(1) + 's'
+    function countCell({ getValue, row, table }: CellContext<PlayerStats, unknown>) {
+      const sortedRows = table.getSortedRowModel().rows
+      const rank = sortedRows.findIndex((r) => r.id === row.id) + 1
 
-    baseColumns.push({
-      accessorKey: countAccessor,
-      header: countLabel,
-      size: 100,
-      meta: { align: 'center' },
-      enableSorting: true,
-      cell: ({ getValue, row, table }) => {
-        const sortedRows = table.getSortedRowModel().rows
-        const rank = sortedRows.findIndex((r) => r.id === row.id) + 1
+      const rankColorClass =
+        rank === 1
+          ? 'text-warcraft-gold' // Legendary (orange)
+          : rank === 2
+            ? 'text-mistake-yeet' // Epic (purple)
+            : rank === 3
+              ? 'text-mistake-death' // Rare (blue)
+              : 'text-warcraft-text-muted' // Everyone else
 
-        const rankColorClass =
-          rank === 1
-            ? 'text-warcraft-gold' // Legendary (orange)
-            : rank === 2
-              ? 'text-mistake-yeet' // Epic (purple)
-              : rank === 3
-                ? 'text-mistake-death' // Rare (blue)
-                : 'text-warcraft-text-muted' // Everyone else
-
-        return (
-          <div className="text-center">
-            <span className={`text-2xl font-warcraft font-bold ${rankColorClass}`}>
-              {getValue() as number}
-            </span>
-          </div>
-        )
-      },
-    })
+      return (
+        <div className="text-center">
+          <span className={`text-2xl font-warcraft font-bold ${rankColorClass}`}>
+            {getValue() as number}
+          </span>
+        </div>
+      )
+    }
 
     if (activeTab === 'all') {
       baseColumns.push({
+        accessorKey: 'total',
+        header: 'Total',
+        meta: { align: 'center' },
+        enableSorting: true,
+        cell: countCell,
+      })
+      baseColumns.push({
         id: 'breakdown',
         header: 'Breakdown',
-        size: 150,
         meta: { align: 'center' },
         enableSorting: false,
         cell: ({ row }) => (
@@ -107,6 +99,38 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
             )}
           </div>
         ),
+      })
+    } else if (activeTab === 'death') {
+      // Keep a 3-column layout aligned with the 3 tabs: [ALL] [DEATHS] [YEETS]
+      // For the Deaths tab, leave the middle column blank and place the metric under YEETS.
+      baseColumns.push({
+        id: 'spacer',
+        header: '',
+        meta: { align: 'center' },
+        enableSorting: false,
+        cell: () => null,
+      })
+      baseColumns.push({
+        accessorKey: 'deaths',
+        header: 'Deaths',
+        meta: { align: 'center' },
+        enableSorting: true,
+        cell: countCell,
+      })
+    } else {
+      baseColumns.push({
+        id: 'spacer',
+        header: '',
+        meta: { align: 'center' },
+        enableSorting: false,
+        cell: () => null,
+      })
+      baseColumns.push({
+        accessorKey: 'yeets',
+        header: 'Yeets',
+        meta: { align: 'center' },
+        enableSorting: true,
+        cell: countCell,
       })
     }
 
@@ -129,6 +153,7 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
             enableSorting={true}
             enablePagination={false}
             showSortIndicator={false}
+            tableLayout="fixed"
           />
         </div>
       )}

@@ -9,12 +9,28 @@ import {
 } from '@tanstack/react-table'
 import { useState } from 'react'
 
-type ColumnMeta = { align?: 'left' | 'center' }
+type ColumnMeta = {
+  align?: 'left' | 'center'
+  headerClassName?: string
+  cellClassName?: string
+}
 
 function getAlign(meta: unknown): ColumnMeta['align'] | undefined {
   if (!meta || typeof meta !== 'object') return undefined
   const align = (meta as ColumnMeta).align
   return align === 'left' || align === 'center' ? align : undefined
+}
+
+function getHeaderClassName(meta: unknown): string {
+  if (!meta || typeof meta !== 'object') return ''
+  const value = (meta as ColumnMeta).headerClassName
+  return typeof value === 'string' ? value : ''
+}
+
+function getCellClassName(meta: unknown): string {
+  if (!meta || typeof meta !== 'object') return ''
+  const value = (meta as ColumnMeta).cellClassName
+  return typeof value === 'string' ? value : ''
 }
 
 interface TableProps<T> {
@@ -23,6 +39,7 @@ interface TableProps<T> {
   enableSorting?: boolean
   enablePagination?: boolean
   showSortIndicator?: boolean
+  tableLayout?: 'auto' | 'fixed'
   pageSize?: number
   className?: string
 }
@@ -37,6 +54,7 @@ export function Table<T>({
   enableSorting = true,
   enablePagination = false,
   showSortIndicator = true,
+  tableLayout = 'auto',
   pageSize = 10,
   className = '',
 }: TableProps<T>) {
@@ -70,7 +88,7 @@ export function Table<T>({
   return (
     <div className={`wc-table ${className}`}>
       <div className="wc-table-container">
-        <table className="wc-table-element">
+        <table className="wc-table-element" style={{ tableLayout }}>
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
@@ -82,8 +100,14 @@ export function Table<T>({
                       header.column.getCanSort() ? 'wc-table-header-sortable' : ''
                     } ${header.column.getIsSorted() ? 'wc-table-header-sorted' : ''} ${
                       getAlign(header.column.columnDef.meta) === 'center' ? 'text-center' : ''
-                    }`}
-                    style={{ width: header.getSize() !== 150 ? header.getSize() : undefined }}
+                    } ${getHeaderClassName(header.column.columnDef.meta)}`}
+                    style={{
+                      width:
+                        typeof header.column.columnDef.size === 'number' &&
+                        header.column.columnDef.size !== 150 // skip TanStack default
+                          ? header.column.columnDef.size
+                          : undefined,
+                    }}
                     onClick={header.column.getToggleSortingHandler()}
                   >
                     <div
@@ -123,7 +147,10 @@ export function Table<T>({
                   style={{ animationFillMode: 'both' }}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="wc-table-cell">
+                    <td
+                      key={cell.id}
+                      className={`wc-table-cell ${getCellClassName(cell.column.columnDef.meta)}`}
+                    >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   ))}
