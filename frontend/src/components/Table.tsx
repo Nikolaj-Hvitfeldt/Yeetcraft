@@ -9,11 +9,20 @@ import {
 } from '@tanstack/react-table'
 import { useState } from 'react'
 
+type ColumnMeta = { align?: 'left' | 'center' }
+
+function getAlign(meta: unknown): ColumnMeta['align'] | undefined {
+  if (!meta || typeof meta !== 'object') return undefined
+  const align = (meta as ColumnMeta).align
+  return align === 'left' || align === 'center' ? align : undefined
+}
+
 interface TableProps<T> {
   data: T[]
   columns: ColumnDef<T>[]
   enableSorting?: boolean
   enablePagination?: boolean
+  showSortIndicator?: boolean
   pageSize?: number
   className?: string
 }
@@ -27,6 +36,7 @@ export function Table<T>({
   columns,
   enableSorting = true,
   enablePagination = false,
+  showSortIndicator = true,
   pageSize = 10,
   className = '',
 }: TableProps<T>) {
@@ -67,15 +77,22 @@ export function Table<T>({
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
+                    data-align={getAlign(header.column.columnDef.meta)}
                     className={`wc-table-header ${
                       header.column.getCanSort() ? 'wc-table-header-sortable' : ''
-                    } ${header.column.getIsSorted() ? 'wc-table-header-sorted' : ''}`}
+                    } ${header.column.getIsSorted() ? 'wc-table-header-sorted' : ''} ${
+                      getAlign(header.column.columnDef.meta) === 'center' ? 'text-center' : ''
+                    }`}
                     style={{ width: header.getSize() !== 150 ? header.getSize() : undefined }}
                     onClick={header.column.getToggleSortingHandler()}
                   >
-                    <div className="flex items-center gap-2">
+                    <div
+                      className={`flex items-center gap-2 ${
+                        getAlign(header.column.columnDef.meta) === 'center' ? 'justify-center' : ''
+                      }`}
+                    >
                       {flexRender(header.column.columnDef.header, header.getContext())}
-                      {header.column.getCanSort() && (
+                      {showSortIndicator && header.column.getCanSort() && (
                         <span className="wc-table-sort-indicator">
                           {{
                             asc: '↑',

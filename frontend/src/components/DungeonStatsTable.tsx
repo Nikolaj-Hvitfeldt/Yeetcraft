@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 import { type ColumnDef } from '@tanstack/react-table'
 import { Table } from './Table'
-import { MistakeDto } from '../api/types'
 
 interface DungeonMistakeStats {
   playerName: string
@@ -86,6 +85,7 @@ export function DungeonStatsTable({ stats, enablePagination = false }: DungeonSt
       columns={columns}
       enableSorting={true}
       enablePagination={enablePagination}
+      showSortIndicator={false}
       pageSize={10}
     />
   )

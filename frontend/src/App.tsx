@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react'
-import { useMistakes, useHealth, aggregateByPlayer, calculateTotalStats, FilterTab } from './hooks'
+import { useMemo, useCallback } from 'react'
+import { Routes, Route, useSearchParams } from 'react-router-dom'
+import { useMistakes, useHealth, aggregateByPlayer, calculateTotalStats, type FilterTab, ThemeProvider } from './hooks'
 import {
   LoadingSpinner,
   ErrorMessage,
@@ -9,14 +10,32 @@ import {
   Leaderboard,
   Footer,
 } from './components'
+import { ErrorBoundary } from './components/ErrorBoundary'
+import { PlayerProfile } from './components/PlayerProfile'
 import { getAccessToken } from './utils/token'
 
+const VALID_TABS: FilterTab[] = ['all', 'death', 'yeet']
+
+function isValidTab(value: string | null): value is FilterTab {
+  return value !== null && VALID_TABS.includes(value as FilterTab)
+}
+
 /**
- * Main application component.
- * Orchestrates data fetching and renders the leaderboard UI.
+ * Leaderboard page with URL-synced tab state.
  */
-function App() {
-  const [activeTab, setActiveTab] = useState<FilterTab>('all')
+function LeaderboardPage() {
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const tabParam = searchParams.get('tab')
+  const activeTab: FilterTab = isValidTab(tabParam) ? tabParam : 'all'
+
+  const handleTabChange = useCallback((tab: FilterTab) => {
+    if (tab === 'all') {
+      setSearchParams({}, { replace: true })
+    } else {
+      setSearchParams({ tab }, { replace: true })
+    }
+  }, [setSearchParams])
 
   // Fetch data with TanStack Query
   const { data: health } = useHealth()
@@ -33,20 +52,9 @@ function App() {
   const hasToken = getAccessToken()
   const needsAuth = error?.message?.includes('Unauthorized') || error?.message?.includes('token')
 
-  // Loading state
-  if (isLoading) {
-    return <LoadingSpinner />
-  }
-
-  // Auth required state
-  if (needsAuth && !hasToken) {
-    return <AuthRequired />
-  }
-
-  // Error state (only if we have no data fallback)
-  if (error && mistakes.length === 0) {
-    return <ErrorMessage message={error.message} />
-  }
+  if (isLoading) return <LoadingSpinner />
+  if (needsAuth && !hasToken) return <AuthRequired />
+  if (error && mistakes.length === 0) return <ErrorMessage message={error.message} />
 
   return (
     <div className="min-h-screen py-8 px-4">
@@ -56,11 +64,27 @@ function App() {
         <Leaderboard
           leaderboard={leaderboard}
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={handleTabChange}
         />
         <Footer />
       </div>
     </div>
+  )
+}
+
+/**
+ * Main application component with routing, error boundary, and theme.
+ */
+function App() {
+  return (
+    <ThemeProvider>
+      <ErrorBoundary>
+        <Routes>
+          <Route path="/" element={<LeaderboardPage />} />
+          <Route path="/player/:name" element={<PlayerProfile />} />
+        </Routes>
+      </ErrorBoundary>
+    </ThemeProvider>
   )
 }
 

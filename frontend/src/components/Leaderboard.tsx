@@ -22,6 +22,7 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
         id: 'rank',
         header: '#',
         size: 60,
+        meta: { align: 'center' },
         enableSorting: false,
         cell: ({ row, table }) => {
           const sortedRows = table.getSortedRowModel().rows
@@ -47,25 +48,50 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
       },
     ]
 
-    // Add count column based on active tab
-    if (activeTab === 'all') {
-      baseColumns.push({
-        accessorKey: 'total',
-        header: 'Total',
-        size: 100,
-        enableSorting: true,
-        cell: ({ getValue }) => (
+    // Count column — shows relevant total based on active tab
+    // Note: data fields are plural (deaths/yeets) while tabs are singular (death/yeet)
+    const countAccessor =
+      activeTab === 'all' ? 'total' : activeTab === 'death' ? 'deaths' : 'yeets'
+    const countLabel =
+      activeTab === 'all'
+        ? 'Total'
+        : activeTab.charAt(0).toUpperCase() + activeTab.slice(1) + 's'
+
+    baseColumns.push({
+      accessorKey: countAccessor,
+      header: countLabel,
+      size: 100,
+      meta: { align: 'center' },
+      enableSorting: true,
+      cell: ({ getValue, row, table }) => {
+        const sortedRows = table.getSortedRowModel().rows
+        const rank = sortedRows.findIndex((r) => r.id === row.id) + 1
+
+        const rankColorClass =
+          rank === 1
+            ? 'text-warcraft-gold' // Legendary (orange)
+            : rank === 2
+              ? 'text-mistake-yeet' // Epic (purple)
+              : rank === 3
+                ? 'text-mistake-death' // Rare (blue)
+                : 'text-warcraft-text-muted' // Everyone else
+
+        return (
           <div className="text-center">
-            <span className="text-2xl font-warcraft font-bold text-warcraft-gold">
+            <span className={`text-2xl font-warcraft font-bold ${rankColorClass}`}>
               {getValue() as number}
             </span>
           </div>
-        ),
-      })
+        )
+      },
+    })
+
+    if (activeTab === 'all') {
       baseColumns.push({
         id: 'breakdown',
         header: 'Breakdown',
         size: 150,
+        meta: { align: 'center' },
         enableSorting: false,
         cell: ({ row }) => (
           <div className="hidden sm:flex justify-center gap-2">
@@ -79,21 +105,6 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
                 {row.original.yeets}
               </span>
             )}
-          </div>
-        ),
-      })
-    } else {
-      const columnLabel = activeTab.charAt(0).toUpperCase() + activeTab.slice(1) + 's'
-      baseColumns.push({
-        accessorKey: activeTab,
-        header: columnLabel,
-        size: 100,
-        enableSorting: true,
-        cell: ({ getValue }) => (
-          <div className="text-center">
-            <span className="text-2xl font-warcraft font-bold text-warcraft-gold">
-              {getValue() as number}
-            </span>
           </div>
         ),
       })
@@ -111,12 +122,13 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
       {leaderboard.length === 0 ? (
         <EmptyState />
       ) : (
-        <div className="overflow-hidden">
+        <div className="overflow-hidden" style={{ minHeight: 0 }}>
           <Table
             data={leaderboard}
             columns={columns}
             enableSorting={true}
             enablePagination={false}
+            showSortIndicator={false}
           />
         </div>
       )}
