@@ -15,6 +15,14 @@ import java.sql.ResultSet
  * - Plain SQL chosen for minimal dependencies and full control
  */
 object MistakeRepository {
+    private const val MILLISECONDS_PER_SECOND: Long = 1_000
+    private const val SECONDS_PER_MINUTE: Long = 60
+    private const val MINUTES_PER_HOUR: Long = 60
+
+    private const val ONE_HOUR_MILLISECONDS: Long = MINUTES_PER_HOUR * SECONDS_PER_MINUTE * MILLISECONDS_PER_SECOND
+    private const val TWO_HOURS_MILLISECONDS: Long = 2 * ONE_HOUR_MILLISECONDS
+    private const val THREE_HOURS_MILLISECONDS: Long = 3 * ONE_HOUR_MILLISECONDS
+
     /**
      * Get all mistakes from database.
      * Currently returns mock data for demonstration.
@@ -41,6 +49,7 @@ object MistakeRepository {
      */
     fun getAllMistakes(): List<MistakeDto> {
         // Mock data for demonstration
+        val currentTimestampMilliseconds: Long = System.currentTimeMillis()
         return listOf(
             MistakeDto(
                 id = 1,
@@ -48,7 +57,7 @@ object MistakeRepository {
                 dungeon = "Deadmines",
                 type = MistakeType.yeet,
                 description = "Got yeeted off the ship by a Defias Pirate",
-                timestamp = System.currentTimeMillis() - 3600000
+                timestamp = currentTimestampMilliseconds - ONE_HOUR_MILLISECONDS
             ),
             MistakeDto(
                 id = 2,
@@ -56,7 +65,7 @@ object MistakeRepository {
                 dungeon = "Shadowfang Keep",
                 type = MistakeType.death,
                 description = "Aggro'd the entire courtyard and got one-shot",
-                timestamp = System.currentTimeMillis() - 7200000
+                timestamp = currentTimestampMilliseconds - TWO_HOURS_MILLISECONDS
             ),
             MistakeDto(
                 id = 3,
@@ -64,7 +73,7 @@ object MistakeRepository {
                 dungeon = "Blackrock Depths",
                 type = MistakeType.death,
                 description = "Pulled all of Domicile, party wiped spectacularly",
-                timestamp = System.currentTimeMillis() - 10800000
+                timestamp = currentTimestampMilliseconds - THREE_HOURS_MILLISECONDS
             )
         )
     }
@@ -73,14 +82,14 @@ object MistakeRepository {
      * Helper function to map database row to DTO.
      * TODO: Implement when database queries are added
      */
-    private fun mapRowToMistakeDto(rs: ResultSet): MistakeDto {
+    private fun mapRowToMistakeDto(resultSet: ResultSet): MistakeDto {
         return MistakeDto(
-            id = rs.getInt("id"),
-            playerName = rs.getString("player_name"),
-            dungeon = rs.getString("dungeon"),
-            type = MistakeType.valueOf(rs.getString("type")),
-            description = rs.getString("description"),
-            timestamp = rs.getLong("timestamp")
+            id = resultSet.getInt("id"),
+            playerName = resultSet.getString("player_name"),
+            dungeon = resultSet.getString("dungeon"),
+            type = MistakeType.valueOf(resultSet.getString("type")),
+            description = resultSet.getString("description"),
+            timestamp = resultSet.getLong("timestamp")
         )
     }
     

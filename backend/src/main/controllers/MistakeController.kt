@@ -20,11 +20,10 @@ object MistakeController {
      * Returns all mistakes (currently returns mock data).
      * TODO: Accept query parameters for filtering (player, dungeon, type, date range)
      */
-    suspend fun getAllMistakes(call: ApplicationCall) {
-        val mistakes = MistakeService.getAllMistakes()
+    suspend fun getAllMistakes(call: ApplicationCall): Unit {
+        val mistakes: List<MistakeDto> = MistakeService.getAllMistakes()
         call.respond(MistakeListResponse(mistakes = mistakes))
     }
-    
     // TODO: Add more controller methods as needed:
     // suspend fun getMistakeById(call: ApplicationCall) { ... }
     // suspend fun createMistake(call: ApplicationCall) { ... }

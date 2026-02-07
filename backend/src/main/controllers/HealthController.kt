@@ -13,6 +13,8 @@ import kotlinx.serialization.Serializable
  * - This is a simple example with no service layer (health check is trivial)
  */
 object HealthController {
+    private const val HEALTH_STATUS_OK: String = "ok"
+
     @Serializable
     data class HealthResponse(
         val status: String,
@@ -23,11 +25,12 @@ object HealthController {
      * GET /api/health
      * Simple health check endpoint to verify server is running.
      */
-    suspend fun getHealth(call: ApplicationCall) {
+    suspend fun getHealth(call: ApplicationCall): Unit {
+        val timestamp: Long = System.currentTimeMillis()
         call.respond(
             HealthResponse(
-                status = "ok",
-                timestamp = System.currentTimeMillis()
+                status = HEALTH_STATUS_OK,
+                timestamp = timestamp
             )
         )
     }

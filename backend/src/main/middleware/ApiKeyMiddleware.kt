@@ -7,9 +7,15 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.util.pipeline.PipelineContext
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-private val logger = LoggerFactory.getLogger("ApiKeyMiddleware")
+private val logger: Logger = LoggerFactory.getLogger("ApiKeyMiddleware")
+private const val QUERY_PARAMETER_TOKEN: String = "token"
+private const val HEADER_API_KEY: String = "X-API-Key"
+private const val AUTHORIZATION_BEARER_PREFIX: String = "Bearer "
+private const val UNAUTHORIZED_ERROR: String = "Unauthorized"
+private const val UNAUTHORIZED_MESSAGE: String = "Invalid or missing access token. Please use the shared link."
 
 /**
  * URL-based token authentication middleware.
@@ -38,25 +44,22 @@ private val logger = LoggerFactory.getLogger("ApiKeyMiddleware")
  */
 suspend fun ApplicationCall.validateApiKey(): Boolean {
     // If no API key configured, skip validation
-    val expectedKey = Config.apiKey ?: return true
-    
+    val expectedKey: String = Config.apiKey ?: return true
     // Check multiple sources: query param first (for URL sharing), then headers
-    val providedKey = request.queryParameters["token"]?.trim()
-        ?: request.headers[HttpHeaders.Authorization]?.removePrefix("Bearer ")?.trim()
-        ?: request.headers["X-API-Key"]?.trim()
-    
+    val providedKey: String? = request.queryParameters[QUERY_PARAMETER_TOKEN]?.trim()
+        ?: request.headers[HttpHeaders.Authorization]?.removePrefix(AUTHORIZATION_BEARER_PREFIX)?.trim()
+        ?: request.headers[HEADER_API_KEY]?.trim()
     if (providedKey != expectedKey) {
         logger.warn("Invalid API key attempt")
         respond(
             HttpStatusCode.Unauthorized,
             ErrorResponse(
-                error = "Unauthorized",
-                message = "Invalid or missing access token. Please use the shared link."
+                error = UNAUTHORIZED_ERROR,
+                message = UNAUTHORIZED_MESSAGE
             )
         )
         return false
     }
-    
     return true
 }
 
@@ -73,8 +76,8 @@ suspend fun ApplicationCall.validateApiKey(): Boolean {
  * }
  * ```
  */
-suspend fun PipelineContext<Unit, ApplicationCall>.validateApiKey() {
-    val isValid = call.validateApiKey()
+suspend fun PipelineContext<Unit, ApplicationCall>.validateApiKey(): Unit {
+    val isValid: Boolean = call.validateApiKey()
     if (!isValid) {
         finish()
     }
