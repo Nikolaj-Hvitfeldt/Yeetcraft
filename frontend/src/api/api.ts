@@ -3,21 +3,22 @@ import { getAccessToken } from '../utils/token'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 
-/**
- * Generic fetch wrapper with automatic token handling.
- * 
- * Automatically includes the access token from URL or localStorage
- * in the X-API-Key header for all requests.
- */
+let bearerTokenGetter: (() => string | null) | null = null
+
+export function setBearerTokenGetter(getter: (() => string | null) | null): void {
+  bearerTokenGetter = getter
+}
+
 async function fetchApi<T>(endpoint: string): Promise<T> {
-  const token = getAccessToken()
+  const bearerToken = bearerTokenGetter?.() ?? null
+  const legacyToken = getAccessToken()
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
   }
-  
-  // Automatically include token in header if available
-  if (token) {
-    headers['X-API-Key'] = token
+  if (bearerToken) {
+    headers['Authorization'] = `Bearer ${bearerToken}`
+  } else if (legacyToken) {
+    headers['X-API-Key'] = legacyToken
   }
   
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {

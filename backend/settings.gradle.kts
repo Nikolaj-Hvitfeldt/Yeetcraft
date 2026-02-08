@@ -1,1 +1,1 @@
-rootProject.name = "yeetcraft-backend"
+rootProject.name = "yeetcraft"

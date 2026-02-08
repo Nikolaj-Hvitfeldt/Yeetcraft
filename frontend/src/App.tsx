@@ -9,9 +9,11 @@ import {
   StatsSummary,
   Leaderboard,
   Footer,
+  LoginPage,
 } from './components'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { PlayerProfile } from './components/PlayerProfile'
+import { useAuth } from './contexts/AuthContext'
 import { getAccessToken } from './utils/token'
 
 function isValidTab(value: string | null): value is FilterTab {
@@ -71,8 +73,8 @@ function LeaderboardPage() {
   const leaderboard = leaderboardFromApi ?? fallbackLeaderboard
   const totalStats = useMemo(() => calculateTotalStats(mistakes), [mistakes])
 
-  // Auth check
-  const hasToken = getAccessToken()
+  const auth = useAuth()
+  const hasToken = auth?.getAccessToken() ?? getAccessToken()
   const needsAuth = error?.message?.includes('Unauthorized') || error?.message?.includes('token')
 
   if (isLoading) return <LoadingSpinner />
@@ -106,6 +108,7 @@ export function App() {
       <ErrorBoundary>
         <Routes>
           <Route path="/" element={<LeaderboardPage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/player/:name" element={<PlayerProfile />} />
         </Routes>
       </ErrorBoundary>

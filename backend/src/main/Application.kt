@@ -1,6 +1,7 @@
 package com.yeetcraft
 
 import com.yeetcraft.config.Config
+import com.yeetcraft.config.configureDatabase
 import com.yeetcraft.dto.ErrorResponse
 import com.yeetcraft.routes.setupRoutes
 import io.ktor.http.HttpStatusCode
@@ -65,9 +66,7 @@ fun Application.module(): Unit {
             call.respondError(status, ERROR_INTERNAL_SERVER_ERROR, MESSAGE_INTERNAL_SERVER_ERROR)
         }
     }
-    // Initialize database connection (commented out since we're using mock data)
-    // configureDatabase()
-    // Set up all API routes
+    configureDatabase()
     setupRoutes()
 }
 

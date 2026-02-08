@@ -2,6 +2,7 @@ package com.yeetcraft.routes
 
 import com.yeetcraft.controllers.HealthController
 import com.yeetcraft.controllers.LeaderboardController
+import com.yeetcraft.controllers.MeController
 import com.yeetcraft.controllers.MistakeController
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
@@ -20,6 +21,9 @@ fun Application.setupRoutes(): Unit {
             // Health check endpoint
             get("/health") {
                 HealthController.getHealth(call)
+            }
+            get("/me") {
+                MeController.getMe(call)
             }
             get("/leaderboard") {
                 LeaderboardController.getLeaderboard(call)

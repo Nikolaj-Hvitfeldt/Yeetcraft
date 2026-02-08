@@ -44,3 +44,4 @@ CREATE INDEX IF NOT EXISTS idx_mistakes_dungeon_id ON mistakes(dungeon_id);
 CREATE INDEX IF NOT EXISTS idx_mistakes_type ON mistakes(type);
 CREATE INDEX IF NOT EXISTS idx_mistakes_timestamp ON mistakes(timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_mistakes_character_dungeon ON mistakes(character_id, dungeon_id);
+

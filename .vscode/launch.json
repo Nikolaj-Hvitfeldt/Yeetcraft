@@ -6,7 +6,7 @@
       "name": "Run Ktor Server",
       "request": "launch",
       "mainClass": "com.yeetcraft.ApplicationKt",
-      "projectName": "yeetcraft-backend",
+      "projectName": "yeetcraft",
       "cwd": "${workspaceFolder}/backend",
       "preLaunchTask": "gradle: build"
     }

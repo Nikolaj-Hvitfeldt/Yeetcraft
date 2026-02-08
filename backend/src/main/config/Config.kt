@@ -31,23 +31,33 @@ object Config {
     private const val DEFAULT_DATABASE_PASSWORD: String = ""
     private const val DEFAULT_DATABASE_SSL_MODE: String = "require"
 
+    private const val ENVIRONMENT_DATABASE_URL: String = "DATABASE_URL"
     private const val ENVIRONMENT_API_KEY: String = "API_KEY"
+    private const val ENVIRONMENT_SUPABASE_JWT_SECRET: String = "SUPABASE_JWT_SECRET"
+    private const val ENVIRONMENT_SUPABASE_ADMIN_EMAIL: String = "SUPABASE_ADMIN_EMAIL"
 
     // Server configuration
     val serverHost: String = System.getenv(ENVIRONMENT_SERVER_HOST) ?: DEFAULT_SERVER_HOST
     val serverPort: Int = System.getenv(ENVIRONMENT_SERVER_PORT)?.toIntOrNull() ?: DEFAULT_SERVER_PORT
-    // Database configuration (Supabase Postgres)
+    // Database: prefer single DATABASE_URL (e.g. Supabase connection string), else use DB_* vars
+    val databaseUrl: String? = System.getenv(ENVIRONMENT_DATABASE_URL)?.takeIf { it.isNotBlank() }
     val dbHost: String = System.getenv(ENVIRONMENT_DATABASE_HOST) ?: DEFAULT_DATABASE_HOST
     val dbPort: Int = System.getenv(ENVIRONMENT_DATABASE_PORT)?.toIntOrNull() ?: DEFAULT_DATABASE_PORT
     val dbName: String = System.getenv(ENVIRONMENT_DATABASE_NAME) ?: DEFAULT_DATABASE_NAME
     val dbUser: String = System.getenv(ENVIRONMENT_DATABASE_USER) ?: DEFAULT_DATABASE_USER
     val dbPassword: String = System.getenv(ENVIRONMENT_DATABASE_PASSWORD) ?: DEFAULT_DATABASE_PASSWORD
     val dbSslMode: String = System.getenv(ENVIRONMENT_DATABASE_SSL_MODE) ?: DEFAULT_DATABASE_SSL_MODE
-    /**
-     * Builds JDBC connection URL for Supabase Postgres.
-     */
     val dbUrl: String
-        get() = "jdbc:postgresql://$dbHost:$dbPort/$dbName?sslmode=$dbSslMode"
+        get() = when {
+            databaseUrl != null -> {
+                val url: String = databaseUrl.trim()
+                if (url.startsWith("jdbc:")) url else "jdbc:$url"
+            }
+            else -> "jdbc:postgresql://$dbHost:$dbPort/$dbName?sslmode=$dbSslMode"
+        }
+    val useDatabaseUrlOnly: Boolean = databaseUrl != null
     // API Key configuration (optional, for URL-based token auth)
     val apiKey: String? = System.getenv(ENVIRONMENT_API_KEY)
+    val supabaseJwtSecret: String? = System.getenv(ENVIRONMENT_SUPABASE_JWT_SECRET)
+    val supabaseAdminEmail: String? = System.getenv(ENVIRONMENT_SUPABASE_ADMIN_EMAIL)
 }

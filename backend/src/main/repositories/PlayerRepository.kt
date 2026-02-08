@@ -47,6 +47,18 @@ object PlayerRepository {
         }
     }
 
+    fun findIdByAuthUserId(authUserId: java.util.UUID): Int? {
+        val query: String = "SELECT id FROM players WHERE auth_user_id = ?"
+        return Database.getConnection().use { connection ->
+            connection.prepareStatement(query).use { stmt ->
+                stmt.setObject(1, authUserId, java.sql.Types.OTHER)
+                stmt.executeQuery().use { rs ->
+                    if (rs.next()) rs.getInt("id") else null
+                }
+            }
+        }
+    }
+
     private fun mapRow(rs: ResultSet): PlayerRow {
         return PlayerRow(
             id = rs.getInt("id"),

@@ -24,16 +24,16 @@ object Database {
     private val dataSource: HikariDataSource by lazy {
         val hikariConfig: HikariConfig = HikariConfig().apply {
             jdbcUrl = Config.dbUrl
-            username = Config.dbUser
-            password = Config.dbPassword
+            if (!Config.useDatabaseUrlOnly) {
+                username = Config.dbUser
+                password = Config.dbPassword
+            }
             driverClassName = "org.postgresql.Driver"
-            // Connection pool settings
             maximumPoolSize = MAXIMUM_POOL_SIZE
-            minimumIdle = MINIMUM_IDLE_CONNECTIONS // Don't create connections upfront (only when needed)
+            minimumIdle = MINIMUM_IDLE_CONNECTIONS
             connectionTimeout = CONNECTION_TIMEOUT_MILLISECONDS
             idleTimeout = IDLE_TIMEOUT_MILLISECONDS
             maxLifetime = MAX_LIFETIME_MILLISECONDS
-            // Don't fail fast if database is unavailable (useful for development with mock data)
             initializationFailTimeout = INITIALIZATION_FAIL_TIMEOUT_MILLISECONDS
         }
         HikariDataSource(hikariConfig)
