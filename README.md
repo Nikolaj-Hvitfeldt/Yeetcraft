@@ -1,6 +1,6 @@
 # Yeetcraft
 
-A clean, minimal fullstack project template inspired by HLTV.org, designed for tracking WoW dungeon mistakes (wipes, deaths, yeets) among friends.
+A clean, minimal fullstack project template designed for tracking WoW dungeon mistakes (wipes, deaths, yeets) among friends.
 
 ## Tech Stack
 
