@@ -1,6 +1,6 @@
 package com.yeetcraft.services
 
-import com.yeetcraft.controllers.MistakeDto
+import com.yeetcraft.dto.MistakeDto
 import com.yeetcraft.repositories.MistakeRepository
 
 /**

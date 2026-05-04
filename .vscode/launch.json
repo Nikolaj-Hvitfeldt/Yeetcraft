@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Run Ktor Server",
+      "request": "launch",
+      "mainClass": "com.yeetcraft.ApplicationKt",
+      "projectName": "yeetcraft-backend",
+      "cwd": "${workspaceFolder}/backend",
+      "preLaunchTask": "gradle: build"
+    }
+  ]
+}

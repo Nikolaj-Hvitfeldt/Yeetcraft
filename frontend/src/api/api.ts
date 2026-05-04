@@ -1,25 +1,38 @@
 import { HealthResponse, MistakeListResponse } from './types'
-
-/**
- * API client module.
- * 
- * Architecture notes:
- * - Centralized API calls with typed responses
- * - Base URL configured via environment variable (defaults to localhost:8080)
- * - Error handling in one place
- * - Easy to add authentication headers later if needed
- */
+import { getAccessToken } from '../utils/token'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 
 /**
- * Generic fetch wrapper with error handling.
+ * Generic fetch wrapper with automatic token handling.
+ * 
+ * Automatically includes the access token from URL or localStorage
+ * in the X-API-Key header for all requests.
  */
 async function fetchApi<T>(endpoint: string): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`)
+  const token = getAccessToken()
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  }
+  
+  // Automatically include token in header if available
+  if (token) {
+    headers['X-API-Key'] = token
+  }
+  
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    headers,
+  })
   
   if (!response.ok) {
-    throw new Error(`API error: ${response.status} ${response.statusText}`)
+    if (response.status === 401) {
+      // Unauthorized - clear invalid token
+      localStorage.removeItem('yeetcraft_token')
+      const error = await response.json().catch(() => ({ message: 'Unauthorized' }))
+      throw new Error(error.message || 'Unauthorized. Please use the shared link with a valid token.')
+    }
+    const errorText = await response.text().catch(() => response.statusText)
+    throw new Error(`API error: ${response.status} ${errorText}`)
   }
   
   return response.json()

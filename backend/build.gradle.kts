@@ -13,12 +13,27 @@ repositories {
     mavenCentral()
 }
 
+sourceSets {
+    main {
+        kotlin {
+            srcDirs("src/main")
+        }
+    }
+    test {
+        kotlin {
+            srcDirs("src/test")
+        }
+    }
+}
+
 dependencies {
     // Ktor server
     implementation("io.ktor:ktor-server-core:2.3.5")
     implementation("io.ktor:ktor-server-netty:2.3.5")
     implementation("io.ktor:ktor-server-content-negotiation:2.3.5")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.5")
+    implementation("io.ktor:ktor-server-cors:2.3.5")
+    implementation("io.ktor:ktor-server-status-pages:2.3.5")
     
     // Database
     implementation("org.postgresql:postgresql:42.6.0")
