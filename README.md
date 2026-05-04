@@ -12,6 +12,7 @@ cd backend
 ```
 
 Set environment variables:
+
 - `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_SSL_MODE`
 - `SERVER_PORT` (default: 8080)
 - `API_KEY` (optional, for URL-based token auth)
@@ -23,6 +24,8 @@ cd frontend
 npm install
 npm run dev
 ```
+
+A clean, minimal fullstack project template designed for tracking WoW dungeon mistakes (wipes, deaths, yeets) among friends.
 
 ## Tech Stack
 
