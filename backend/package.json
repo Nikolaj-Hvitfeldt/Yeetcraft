@@ -1,7 +1,0 @@
-{
-  "name": "yeetcraft-backend",
-  "private": true,
-  "scripts": {
-    "dev": "gradlew.bat run"
-  }
-}
