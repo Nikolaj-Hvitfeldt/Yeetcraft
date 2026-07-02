@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"yeetcraft/backend/internal/config"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type MistakeType string
@@ -24,20 +24,19 @@ type Mistake struct {
 }
 
 type MistakeRepository struct {
-	database config.DatabaseConfig
+	pool *pgxpool.Pool
 }
 
-func NewMistakeRepository(database config.DatabaseConfig) MistakeRepository {
+func NewMistakeRepository(pool *pgxpool.Pool) MistakeRepository {
 	return MistakeRepository{
-		database: database,
+		pool: pool,
 	}
 }
 
 func (mistakeRepository MistakeRepository) List(ctx context.Context) ([]Mistake, error) {
 	_ = ctx
-	_ = mistakeRepository.database.ConnectionString()
-	// TODO: Replace mock data with pgx queries against db/schema.sql columns:
-	// id, player_name, dungeon, type, description, timestamp.
+	_ = mistakeRepository.pool
+	// TODO: Replace mock data with pgx queries against player_dungeon_stats.
 	currentTime := time.Now()
 
 	return []Mistake{
