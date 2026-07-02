@@ -49,3 +49,12 @@ create table player_dungeon_stats (
     references season_dungeons(season_id, dungeon_id)
     on delete cascade
 );
+
+create index player_dungeon_stats_season_idx
+on player_dungeon_stats (season_id);
+
+create index player_dungeon_stats_player_season_idx
+on player_dungeon_stats (player_id, season_id);
+
+create index season_dungeons_season_order_idx
+on season_dungeons (season_id, display_order);
