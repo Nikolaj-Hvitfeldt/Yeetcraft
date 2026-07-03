@@ -7,18 +7,16 @@ import { Table } from './Table'
 import { SkullIcon } from './SkullIcon'
 
 const RANK_CLASS_BY_PLACE: Record<number, string> = {
-  1: 'rank-1',
-  2: 'rank-2',
-  3: 'rank-3',
+  1: 'border-accent-primary text-accent-primary',
+  2: 'border-stat-yeets text-stat-yeets',
+  3: 'border-stat-deaths text-stat-deaths',
 }
 
 function getRankColorClass(rank: number): string {
-  if (rank === 1) return 'text-rarity-legendary' // Legendary orange (fixed across themes)
-  if (rank === 2) return 'text-rarity-epic' // Epic purple
-  if (rank === 3) return 'text-rarity-rare' // Rare blue
-  if (rank === 4) return 'text-rarity-uncommon' // Uncommon green (fixed across themes)
-  if (rank === 5) return 'text-rarity-common' // Common white
-  return 'text-rarity-poor' // Poor gray
+  if (rank === 1) return 'text-accent-primary'
+  if (rank === 2) return 'text-stat-yeets'
+  if (rank === 3) return 'text-stat-deaths'
+  return 'text-text-primary'
 }
 
 function getRank(table: ReactTable<PlayerStats>, rowId: string): number {
@@ -44,11 +42,11 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
         enableSorting: false,
         cell: ({ row, table }) => {
           const rank = getRank(table, row.id)
-          const rankClass = RANK_CLASS_BY_PLACE[rank] ?? 'rank-default'
+          const rankClass = RANK_CLASS_BY_PLACE[rank] ?? 'border-border-subtle text-text-secondary'
 
           return (
             <div className="flex justify-center">
-              <div className={`rank-number ${rankClass}`}>{rank}</div>
+              <div className={`flex h-10 w-10 items-center justify-center rounded-full border-2 font-heading text-lg font-bold ${rankClass}`}>{rank}</div>
             </div>
           )
         },
@@ -64,7 +62,7 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
           return (
             <Link
               to={`/player/${row.original.playerId}`}
-              className="text-lg font-semibold text-warcraft-text hover:text-warcraft-gold transition-colors truncate block"
+              className="block truncate text-lg font-semibold text-text-primary transition-colors hover:text-accent-primary"
             >
               {value}
             </Link>
@@ -83,7 +81,7 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
 
       return (
         <div className="text-center">
-          <span className={`text-2xl font-warcraft font-bold ${rankColorClass}`}>{value}</span>
+          <span className={`text-2xl font-heading font-bold ${rankColorClass}`}>{value}</span>
         </div>
       )
     }
@@ -104,12 +102,12 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
         cell: ({ row }) => (
           <div className="hidden sm:flex justify-center gap-2">
             {row.original.deaths > 0 && (
-              <span className="mistake-badge mistake-badge-death" title="Deaths">
+              <span className="rounded-sm border border-stat-deaths px-3 py-1 text-xs font-bold uppercase tracking-wider text-stat-deaths" title="Deaths">
                 {row.original.deaths}
               </span>
             )}
             {row.original.yeets > 0 && (
-              <span className="mistake-badge mistake-badge-yeet" title="Yeets">
+              <span className="rounded-sm border border-stat-yeets px-3 py-1 text-xs font-bold uppercase tracking-wider text-stat-yeets" title="Yeets">
                 {row.original.yeets}
               </span>
             )}
@@ -154,7 +152,7 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
   }, [activeTab])
 
   return (
-    <main className="wc-panel-gold animate-slide-up" style={{ animationDelay: '0.2s' }}>
+    <main className="overflow-hidden rounded-md border border-border-subtle bg-surface-base animate-slide-up" style={{ animationDelay: '0.2s' }}>
       {/* Tab Navigation */}
       <FilterTabs activeTab={activeTab} onTabChange={onTabChange} />
 
@@ -182,7 +180,7 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
 
 function EmptyState() {
   return (
-    <div className="py-12 text-center text-warcraft-text-muted">
+    <div className="py-12 text-center text-text-secondary">
       <SkullIcon className="w-12 h-12 mx-auto mb-4 opacity-30" />
       <p>No deaths recorded yet. Impressive!</p>
     </div>
@@ -191,8 +189,8 @@ function EmptyState() {
 
 function LeaderboardFooter({ playerCount }: LeaderboardFooterProps) {
   return (
-    <div className="px-6 py-4 border-t border-warcraft-border bg-warcraft-bg/30">
-      <p className="text-center text-warcraft-text-dark text-sm">
+    <div className="border-t border-border-subtle bg-background-app px-6 py-4">
+      <p className="text-center text-text-secondary text-sm">
         {/* TODO: Dungeon filter dropdown will go here */}
         Showing all dungeons • {playerCount} {playerCount === 1 ? 'player' : 'players'} ranked
       </p>

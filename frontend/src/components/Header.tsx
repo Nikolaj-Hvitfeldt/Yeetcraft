@@ -10,7 +10,7 @@ export function Header() {
         <ThemeSwitcher />
       </div>
       <h1 className="text-5xl md:text-6xl mb-2 tracking-wider">Yeetcraft</h1>
-      <p className="text-warcraft-text-muted text-lg font-body mb-6">
+      <p className="mb-6 text-lg text-text-secondary font-body">
         Hall of Shame
       </p>
     </header>

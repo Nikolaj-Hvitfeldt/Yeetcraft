@@ -1,128 +1,11 @@
 /**
- * Yeetcraft - Theme-aware global styles
- * 
- * Uses CSS custom properties so the entire UI responds to
- * the data-theme attribute on <html>.
- * 
- * Themes:
- *   - warcraft (default): deep browns/blacks, gold/orange accents
- *   - midnight: deep navy/violet, electric blue accents (WoW: Midnight)
+ * Yeetcraft - global styles
+ *
+ * Design tokens are defined in src/themes and injected as CSS variables by
+ * ThemeProvider. This file intentionally stays small until the Figma overhaul.
  */
 
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap');
-
-/* ── Theme variables ───────────────────────────────────────── */
-
-:root,
-[data-theme="warcraft"] {
-  /* Backgrounds */
-  --theme-bg: #0d0a06;
-  --theme-bg-light: #1a1209;
-  --theme-surface: #261d14;
-  --theme-surface-hover: #342718;
-
-  /* Accent (gold/orange) */
-  --theme-accent: #ff8000;
-  --theme-accent-light: #ffaa44;
-  --theme-accent-dark: #cc6600;
-
-  /* Borders */
-  --theme-border: #5c4a32;
-  --theme-border-light: #8b7355;
-  --theme-border-gold: #b8860b;
-
-  /* Text */
-  --theme-text: #e8dcc8;
-  --theme-text-muted: #a89880;
-  --theme-text-dark: #6b5c4a;
-
-  /* Shadows / glow */
-  --theme-shadow: 0 0 20px rgba(255, 128, 0, 0.15);
-  --theme-shadow-lg: 0 0 40px rgba(255, 128, 0, 0.2);
-  --theme-glow-color: rgba(255, 193, 7, 0.5);
-  --theme-glow-color-soft: rgba(255, 193, 7, 0.1);
-
-  /* Panel gradient */
-  --theme-panel-from: rgba(52, 39, 24, 0.5);
-  --theme-panel-to: rgba(26, 18, 9, 0.8);
-
-  /* Body background gradient */
-  --theme-body-radial: rgba(38, 29, 20, 0.8);
-  --theme-body-linear-from: #0d0a06;
-  --theme-body-linear-to: #0a0705;
-
-  /* Scrollbar */
-  --theme-scrollbar-track: #1a1209;
-  --theme-scrollbar-border: #5c4a32;
-  --theme-scrollbar-thumb-from: #5c4a32;
-  --theme-scrollbar-thumb-to: #3d3121;
-  --theme-scrollbar-thumb-border: #8b7355;
-  --theme-scrollbar-thumb-hover-from: #8b7355;
-  --theme-scrollbar-thumb-hover-to: #5c4a32;
-
-  /* Selection */
-  --theme-selection-bg: rgba(255, 193, 7, 0.3);
-  --theme-selection-color: #ffd54f;
-
-  /* Rank 1 glow */
-  --theme-rank-first-glow: rgba(255, 215, 0, 0.3);
-}
-
-[data-theme="midnight"] {
-  /* Backgrounds – deep navy / violet */
-  --theme-bg: #0a0e1a;
-  --theme-bg-light: #10152a;
-  --theme-surface: #161c35;
-  --theme-surface-hover: #1e2545;
-
-  /* Accent – electric blue */
-  --theme-accent: #5eb8ff;
-  --theme-accent-light: #8ed0ff;
-  --theme-accent-dark: #2e7dcc;
-
-  /* Borders – muted blue-purple */
-  --theme-border: #2a3255;
-  --theme-border-light: #3d4a6e;
-  --theme-border-gold: #4a6fa5;
-
-  /* Text – light grey-blue */
-  --theme-text: #e0e4f0;
-  --theme-text-muted: #8a94b8;
-  --theme-text-dark: #556080;
-
-  /* Shadows / glow */
-  --theme-shadow: 0 0 20px rgba(94, 184, 255, 0.15);
-  --theme-shadow-lg: 0 0 40px rgba(94, 184, 255, 0.2);
-  --theme-glow-color: rgba(94, 184, 255, 0.5);
-  --theme-glow-color-soft: rgba(94, 184, 255, 0.1);
-
-  /* Panel gradient */
-  --theme-panel-from: rgba(22, 28, 53, 0.6);
-  --theme-panel-to: rgba(10, 14, 26, 0.85);
-
-  /* Body background gradient */
-  --theme-body-radial: rgba(22, 28, 53, 0.8);
-  --theme-body-linear-from: #0a0e1a;
-  --theme-body-linear-to: #070a14;
-
-  /* Scrollbar */
-  --theme-scrollbar-track: #10152a;
-  --theme-scrollbar-border: #2a3255;
-  --theme-scrollbar-thumb-from: #2a3255;
-  --theme-scrollbar-thumb-to: #1e2545;
-  --theme-scrollbar-thumb-border: #3d4a6e;
-  --theme-scrollbar-thumb-hover-from: #3d4a6e;
-  --theme-scrollbar-thumb-hover-to: #2a3255;
-
-  /* Selection */
-  --theme-selection-bg: rgba(94, 184, 255, 0.3);
-  --theme-selection-color: #8ed0ff;
-
-  /* Rank 1 glow */
-  --theme-rank-first-glow: rgba(94, 184, 255, 0.3);
-}
-
-/* ── Tailwind layers ───────────────────────────────────────── */
 
 @tailwind base;
 @tailwind components;
@@ -138,303 +21,36 @@
   }
 
   body {
-    background-color: var(--theme-bg);
-    color: var(--theme-text);
-    font-family: 'Crimson Text', Georgia, serif;
+    min-height: 100vh;
+    margin: 0;
+    background-color: var(--color-background-app);
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+    line-height: var(--text-line-height-relaxed);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    line-height: 1.6;
-    background-image:
-      radial-gradient(ellipse at top center, var(--theme-body-radial) 0%, transparent 50%),
-      linear-gradient(180deg, var(--theme-body-linear-from) 0%, var(--theme-body-linear-to) 100%);
-    background-attachment: fixed;
-    min-height: 100vh;
-  }
-
-  /* Subtle texture overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
-    opacity: 0.03;
-    pointer-events: none;
-    z-index: 0;
   }
 
   #root {
-    @apply min-h-screen relative;
-    z-index: 1;
+    min-height: 100vh;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Cinzel', 'Times New Roman', serif;
-    color: var(--theme-accent);
-    @apply font-semibold tracking-wide;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--color-accent-primary);
+    font-family: var(--font-heading);
+    font-weight: var(--text-weight-semibold);
+    letter-spacing: 0.025em;
   }
 
   code {
-    font-family: 'Fira Code', 'Consolas', monospace;
-    background-color: var(--theme-surface);
-    color: var(--theme-accent-light);
-    @apply px-2 py-0.5 rounded text-sm;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-surface-base);
+    color: var(--color-text-link);
+    font-family: var(--font-mono);
   }
-}
-
-@layer components {
-  /* ── Panels ──────────────────────────────────────────────── */
-  .wc-panel {
-    background-color: var(--theme-surface);
-    border: 2px solid var(--theme-border);
-    box-shadow: var(--theme-shadow);
-    background-image: linear-gradient(180deg, var(--theme-panel-from) 0%, var(--theme-panel-to) 100%);
-    @apply rounded-lg;
-  }
-
-  .wc-panel-gold {
-    @apply wc-panel;
-    border-color: var(--theme-border-gold);
-    box-shadow:
-      var(--theme-shadow),
-      inset 0 1px 0 var(--theme-glow-color-soft);
-  }
-
-  /* ── Divider ─────────────────────────────────────────────── */
-  .wc-divider {
-    @apply h-px;
-    background: linear-gradient(to right, transparent, var(--theme-border-gold), transparent);
-  }
-
-  /* ── Tabs ────────────────────────────────────────────────── */
-  .wc-tab {
-    @apply px-3 sm:px-6 py-3 font-warcraft text-xs sm:text-sm uppercase tracking-wider;
-    @apply transition-all duration-200;
-    @apply border-b-2 border-transparent;
-    color: var(--theme-text-muted);
-  }
-
-  .wc-tab:hover {
-    color: var(--wc-tab-hover-color, var(--theme-accent));
-    background-color: color-mix(in srgb, var(--theme-surface) 50%, transparent);
-  }
-
-  .wc-tab-active {
-    color: var(--wc-tab-active-color, var(--theme-accent));
-    border-color: var(--wc-tab-active-color, var(--theme-accent));
-    background-color: color-mix(in srgb, var(--theme-surface) 70%, transparent);
-    text-shadow: 0 0 10px var(--theme-glow-color);
-  }
-
-  /* ── Mistake badges ──────────────────────────────────────── */
-  .mistake-badge {
-    @apply px-3 py-1 rounded text-xs font-bold uppercase tracking-wider;
-    @apply border;
-  }
-
-  .mistake-badge-death {
-    background-color: rgba(0, 112, 221, 0.2);
-    color: #0070dd;
-    border-color: rgba(0, 112, 221, 0.4);
-  }
-
-  .mistake-badge-yeet {
-    background-color: rgba(163, 53, 238, 0.2);
-    color: #a335ee;
-    border-color: rgba(163, 53, 238, 0.4);
-  }
-
-  /* ── Rank numbers ────────────────────────────────────────── */
-  .rank-number {
-    @apply w-10 h-10 flex items-center justify-center rounded-full;
-    @apply font-warcraft font-bold text-lg;
-    @apply border-2;
-  }
-
-  .rank-1 {
-    @apply bg-rank-first/20 border-rank-first text-rank-first;
-    box-shadow: 0 0 15px var(--theme-rank-first-glow);
-  }
-  .rank-2 {
-    @apply bg-rank-second/20 border-rank-second text-rank-second;
-  }
-  .rank-3 {
-    @apply bg-rank-third/20 border-rank-third text-rank-third;
-  }
-  .rank-default {
-    background-color: var(--theme-surface);
-    border-color: var(--theme-border);
-    color: var(--theme-text-muted);
-  }
-
-  /* ── Stat counter ────────────────────────────────────────── */
-  .stat-counter {
-    @apply flex flex-col items-center justify-center px-3 py-1;
-    @apply min-w-[60px] rounded;
-    background-color: color-mix(in srgb, var(--theme-bg) 50%, transparent);
-    border: 1px solid color-mix(in srgb, var(--theme-border) 30%, transparent);
-  }
-
-  .stat-counter-value {
-    @apply text-xl font-bold font-warcraft;
-  }
-
-  .stat-counter-label {
-    @apply text-xs uppercase tracking-wide;
-    color: var(--theme-text-muted);
-  }
-
-  /* ── Button ──────────────────────────────────────────────── */
-  .wc-button {
-    @apply px-6 py-2 font-warcraft text-sm uppercase tracking-wider;
-    @apply font-semibold rounded;
-    @apply transition-all duration-200;
-    @apply active:scale-95;
-    background: linear-gradient(to bottom, var(--theme-accent), var(--theme-accent-dark));
-    color: var(--theme-bg);
-    border: 1px solid var(--theme-accent-light);
-    box-shadow: var(--theme-shadow);
-  }
-
-  .wc-button:hover {
-    background: linear-gradient(to bottom, var(--theme-accent-light), var(--theme-accent));
-    box-shadow: var(--theme-shadow-lg);
-  }
-
-  /* ── Loading spinner ─────────────────────────────────────── */
-  .wc-spinner {
-    @apply w-8 h-8 border-2 rounded-full animate-spin;
-    border-color: var(--theme-border);
-    border-top-color: var(--theme-accent);
-  }
-
-  /* ── Stagger delays ──────────────────────────────────────── */
-  .stagger-1 { animation-delay: 0.05s; }
-  .stagger-2 { animation-delay: 0.1s; }
-  .stagger-3 { animation-delay: 0.15s; }
-  .stagger-4 { animation-delay: 0.2s; }
-  .stagger-5 { animation-delay: 0.25s; }
-  .stagger-6 { animation-delay: 0.3s; }
-  .stagger-7 { animation-delay: 0.35s; }
-  .stagger-8 { animation-delay: 0.4s; }
-  .stagger-9 { animation-delay: 0.45s; }
-  .stagger-10 { animation-delay: 0.5s; }
-
-  /* ── Table ───────────────────────────────────────────────── */
-  .wc-table {
-    @apply w-full;
-  }
-
-  .wc-table-container {
-    @apply overflow-x-auto;
-  }
-
-  .wc-table-element {
-    @apply w-full border-collapse;
-  }
-
-  .wc-table-header {
-    @apply px-3 sm:px-6 py-3 text-left text-xs uppercase tracking-wider;
-    @apply font-warcraft;
-    color: var(--theme-text-dark);
-    border-bottom: 1px solid var(--theme-border);
-    background-color: color-mix(in srgb, var(--theme-bg) 30%, transparent);
-  }
-
-  .wc-table-header-sortable {
-    @apply cursor-pointer select-none transition-colors;
-  }
-
-  .wc-table-header-sortable:hover {
-    background-color: var(--theme-surface-hover);
-  }
-
-  .wc-table-header-sorted {
-    color: var(--theme-accent);
-  }
-
-  .wc-table-sort-indicator {
-    @apply text-sm;
-    color: var(--theme-accent);
-  }
-
-  .wc-table-row {
-    @apply last:border-b-0;
-    @apply transition-all duration-200;
-    border-bottom: 1px solid color-mix(in srgb, var(--theme-border) 50%, transparent);
-  }
-
-  .wc-table-row:hover {
-    background-color: var(--theme-surface-hover);
-  }
-
-  .wc-table-cell {
-    @apply px-3 sm:px-6 py-4;
-  }
-
-  .wc-table-empty {
-    @apply text-center;
-  }
-
-  .wc-table-pagination {
-    @apply flex items-center justify-between px-6 py-4;
-    border-top: 1px solid var(--theme-border);
-    background-color: color-mix(in srgb, var(--theme-bg) 30%, transparent);
-  }
-}
-
-@layer utilities {
-  /* Fixed WoW item-quality colors (theme independent) */
-  .text-rarity-legendary {
-    color: #ff8000;
-  }
-
-  .text-rarity-epic {
-    color: #a335ee;
-  }
-
-  .text-rarity-rare {
-    color: #0070dd;
-  }
-
-  .text-rarity-uncommon {
-    color: #1eff00;
-  }
-
-  .text-rarity-common {
-    color: #ffffff;
-  }
-
-  .text-rarity-poor {
-    color: #9d9d9d;
-  }
-}
-
-/* ── Custom scrollbar ──────────────────────────────────────── */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--theme-scrollbar-track);
-  border-left: 1px solid var(--theme-scrollbar-border);
-}
-
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--theme-scrollbar-thumb-from) 0%, var(--theme-scrollbar-thumb-to) 100%);
-  border-radius: 5px;
-  border: 1px solid var(--theme-scrollbar-thumb-border);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, var(--theme-scrollbar-thumb-hover-from) 0%, var(--theme-scrollbar-thumb-hover-to) 100%);
-}
-
-/* ── Selection ─────────────────────────────────────────────── */
-::selection {
-  background: var(--theme-selection-bg);
-  color: var(--theme-selection-color);
 }

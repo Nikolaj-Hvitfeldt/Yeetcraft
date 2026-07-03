@@ -6,7 +6,7 @@ interface ErrorMessageProps {
 }
 
 /**
- * Warcraft-themed error display.
+ * Error display.
  */
 export function ErrorMessage({ 
   title = 'Something Went Wrong', 
@@ -14,10 +14,10 @@ export function ErrorMessage({
 }: ErrorMessageProps) {
   return (
     <main className="min-h-screen flex items-center justify-center p-8">
-      <div className="wc-panel border-mistake-wipe p-8 max-w-md text-center animate-fade-in">
-        <SkullIcon className="w-16 h-16 mx-auto mb-4 text-mistake-wipe" />
-        <h2 className="text-2xl text-mistake-wipe mb-4">{title}</h2>
-        <p className="text-warcraft-text-muted">{message}</p>
+      <div className="max-w-md rounded-md border border-stat-deaths bg-surface-base p-8 text-center animate-fade-in">
+        <SkullIcon className="mx-auto mb-4 h-16 w-16 text-stat-deaths" />
+        <h2 className="mb-4 text-2xl text-stat-deaths">{title}</h2>
+        <p className="text-text-secondary">{message}</p>
       </div>
     </main>
   )

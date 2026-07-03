@@ -48,8 +48,8 @@ function getAriaSort(sort: false | 'asc' | 'desc'): 'ascending' | 'descending' |
 }
 
 /**
- * Reusable table component with Warcraft-themed styling.
- * Built on TanStack Table for sorting, pagination, and filtering.
+ * Reusable table component built on TanStack Table for sorting,
+ * pagination, and filtering.
  */
 export function Table<T>({
   data,
@@ -90,9 +90,9 @@ export function Table<T>({
   })
 
   return (
-    <div className={`wc-table ${className}`}>
-      <div className="wc-table-container">
-        <table className="wc-table-element" style={{ tableLayout }}>
+    <div className={`w-full ${className}`}>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse" style={{ tableLayout }}>
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
@@ -105,9 +105,9 @@ export function Table<T>({
                         ? getAriaSort(header.column.getIsSorted())
                         : undefined
                     }
-                    className={`wc-table-header ${
-                      header.column.getCanSort() ? 'wc-table-header-sortable' : ''
-                    } ${header.column.getIsSorted() ? 'wc-table-header-sorted' : ''} ${
+                    className={`px-3 py-3 text-left text-xs uppercase tracking-wider text-text-tertiary border-b border-border-subtle font-heading ${
+                      header.column.getCanSort() ? 'cursor-pointer select-none transition-colors hover:bg-surface-section' : ''
+                    } ${header.column.getIsSorted() ? 'text-accent-primary' : ''} ${
                       getAlign(header.column.columnDef.meta) === 'center' ? 'text-center' : ''
                     } ${getHeaderClassName(header.column.columnDef.meta)}`}
                     style={{
@@ -126,7 +126,7 @@ export function Table<T>({
                     >
                       {flexRender(header.column.columnDef.header, header.getContext())}
                       {showSortIndicator && header.column.getCanSort() && (
-                        <span className="wc-table-sort-indicator">
+                        <span className="text-sm text-accent-primary">
                           {getSortIcon(header.column.getIsSorted())}
                         </span>
                       )}
@@ -139,23 +139,23 @@ export function Table<T>({
           <tbody>
             {table.getRowModel().rows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="wc-table-empty">
-                  <div className="py-12 text-center text-warcraft-text-muted">
+                <td colSpan={columns.length} className="text-center">
+                  <div className="py-12 text-center text-text-secondary">
                     <p>No data available</p>
                   </div>
                 </td>
               </tr>
             ) : (
-              table.getRowModel().rows.map((row, index) => (
+              table.getRowModel().rows.map((row) => (
                 <tr
                   key={row.id}
-                  className={`wc-table-row animate-slide-up stagger-${Math.min(index + 1, 10)}`}
+                  className="border-b border-border-subtle transition-colors last:border-b-0 hover:bg-surface-section animate-slide-up"
                   style={{ animationFillMode: 'both' }}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td
                       key={cell.id}
-                      className={`wc-table-cell ${getCellClassName(cell.column.columnDef.meta)}`}
+                      className={`px-3 py-4 sm:px-6 ${getCellClassName(cell.column.columnDef.meta)}`}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
@@ -168,24 +168,24 @@ export function Table<T>({
       </div>
 
       {enablePagination && table.getPageCount() > 1 && (
-        <div className="wc-table-pagination">
+        <div className="flex items-center justify-between border-t border-border-subtle bg-surface-section px-6 py-4">
           <button
             type="button"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="wc-button"
+            className="rounded-sm border border-accent-primary px-6 py-2 font-heading text-sm uppercase tracking-wider text-accent-primary transition-colors disabled:opacity-50"
             aria-label="Previous page"
           >
             Previous
           </button>
-          <span className="text-warcraft-text-muted">
+          <span className="text-text-secondary">
             Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
           </span>
           <button
             type="button"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="wc-button"
+            className="rounded-sm border border-accent-primary px-6 py-2 font-heading text-sm uppercase tracking-wider text-accent-primary transition-colors disabled:opacity-50"
             aria-label="Next page"
           >
             Next

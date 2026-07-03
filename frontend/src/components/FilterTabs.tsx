@@ -8,9 +8,9 @@ const TABS: { key: FilterTab; label: string }[] = [
 ]
 
 function getTabColor(tab: FilterTab) {
-  if (tab === 'all') return 'var(--theme-accent)'
-  if (tab === 'death') return '#0070dd'
-  return '#a335ee'
+  if (tab === 'all') return 'var(--color-accent-primary)'
+  if (tab === 'death') return 'var(--color-stat-deaths)'
+  return 'var(--color-stat-yeets)'
 }
 
 /**
@@ -21,7 +21,7 @@ export function FilterTabs({ activeTab, onTabChange }: FilterTabsProps) {
     <nav
       role="tablist"
       aria-label="Leaderboard tabs"
-      className="grid border-b border-warcraft-border grid-cols-[40px_1fr_1fr_1fr] sm:grid-cols-[60px_1fr_1fr_1fr]"
+      className="grid border-b border-border-subtle grid-cols-[40px_1fr_1fr_1fr] sm:grid-cols-[60px_1fr_1fr_1fr]"
     >
       {/* Spacer aligns with the table's # column */}
       <div aria-hidden="true" className="border-b-2 border-transparent" />
@@ -34,13 +34,11 @@ export function FilterTabs({ activeTab, onTabChange }: FilterTabsProps) {
           onClick={() => onTabChange(tab.key)}
           style={
             {
-              '--wc-tab-hover-color': getTabColor(tab.key),
-              '--wc-tab-active-color': getTabColor(tab.key),
+              color: activeTab === tab.key ? getTabColor(tab.key) : 'var(--color-text-secondary)',
+              borderColor: activeTab === tab.key ? getTabColor(tab.key) : 'transparent',
             } as CSSProperties
           }
-          className={`wc-tab w-full ${
-            activeTab === tab.key ? 'wc-tab-active' : ''
-          }`}
+          className="w-full border-b-2 px-3 py-3 text-xs uppercase tracking-wider transition-colors sm:px-6 sm:text-sm font-heading hover:bg-surface-section"
         >
           {tab.label}
         </button>

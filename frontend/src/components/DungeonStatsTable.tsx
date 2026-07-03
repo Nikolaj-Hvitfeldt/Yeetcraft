@@ -24,7 +24,7 @@ export function DungeonStatsTable({ stats, enablePagination = false }: DungeonSt
         cell: ({ getValue }) => {
           const value = getValue()
           if (typeof value !== 'string') return null
-          return <span className="text-lg font-semibold text-warcraft-text">{value}</span>
+          return <span className="text-lg font-semibold text-text-primary">{value}</span>
         },
       },
       {
@@ -36,7 +36,7 @@ export function DungeonStatsTable({ stats, enablePagination = false }: DungeonSt
           if (typeof value !== 'number') return null
           return (
             <div className="text-center">
-              <span className="text-2xl font-warcraft font-bold text-warcraft-gold">{value}</span>
+              <span className="text-2xl font-heading font-bold text-accent-primary">{value}</span>
             </div>
           )
         },
@@ -50,7 +50,7 @@ export function DungeonStatsTable({ stats, enablePagination = false }: DungeonSt
           if (typeof value !== 'number') return null
           return (
             <div className="text-center">
-              <span className="mistake-badge mistake-badge-death">{value}</span>
+              <span className="rounded-sm border border-stat-deaths px-3 py-1 text-xs font-bold uppercase tracking-wider text-stat-deaths">{value}</span>
             </div>
           )
         },
@@ -64,7 +64,7 @@ export function DungeonStatsTable({ stats, enablePagination = false }: DungeonSt
           if (typeof value !== 'number') return null
           return (
             <div className="text-center">
-              <span className="mistake-badge mistake-badge-yeet">{value}</span>
+              <span className="rounded-sm border border-stat-yeets px-3 py-1 text-xs font-bold uppercase tracking-wider text-stat-yeets">{value}</span>
             </div>
           )
         },
