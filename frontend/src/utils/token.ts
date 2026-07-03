@@ -10,27 +10,24 @@
 const TOKEN_STORAGE_KEY = 'yeetcraft_token'
 
 /**
- * Gets the access token from URL or localStorage.
- * 
- * If token is in URL, it's extracted, stored, and URL is cleaned.
- * 
- * @returns The access token, or null if not found
+ * Reads ?token= from the URL once at startup and stores it.
+ * Call this before React mounts so the first API request has the header.
+ */
+export function captureTokenFromUrl(): void {
+  const urlParams = new URLSearchParams(window.location.search)
+  const urlToken = urlParams.get('token')?.trim()
+  if (!urlToken) return
+
+  localStorage.setItem(TOKEN_STORAGE_KEY, urlToken)
+  cleanTokenFromUrl()
+}
+
+/**
+ * Gets the stored access token.
  */
 export function getAccessToken(): string | null {
-  // Check URL query parameter first (for shared links)
-  const urlParams = new URLSearchParams(window.location.search)
-  const urlToken = urlParams.get('token')
-  
-  if (urlToken) {
-    // Store token from URL for future requests
-    localStorage.setItem(TOKEN_STORAGE_KEY, urlToken)
-    // Clean URL by removing token parameter for cleaner URLs
-    cleanTokenFromUrl()
-    return urlToken
-  }
-  
-  // Fall back to stored token
-  return localStorage.getItem(TOKEN_STORAGE_KEY)
+  const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY)?.trim()
+  return storedToken || null
 }
 
 /**

@@ -1,6 +1,6 @@
 import { useMemo, useCallback } from 'react'
 import { Routes, Route, useSearchParams } from 'react-router-dom'
-import { useMistakes, aggregateByPlayer, calculateTotalStats, type FilterTab, ThemeProvider } from './hooks'
+import { useLeaderboard, deriveLeaderboard, calculateTotalStats, type FilterTab, ThemeProvider } from './hooks'
 import {
   LoadingSpinner,
   ErrorMessage,
@@ -36,15 +36,13 @@ function LeaderboardPage() {
     setSearchParams({ tab }, { replace: true })
   }, [setSearchParams])
 
-  // Fetch data with TanStack Query
-  const { data: mistakes = [], isLoading, error } = useMistakes()
+  const { data: leaderboardEntries = [], isLoading, error } = useLeaderboard()
 
-  // Compute derived state
   const leaderboard = useMemo(
-    () => aggregateByPlayer(mistakes, activeTab),
-    [mistakes, activeTab]
+    () => deriveLeaderboard(leaderboardEntries, activeTab),
+    [leaderboardEntries, activeTab]
   )
-  const totalStats = useMemo(() => calculateTotalStats(mistakes), [mistakes])
+  const totalStats = useMemo(() => calculateTotalStats(leaderboardEntries), [leaderboardEntries])
 
   // Auth check
   const hasToken = getAccessToken()
@@ -52,7 +50,7 @@ function LeaderboardPage() {
 
   if (isLoading) return <LoadingSpinner />
   if (needsAuth && !hasToken) return <AuthRequired />
-  if (error && mistakes.length === 0) return <ErrorMessage message={error.message} />
+  if (error && leaderboardEntries.length === 0) return <ErrorMessage message={error.message} />
 
   return (
     <div className="min-h-screen py-8 px-4">
@@ -79,7 +77,7 @@ export function App() {
       <ErrorBoundary>
         <Routes>
           <Route path="/" element={<LeaderboardPage />} />
-          <Route path="/player/:name" element={<PlayerProfile />} />
+          <Route path="/player/:playerId" element={<PlayerProfile />} />
         </Routes>
       </ErrorBoundary>
     </ThemeProvider>

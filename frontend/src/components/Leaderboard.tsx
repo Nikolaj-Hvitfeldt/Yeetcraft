@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import { type CellContext, type ColumnDef, type Table as ReactTable } from '@tanstack/react-table'
 import { PlayerStats, FilterTab } from '../hooks'
 import { FilterTabs } from './FilterTabs'
@@ -57,10 +58,17 @@ export function Leaderboard({ leaderboard, activeTab, onTabChange }: Leaderboard
         header: 'Player',
         meta: { align: 'center' },
         enableSorting: true,
-        cell: ({ getValue }) => {
+        cell: ({ getValue, row }) => {
           const value = getValue()
           if (typeof value !== 'string') return null
-          return <span className="text-lg font-semibold text-warcraft-text truncate block">{value}</span>
+          return (
+            <Link
+              to={`/player/${row.original.playerId}`}
+              className="text-lg font-semibold text-warcraft-text hover:text-warcraft-gold transition-colors truncate block"
+            >
+              {value}
+            </Link>
+          )
         },
       },
     ]

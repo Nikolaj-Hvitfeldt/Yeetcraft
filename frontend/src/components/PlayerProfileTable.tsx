@@ -1,25 +1,17 @@
 import { useMemo } from 'react'
 import { type ColumnDef } from '@tanstack/react-table'
 import { Table } from './Table'
-import { MistakeDto } from '../api/types'
+import { DungeonStats } from '../api/types'
 
 /**
- * Table component for displaying a player's mistakes.
- * Can be used in player profile pages.
- * 
- * Example usage:
- * ```tsx
- * <PlayerProfileTable 
- *   mistakes={playerMistakes} 
- *   enablePagination={true}
- * />
- * ```
+ * Table component for displaying a player's aggregated dungeon stats.
  */
-export function PlayerProfileTable({ mistakes, enablePagination = false }: PlayerProfileTableProps) {
-  const columns = useMemo<ColumnDef<MistakeDto>[]>(
+export function PlayerProfileTable({ dungeons, enablePagination = false }: PlayerProfileTableProps) {
+  const columns = useMemo<ColumnDef<DungeonStats>[]>(
     () => [
       {
-        accessorKey: 'dungeon',
+        accessorFn: (row) => row.dungeon.name,
+        id: 'dungeon',
         header: 'Dungeon',
         enableSorting: true,
         cell: ({ getValue }) => {
@@ -29,42 +21,44 @@ export function PlayerProfileTable({ mistakes, enablePagination = false }: Playe
         },
       },
       {
-        accessorKey: 'type',
-        header: 'Type',
+        accessorKey: 'totalMistakes',
+        header: 'Total',
         enableSorting: true,
         cell: ({ getValue }) => {
-          const type = getValue()
-          if (typeof type !== 'string') return null
-          const badgeClass = type === 'death' ? 'mistake-badge-death' : 'mistake-badge-yeet'
+          const value = getValue()
+          if (typeof value !== 'number') return null
           return (
-            <span className={`mistake-badge ${badgeClass}`}>
-              {type.charAt(0).toUpperCase() + type.slice(1)}
-            </span>
+            <div className="text-center">
+              <span className="text-2xl font-warcraft font-bold text-warcraft-gold">{value}</span>
+            </div>
           )
         },
       },
       {
-        accessorKey: 'description',
-        header: 'Description',
-        enableSorting: false,
+        accessorKey: 'deaths',
+        header: 'Deaths',
+        enableSorting: true,
         cell: ({ getValue }) => {
           const value = getValue()
-          if (typeof value !== 'string') return null
-          return <span className="text-warcraft-text-muted">{value}</span>
+          if (typeof value !== 'number') return null
+          return (
+            <div className="text-center">
+              <span className="mistake-badge mistake-badge-death">{value}</span>
+            </div>
+          )
         },
       },
       {
-        accessorKey: 'timestamp',
-        header: 'Date',
+        accessorKey: 'yeets',
+        header: 'Yeets',
         enableSorting: true,
         cell: ({ getValue }) => {
-          const timestamp = getValue()
-          if (typeof timestamp !== 'number') return null
-          const date = new Date(timestamp)
+          const value = getValue()
+          if (typeof value !== 'number') return null
           return (
-            <span className="text-warcraft-text-muted text-sm">
-              {date.toLocaleDateString()} {date.toLocaleTimeString()}
-            </span>
+            <div className="text-center">
+              <span className="mistake-badge mistake-badge-yeet">{value}</span>
+            </div>
           )
         },
       },
@@ -74,16 +68,17 @@ export function PlayerProfileTable({ mistakes, enablePagination = false }: Playe
 
   return (
     <Table
-      data={mistakes}
+      data={dungeons}
       columns={columns}
       enableSorting={true}
       enablePagination={enablePagination}
+      showSortIndicator={false}
       pageSize={10}
     />
   )
 }
 
 interface PlayerProfileTableProps {
-  mistakes: MistakeDto[]
+  dungeons: DungeonStats[]
   enablePagination?: boolean
 }

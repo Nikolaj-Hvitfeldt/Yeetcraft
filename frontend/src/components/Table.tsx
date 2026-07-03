@@ -82,6 +82,7 @@ export function Table<T>({
       // Use a unique identifier if available, otherwise fall back to index
       if (typeof row === 'object' && row !== null) {
         if ('id' in row) return String(row.id)
+        if ('playerId' in row) return String(row.playerId)
         if ('playerName' in row) return String(row.playerName)
       }
       return String(index)
