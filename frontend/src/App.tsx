@@ -1,72 +1,8 @@
-import { useMemo, useCallback } from 'react'
-import { Routes, Route, useSearchParams } from 'react-router-dom'
-import { useLeaderboard, deriveLeaderboard, calculateTotalStats, type FilterTab, ThemeProvider } from './hooks'
-import {
-  LoadingSpinner,
-  ErrorMessage,
-  AuthRequired,
-  Header,
-  StatsSummary,
-  Leaderboard,
-  Footer,
-} from './components'
+import { Routes, Route } from 'react-router-dom'
+import { ThemeProvider } from './hooks'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { PlayerProfile } from './components/PlayerProfile'
-import { getAccessToken } from './utils/token'
-
-function isValidTab(value: string | null): value is FilterTab {
-  if (!value) return false
-  return value === 'all' || value === 'death' || value === 'yeet'
-}
-
-/**
- * Leaderboard page with URL-synced tab state.
- */
-function LeaderboardPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
-
-  const tabParam = searchParams.get('tab')
-  const activeTab: FilterTab = isValidTab(tabParam) ? tabParam : 'all'
-
-  const handleTabChange = useCallback((tab: FilterTab) => {
-    if (tab === 'all') {
-      setSearchParams({}, { replace: true })
-      return
-    }
-    setSearchParams({ tab }, { replace: true })
-  }, [setSearchParams])
-
-  const { data: leaderboardEntries = [], isLoading, error } = useLeaderboard()
-
-  const leaderboard = useMemo(
-    () => deriveLeaderboard(leaderboardEntries, activeTab),
-    [leaderboardEntries, activeTab]
-  )
-  const totalStats = useMemo(() => calculateTotalStats(leaderboardEntries), [leaderboardEntries])
-
-  // Auth check
-  const hasToken = getAccessToken()
-  const needsAuth = error?.message?.includes('Unauthorized') || error?.message?.includes('token')
-
-  if (isLoading) return <LoadingSpinner />
-  if (needsAuth && !hasToken) return <AuthRequired />
-  if (error && leaderboardEntries.length === 0) return <ErrorMessage message={error.message} />
-
-  return (
-    <div className="min-h-screen py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        <Header />
-        <StatsSummary {...totalStats} />
-        <Leaderboard
-          leaderboard={leaderboard}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-        />
-        <Footer />
-      </div>
-    </div>
-  )
-}
+import { HomePage } from './components/home'
 
 /**
  * Main application component with routing, error boundary, and theme.
@@ -76,7 +12,7 @@ export function App() {
     <ThemeProvider>
       <ErrorBoundary>
         <Routes>
-          <Route path="/" element={<LeaderboardPage />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/player/:playerId" element={<PlayerProfile />} />
         </Routes>
       </ErrorBoundary>

@@ -1,4 +1,4 @@
-export { useLeaderboard, usePlayerStats, useSeasons, deriveLeaderboard, calculateTotalStats } from './useStats'
+export { useCurrentSeasonDungeons, useLeaderboard, usePlayerStats, useSeasons, deriveLeaderboard, calculateTotalStats } from './useStats'
 export type { PlayerStats, FilterTab } from './useStats'
 export { useHealth } from './useHealth'
 export { useTheme, ThemeProvider } from './useTheme'

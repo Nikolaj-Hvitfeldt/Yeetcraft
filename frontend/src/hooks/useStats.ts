@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { fetchLeaderboard, fetchPlayerStats, fetchSeasons } from '../api/api'
+import { fetchCurrentSeasonDungeons, fetchLeaderboard, fetchPlayerStats, fetchSeasons } from '../api/api'
 import { LeaderboardEntry } from '../api/types'
 
 export type FilterTab = 'all' | 'death' | 'yeet'
@@ -43,6 +43,17 @@ export function useSeasons() {
     queryFn: async () => {
       const response = await fetchSeasons()
       return response.seasons
+    },
+    staleTime: 60_000,
+  })
+}
+
+export function useCurrentSeasonDungeons() {
+  return useQuery({
+    queryKey: ['current-season-dungeons'],
+    queryFn: async () => {
+      const response = await fetchCurrentSeasonDungeons()
+      return response.dungeons
     },
     staleTime: 60_000,
   })
