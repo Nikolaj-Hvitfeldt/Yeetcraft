@@ -35,6 +35,7 @@ func (serverConfig ServerConfig) Address() string {
 }
 
 type DatabaseConfig struct {
+	URL      string
 	Host     string
 	Port     string
 	Name     string
@@ -49,19 +50,40 @@ func Load() Config {
 			Host: getenv("SERVER_HOST", defaultServerHost),
 			Port: getenv("SERVER_PORT", defaultServerPort),
 		},
-		Database: DatabaseConfig{
-			Host:     getenv("DB_HOST", defaultDBHost),
-			Port:     getenv("DB_PORT", defaultDBPort),
-			Name:     getenv("DB_NAME", defaultDBName),
-			User:     getenv("DB_USER", defaultDBUser),
-			Password: getenv("DB_PASSWORD", defaultDBPassword),
-			SSLMode:  getenv("DB_SSL_MODE", defaultDBSSLMode),
-		},
-		APIKey: os.Getenv("API_KEY"),
+		Database: loadDatabaseConfig(),
+		APIKey:   os.Getenv("API_KEY"),
 	}
 }
 
+func loadDatabaseConfig() DatabaseConfig {
+	databaseURL := os.Getenv("DATABASE_URL")
+	if databaseURL != "" {
+		return DatabaseConfig{URL: databaseURL}
+	}
+
+	return DatabaseConfig{
+		Host:     getenv("DB_HOST", defaultDBHost),
+		Port:     getenv("DB_PORT", defaultDBPort),
+		Name:     getenv("DB_NAME", defaultDBName),
+		User:     getenv("DB_USER", defaultDBUser),
+		Password: getenv("DB_PASSWORD", defaultDBPassword),
+		SSLMode:  getenv("DB_SSL_MODE", defaultDBSSLMode),
+	}
+}
+
+func (databaseConfig DatabaseConfig) IsConfigured() bool {
+	if databaseConfig.URL != "" {
+		return true
+	}
+
+	return databaseConfig.Password != "" || databaseConfig.Host != defaultDBHost
+}
+
 func (databaseConfig DatabaseConfig) ConnectionString() string {
+	if databaseConfig.URL != "" {
+		return databaseConfig.URL
+	}
+
 	databaseURL := url.URL{
 		Scheme: "postgres",
 		Host:   net.JoinHostPort(databaseConfig.Host, databaseConfig.Port),

@@ -1,5 +1,5 @@
-export { useMistakes, aggregateByPlayer, calculateTotalStats } from './useMistakes'
-export type { PlayerStats, FilterTab } from './useMistakes'
+export { useLeaderboard, usePlayerStats, useSeasons, deriveLeaderboard, calculateTotalStats } from './useStats'
+export type { PlayerStats, FilterTab } from './useStats'
 export { useHealth } from './useHealth'
 export { useTheme, ThemeProvider } from './useTheme'
 export type { Theme } from './useTheme'
