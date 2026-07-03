@@ -1,21 +1,25 @@
 import { createContext, useContext, useState, useEffect, useCallback, createElement, type ReactNode } from 'react'
+import { applyColorTheme, applyGlobalTheme, type ThemeName } from '../themes'
 
-export type Theme = 'warcraft' | 'midnight'
+export type Theme = ThemeName
 
 const STORAGE_KEY = 'yeetcraft-theme'
-const DEFAULT_THEME: Theme = 'warcraft'
+const DEFAULT_THEME: Theme = 'daytime'
 
 export const ThemeContext = createContext<ThemeContextValue | null>(null)
 
 function getInitialTheme(): Theme {
   if (typeof window === 'undefined') return DEFAULT_THEME
   const stored = localStorage.getItem(STORAGE_KEY)
-  if (stored === 'warcraft' || stored === 'midnight') return stored
+  if (stored === 'warcraft') return 'daytime'
+  if (stored === 'daytime' || stored === 'midnight') return stored
   return DEFAULT_THEME
 }
 
 function applyTheme(theme: Theme) {
   document.documentElement.setAttribute('data-theme', theme)
+  applyGlobalTheme()
+  applyColorTheme(theme)
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
