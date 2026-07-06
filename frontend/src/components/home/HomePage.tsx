@@ -42,7 +42,7 @@ export function HomePage() {
     data: dungeons = [],
     isLoading: isLoadingDungeons,
     error: dungeonsError,
-  } = useCurrentSeasonDungeons()
+  } = useCurrentSeasonDungeons(selectedSeasonId)
 
   const leaderboard = useMemo(
     () => deriveLeaderboard(leaderboardEntries),

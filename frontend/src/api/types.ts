@@ -36,6 +36,9 @@ export interface DungeonSummary {
   name: string
   shortName: string | null
   displayOrder: number
+  totalDeaths: number
+  totalYeets: number
+  totalMistakes: number
 }
 
 export interface DungeonStats {

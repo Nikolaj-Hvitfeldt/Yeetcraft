@@ -74,8 +74,9 @@ export async function fetchSeasons(): Promise<SeasonsResponse> {
   return fetchApi<SeasonsResponse>('/api/seasons')
 }
 
-export async function fetchCurrentSeasonDungeons(): Promise<CurrentSeasonDungeonsResponse> {
-  return fetchApi<CurrentSeasonDungeonsResponse>('/api/seasons/current/dungeons')
+export async function fetchCurrentSeasonDungeons(seasonId?: string): Promise<CurrentSeasonDungeonsResponse> {
+  const query = seasonId ? `?seasonId=${encodeURIComponent(seasonId)}` : ''
+  return fetchApi<CurrentSeasonDungeonsResponse>(`/api/seasons/current/dungeons${query}`)
 }
 
 export async function setStats(request: SetStatsRequest): Promise<StatResponse> {

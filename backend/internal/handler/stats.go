@@ -19,6 +19,7 @@ type StatsRepository interface {
 	GetPlayerStats(ctx context.Context, playerID string, seasonID string) (repository.PlayerStats, error)
 	ListSeasons(ctx context.Context) ([]repository.SeasonSummary, error)
 	ListCurrentSeasonDungeons(ctx context.Context) (repository.SeasonSummary, []repository.DungeonSummary, error)
+	ListSeasonDungeons(ctx context.Context, seasonID string) (repository.SeasonSummary, []repository.DungeonSummary, error)
 	SetStats(ctx context.Context, playerID string, seasonID string, dungeonID string, deaths int, yeets int) (repository.StatRow, error)
 	AdjustStat(ctx context.Context, playerID string, seasonID string, dungeonID string, field repository.StatField, delta int) (repository.StatRow, error)
 }
@@ -119,7 +120,13 @@ func (statsHandler StatsHandler) Seasons(responseWriter http.ResponseWriter, req
 }
 
 func (statsHandler StatsHandler) CurrentSeasonDungeons(responseWriter http.ResponseWriter, request *http.Request) {
-	season, dungeons, err := statsHandler.statsRepository.ListCurrentSeasonDungeons(request.Context())
+	seasonID := request.URL.Query().Get("seasonId")
+	if seasonID != "" && !isValidUUID(seasonID) {
+		WriteError(responseWriter, http.StatusBadRequest, "Bad Request", "seasonId must be a valid UUID.")
+		return
+	}
+
+	season, dungeons, err := statsHandler.statsRepository.ListSeasonDungeons(request.Context(), seasonID)
 	if err != nil {
 		writeRepositoryError(responseWriter, err)
 		return

@@ -46,11 +46,11 @@ export function useSeasons() {
   })
 }
 
-export function useCurrentSeasonDungeons() {
+export function useCurrentSeasonDungeons(seasonId?: string) {
   return useQuery({
-    queryKey: ['current-season-dungeons'],
+    queryKey: ['season-dungeons', seasonId ?? 'current'],
     queryFn: async () => {
-      const response = await fetchCurrentSeasonDungeons()
+      const response = await fetchCurrentSeasonDungeons(seasonId)
       return response.dungeons
     },
     staleTime: 60_000,
