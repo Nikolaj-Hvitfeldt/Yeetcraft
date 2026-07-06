@@ -40,10 +40,13 @@ type SeasonSummary struct {
 }
 
 type DungeonSummary struct {
-	ID           string  `json:"id"`
-	Name         string  `json:"name"`
-	ShortName    *string `json:"shortName"`
-	DisplayOrder int     `json:"displayOrder"`
+	ID            string  `json:"id"`
+	Name          string  `json:"name"`
+	ShortName     *string `json:"shortName"`
+	DisplayOrder  int     `json:"displayOrder"`
+	TotalDeaths   int     `json:"totalDeaths"`
+	TotalYeets    int     `json:"totalYeets"`
+	TotalMistakes int     `json:"totalMistakes"`
 }
 
 type LeaderboardEntry struct {
@@ -86,9 +89,14 @@ func NewStatsRepository(pool *pgxpool.Pool) StatsRepository {
 	}
 }
 
-func (statsRepository StatsRepository) ListLeaderboard(ctx context.Context) ([]LeaderboardEntry, error) {
+func (statsRepository StatsRepository) ListLeaderboard(ctx context.Context, seasonID string) ([]LeaderboardEntry, error) {
 	if statsRepository.pool == nil {
 		return nil, ErrDatabaseNotConfigured
+	}
+
+	season, err := statsRepository.resolveSeason(ctx, seasonID)
+	if err != nil {
+		return nil, err
 	}
 
 	const query = `
@@ -100,16 +108,14 @@ func (statsRepository StatsRepository) ListLeaderboard(ctx context.Context) ([]L
 			coalesce(sum(player_dungeon_stats.yeets), 0)::int as total_yeets,
 			(coalesce(sum(player_dungeon_stats.deaths), 0) + coalesce(sum(player_dungeon_stats.yeets), 0))::int as total_mistakes
 		from players
-		cross join seasons
 		left join player_dungeon_stats
 			on player_dungeon_stats.player_id = players.id
-			and player_dungeon_stats.season_id = seasons.id
-		where seasons.is_current = true
+			and player_dungeon_stats.season_id = $1::uuid
 		group by players.id, players.display_name, players.avatar_url
 		order by total_mistakes desc, total_yeets desc, players.display_name asc
 	`
 
-	rows, err := statsRepository.pool.Query(ctx, query)
+	rows, err := statsRepository.pool.Query(ctx, query, season.ID)
 	if err != nil {
 		return nil, fmt.Errorf("query leaderboard: %w", err)
 	}
@@ -244,40 +250,63 @@ func (statsRepository StatsRepository) ListSeasons(ctx context.Context) ([]Seaso
 }
 
 func (statsRepository StatsRepository) ListCurrentSeasonDungeons(ctx context.Context) (SeasonSummary, []DungeonSummary, error) {
+	return statsRepository.ListSeasonDungeons(ctx, "")
+}
+
+func (statsRepository StatsRepository) ListSeasonDungeons(ctx context.Context, seasonID string) (SeasonSummary, []DungeonSummary, error) {
 	if statsRepository.pool == nil {
 		return SeasonSummary{}, nil, ErrDatabaseNotConfigured
 	}
 
-	season, err := statsRepository.resolveSeason(ctx, "")
+	season, err := statsRepository.resolveSeason(ctx, seasonID)
 	if err != nil {
 		return SeasonSummary{}, nil, err
 	}
 
 	const query = `
-		select dungeons.id::text, dungeons.name, dungeons.short_name, season_dungeons.display_order
+		select
+			dungeons.id::text,
+			dungeons.name,
+			dungeons.short_name,
+			season_dungeons.display_order,
+			coalesce(sum(player_dungeon_stats.deaths), 0)::int as total_deaths,
+			coalesce(sum(player_dungeon_stats.yeets), 0)::int as total_yeets,
+			(coalesce(sum(player_dungeon_stats.deaths), 0) + coalesce(sum(player_dungeon_stats.yeets), 0))::int as total_mistakes
 		from season_dungeons
 		join dungeons on dungeons.id = season_dungeons.dungeon_id
+		left join player_dungeon_stats
+			on player_dungeon_stats.season_id = season_dungeons.season_id
+			and player_dungeon_stats.dungeon_id = season_dungeons.dungeon_id
 		where season_dungeons.season_id = $1::uuid
+		group by dungeons.id, dungeons.name, dungeons.short_name, season_dungeons.display_order
 		order by season_dungeons.display_order asc, dungeons.name asc
 	`
 
 	rows, err := statsRepository.pool.Query(ctx, query, season.ID)
 	if err != nil {
-		return SeasonSummary{}, nil, fmt.Errorf("query current season dungeons: %w", err)
+		return SeasonSummary{}, nil, fmt.Errorf("query season dungeons: %w", err)
 	}
 	defer rows.Close()
 
 	dungeons := make([]DungeonSummary, 0)
 	for rows.Next() {
 		var dungeon DungeonSummary
-		if err := rows.Scan(&dungeon.ID, &dungeon.Name, &dungeon.ShortName, &dungeon.DisplayOrder); err != nil {
-			return SeasonSummary{}, nil, fmt.Errorf("scan current season dungeon: %w", err)
+		if err := rows.Scan(
+			&dungeon.ID,
+			&dungeon.Name,
+			&dungeon.ShortName,
+			&dungeon.DisplayOrder,
+			&dungeon.TotalDeaths,
+			&dungeon.TotalYeets,
+			&dungeon.TotalMistakes,
+		); err != nil {
+			return SeasonSummary{}, nil, fmt.Errorf("scan season dungeon: %w", err)
 		}
 		dungeons = append(dungeons, dungeon)
 	}
 
 	if err := rows.Err(); err != nil {
-		return SeasonSummary{}, nil, fmt.Errorf("iterate current season dungeons: %w", err)
+		return SeasonSummary{}, nil, fmt.Errorf("iterate season dungeons: %w", err)
 	}
 
 	return season, dungeons, nil

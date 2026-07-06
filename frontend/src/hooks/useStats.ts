@@ -1,8 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { fetchLeaderboard, fetchPlayerStats, fetchSeasons } from '../api/api'
+import { fetchCurrentSeasonDungeons, fetchLeaderboard, fetchPlayerStats, fetchSeasons } from '../api/api'
 import { LeaderboardEntry } from '../api/types'
-
-export type FilterTab = 'all' | 'death' | 'yeet'
 
 export interface PlayerStats {
   playerId: string
@@ -13,11 +11,11 @@ export interface PlayerStats {
   yeets: number
 }
 
-export function useLeaderboard() {
+export function useLeaderboard(seasonId?: string) {
   return useQuery({
-    queryKey: ['leaderboard'],
+    queryKey: ['leaderboard', seasonId ?? 'current'],
     queryFn: async () => {
-      const response = await fetchLeaderboard()
+      const response = await fetchLeaderboard(seasonId)
       return response.leaderboard
     },
     staleTime: 30_000,
@@ -48,18 +46,28 @@ export function useSeasons() {
   })
 }
 
-export function deriveLeaderboard(entries: LeaderboardEntry[], filter: FilterTab): PlayerStats[] {
+export function useCurrentSeasonDungeons(seasonId?: string) {
+  return useQuery({
+    queryKey: ['season-dungeons', seasonId ?? 'current'],
+    queryFn: async () => {
+      const response = await fetchCurrentSeasonDungeons(seasonId)
+      return response.dungeons
+    },
+    staleTime: 60_000,
+  })
+}
+
+export function deriveLeaderboard(entries: LeaderboardEntry[]): PlayerStats[] {
   const leaderboard = entries.map((entry) => ({
     playerId: entry.playerId,
     playerName: entry.displayName,
     avatarUrl: entry.avatarUrl,
-    total: getFilteredTotal(entry, filter),
+    total: entry.totalMistakes,
     deaths: entry.totalDeaths,
     yeets: entry.totalYeets,
   }))
 
   return leaderboard
-    .filter((entry) => filter === 'all' || entry.total > 0)
     .sort((firstEntry, secondEntry) => {
       if (secondEntry.total !== firstEntry.total) return secondEntry.total - firstEntry.total
       return secondEntry.yeets - firstEntry.yeets
@@ -77,8 +85,3 @@ export function calculateTotalStats(entries: LeaderboardEntry[]) {
   )
 }
 
-function getFilteredTotal(entry: LeaderboardEntry, filter: FilterTab): number {
-  if (filter === 'death') return entry.totalDeaths
-  if (filter === 'yeet') return entry.totalYeets
-  return entry.totalMistakes
-}

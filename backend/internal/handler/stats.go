@@ -15,10 +15,11 @@ import (
 var uuidPattern = regexp.MustCompile(`(?i)^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`)
 
 type StatsRepository interface {
-	ListLeaderboard(ctx context.Context) ([]repository.LeaderboardEntry, error)
+	ListLeaderboard(ctx context.Context, seasonID string) ([]repository.LeaderboardEntry, error)
 	GetPlayerStats(ctx context.Context, playerID string, seasonID string) (repository.PlayerStats, error)
 	ListSeasons(ctx context.Context) ([]repository.SeasonSummary, error)
 	ListCurrentSeasonDungeons(ctx context.Context) (repository.SeasonSummary, []repository.DungeonSummary, error)
+	ListSeasonDungeons(ctx context.Context, seasonID string) (repository.SeasonSummary, []repository.DungeonSummary, error)
 	SetStats(ctx context.Context, playerID string, seasonID string, dungeonID string, deaths int, yeets int) (repository.StatRow, error)
 	AdjustStat(ctx context.Context, playerID string, seasonID string, dungeonID string, field repository.StatField, delta int) (repository.StatRow, error)
 }
@@ -67,7 +68,13 @@ func NewStatsHandler(statsRepository StatsRepository) StatsHandler {
 }
 
 func (statsHandler StatsHandler) Leaderboard(responseWriter http.ResponseWriter, request *http.Request) {
-	leaderboard, err := statsHandler.statsRepository.ListLeaderboard(request.Context())
+	seasonID := request.URL.Query().Get("seasonId")
+	if seasonID != "" && !isValidUUID(seasonID) {
+		WriteError(responseWriter, http.StatusBadRequest, "Bad Request", "seasonId must be a valid UUID.")
+		return
+	}
+
+	leaderboard, err := statsHandler.statsRepository.ListLeaderboard(request.Context(), seasonID)
 	if err != nil {
 		writeRepositoryError(responseWriter, err)
 		return
@@ -113,7 +120,13 @@ func (statsHandler StatsHandler) Seasons(responseWriter http.ResponseWriter, req
 }
 
 func (statsHandler StatsHandler) CurrentSeasonDungeons(responseWriter http.ResponseWriter, request *http.Request) {
-	season, dungeons, err := statsHandler.statsRepository.ListCurrentSeasonDungeons(request.Context())
+	seasonID := request.URL.Query().Get("seasonId")
+	if seasonID != "" && !isValidUUID(seasonID) {
+		WriteError(responseWriter, http.StatusBadRequest, "Bad Request", "seasonId must be a valid UUID.")
+		return
+	}
+
+	season, dungeons, err := statsHandler.statsRepository.ListSeasonDungeons(request.Context(), seasonID)
 	if err != nil {
 		writeRepositoryError(responseWriter, err)
 		return

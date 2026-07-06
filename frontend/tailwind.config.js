@@ -38,11 +38,15 @@ export default {
         avatar: {
           bg: 'var(--color-avatar-bg)',
         },
+        brand: {
+          gold: 'var(--color-brand-gold)',
+        },
       },
       fontFamily: {
         heading: 'var(--font-heading)',
         body: 'var(--font-body)',
         mono: 'var(--font-mono)',
+        number: 'var(--font-number)',
       },
       spacing: {
         xs: 'var(--spacing-xs)',
