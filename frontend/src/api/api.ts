@@ -60,8 +60,9 @@ export async function fetchHealth(): Promise<HealthResponse> {
   return fetchApi<HealthResponse>('/api/health')
 }
 
-export async function fetchLeaderboard(): Promise<LeaderboardResponse> {
-  return fetchApi<LeaderboardResponse>('/api/leaderboard')
+export async function fetchLeaderboard(seasonId?: string): Promise<LeaderboardResponse> {
+  const query = seasonId ? `?seasonId=${encodeURIComponent(seasonId)}` : ''
+  return fetchApi<LeaderboardResponse>(`/api/leaderboard${query}`)
 }
 
 export async function fetchPlayerStats(playerId: string, seasonId?: string): Promise<PlayerStatsResponse> {

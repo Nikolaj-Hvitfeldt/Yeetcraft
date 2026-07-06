@@ -86,9 +86,14 @@ func NewStatsRepository(pool *pgxpool.Pool) StatsRepository {
 	}
 }
 
-func (statsRepository StatsRepository) ListLeaderboard(ctx context.Context) ([]LeaderboardEntry, error) {
+func (statsRepository StatsRepository) ListLeaderboard(ctx context.Context, seasonID string) ([]LeaderboardEntry, error) {
 	if statsRepository.pool == nil {
 		return nil, ErrDatabaseNotConfigured
+	}
+
+	season, err := statsRepository.resolveSeason(ctx, seasonID)
+	if err != nil {
+		return nil, err
 	}
 
 	const query = `
@@ -100,16 +105,14 @@ func (statsRepository StatsRepository) ListLeaderboard(ctx context.Context) ([]L
 			coalesce(sum(player_dungeon_stats.yeets), 0)::int as total_yeets,
 			(coalesce(sum(player_dungeon_stats.deaths), 0) + coalesce(sum(player_dungeon_stats.yeets), 0))::int as total_mistakes
 		from players
-		cross join seasons
 		left join player_dungeon_stats
 			on player_dungeon_stats.player_id = players.id
-			and player_dungeon_stats.season_id = seasons.id
-		where seasons.is_current = true
+			and player_dungeon_stats.season_id = $1::uuid
 		group by players.id, players.display_name, players.avatar_url
 		order by total_mistakes desc, total_yeets desc, players.display_name asc
 	`
 
-	rows, err := statsRepository.pool.Query(ctx, query)
+	rows, err := statsRepository.pool.Query(ctx, query, season.ID)
 	if err != nil {
 		return nil, fmt.Errorf("query leaderboard: %w", err)
 	}

@@ -1,17 +1,18 @@
-import type { FilterTab, PlayerStats } from '../../hooks'
+import type { SeasonSummary } from '../../api/types'
+import type { PlayerStats } from '../../hooks'
 import { SkullIcon } from '../SkullIcon'
-import { LeaderboardFilter } from './LeaderboardFilter'
 import { LeaderboardRow } from './LeaderboardRow'
+import { SeasonPicker } from './SeasonPicker'
 
-export function RankingsPanel({ activeTab, leaderboard, seasonLabel, onTabChange }: RankingsPanelProps) {
+export function RankingsPanel({ leaderboard, seasons, selectedSeasonId, onSeasonChange }: RankingsPanelProps) {
   return (
     <section className="rounded-lg border border-accent-secondary bg-surface-section p-2xl shadow-2xl">
       <div className="flex flex-col gap-lg sm:flex-row sm:items-start sm:justify-between">
         <h2 className="font-heading text-3xl font-bold leading-9 text-text-accent">Rankings</h2>
-        <LeaderboardFilter
-          activeTab={activeTab}
-          seasonLabel={seasonLabel}
-          onTabChange={onTabChange}
+        <SeasonPicker
+          seasons={seasons}
+          selectedSeasonId={selectedSeasonId}
+          onSeasonChange={onSeasonChange}
         />
       </div>
 
@@ -27,7 +28,7 @@ export function RankingsPanel({ activeTab, leaderboard, seasonLabel, onTabChange
         ) : (
           <div className="rounded-md border border-border-subtle bg-surface-base px-2xl py-4xl text-center text-text-secondary">
             <SkullIcon className="mx-auto mb-md size-12 opacity-40" />
-            <p>No mistakes recorded for this filter.</p>
+            <p>No mistakes recorded yet.</p>
           </div>
         )}
       </div>
@@ -40,8 +41,8 @@ export function RankingsPanel({ activeTab, leaderboard, seasonLabel, onTabChange
 }
 
 interface RankingsPanelProps {
-  activeTab: FilterTab
   leaderboard: PlayerStats[]
-  seasonLabel: string
-  onTabChange: (tab: FilterTab) => void
+  seasons: SeasonSummary[]
+  selectedSeasonId: string
+  onSeasonChange: (seasonId: string) => void
 }
