@@ -1,6 +1,7 @@
 import type { SeasonSummary } from '../../api/types'
 import type { PlayerStats } from '../../hooks'
 import { SkullIcon } from '../SkullIcon'
+import { Tag } from '../ui/Tag'
 import { LeaderboardRow } from './LeaderboardRow'
 import { SeasonPicker } from './SeasonPicker'
 
@@ -33,8 +34,12 @@ export function RankingsPanel({ leaderboard, seasons, selectedSeasonId, onSeason
         )}
       </div>
 
-      <p className="pt-2xl text-center text-xs leading-4 text-text-secondary">
-        Showing all dungeons - {leaderboard.length} {leaderboard.length === 1 ? 'player' : 'players'} ranked - click a player for details
+      <p className="flex flex-col items-center gap-sm pt-2xl text-center text-xs leading-4 text-text-secondary sm:flex-row sm:justify-center">
+        <Tag>Ordered by season</Tag>
+        <span>
+          Showing all dungeons - {leaderboard.length}{' '}
+          {leaderboard.length === 1 ? 'player' : 'players'} ranked - click a player for details
+        </span>
       </p>
     </section>
   )

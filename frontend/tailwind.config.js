@@ -38,6 +38,9 @@ export default {
         avatar: {
           bg: 'var(--color-avatar-bg)',
         },
+        overlay: {
+          dark: 'var(--color-overlay-dark)',
+        },
         brand: {
           gold: 'var(--color-brand-gold)',
         },

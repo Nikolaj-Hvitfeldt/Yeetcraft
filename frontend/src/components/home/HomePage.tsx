@@ -78,6 +78,7 @@ export function HomePage() {
               dungeons={dungeons}
               isLoading={isLoadingDungeons}
               hasError={!!dungeonsError}
+              seasonId={selectedSeasonId}
             />
           </div>
         </div>
