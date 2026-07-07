@@ -1,11 +1,17 @@
+import { useMemo } from 'react'
 import type { SeasonSummary } from '../../api/types'
-import type { PlayerStats } from '../../hooks'
+import { getSeasonKings, type PlayerStats } from '../../hooks'
 import { SkullIcon } from '../SkullIcon'
 import { Tag } from '../ui/Tag'
 import { LeaderboardRow } from './LeaderboardRow'
 import { SeasonPicker } from './SeasonPicker'
 
 export function RankingsPanel({ leaderboard, seasons, selectedSeasonId, onSeasonChange }: RankingsPanelProps) {
+  const { kingOfYeetsId, kingOfDeathsId } = useMemo(
+    () => getSeasonKings(leaderboard),
+    [leaderboard]
+  )
+
   return (
     <section className="rounded-lg border border-accent-secondary bg-surface-section p-2xl shadow-2xl">
       <div className="flex flex-col gap-lg sm:flex-row sm:items-start sm:justify-between">
@@ -24,6 +30,8 @@ export function RankingsPanel({ leaderboard, seasons, selectedSeasonId, onSeason
               key={player.playerId}
               player={player}
               rank={index + 1}
+              isKingOfYeets={player.playerId === kingOfYeetsId}
+              isKingOfDeaths={player.playerId === kingOfDeathsId}
             />
           ))
         ) : (

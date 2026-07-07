@@ -3,6 +3,7 @@ import type { WowIconKey } from '../../assets/wow-icons'
 import { wowIcons } from '../../assets/wow-icons'
 import type { PlayerStats } from '../../hooks'
 import { Avatar } from '../ui/Avatar'
+import { CrownBadge } from '../ui/CrownBadge'
 import { StatItem } from '../ui/StatItem'
 
 const RANK_ICON_BY_PLACE: Record<number, WowIconKey> = {
@@ -12,7 +13,12 @@ const RANK_ICON_BY_PLACE: Record<number, WowIconKey> = {
   4: 'platinum',
 }
 
-export function LeaderboardRow({ player, rank }: LeaderboardRowProps) {
+export function LeaderboardRow({
+  player,
+  rank,
+  isKingOfYeets,
+  isKingOfDeaths,
+}: LeaderboardRowProps) {
   const rankIcon = RANK_ICON_BY_PLACE[rank]
 
   return (
@@ -42,8 +48,10 @@ export function LeaderboardRow({ player, rank }: LeaderboardRowProps) {
       <div className="flex min-w-0 items-center gap-lg">
         <Avatar name={player.playerName} imageUrl={player.avatarUrl} size="sm" />
         <div className="min-w-0">
-          <p className="truncate text-base font-bold leading-[22px] text-text-primary transition-colors group-hover:text-accent-primary">
-            {player.playerName}
+          <p className="flex min-w-0 items-center gap-sm text-base font-bold leading-[22px] text-text-primary transition-colors group-hover:text-accent-primary">
+            <span className="truncate">{player.playerName}</span>
+            {isKingOfYeets ? <CrownBadge kind="yeets" /> : null}
+            {isKingOfDeaths ? <CrownBadge kind="deaths" /> : null}
           </p>
           <p className="text-sm font-semibold leading-[18px] text-text-secondary">
             Tracked player
@@ -63,4 +71,6 @@ export function LeaderboardRow({ player, rank }: LeaderboardRowProps) {
 interface LeaderboardRowProps {
   player: PlayerStats
   rank: number
+  isKingOfYeets: boolean
+  isKingOfDeaths: boolean
 }

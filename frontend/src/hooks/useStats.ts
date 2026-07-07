@@ -85,3 +85,40 @@ export function calculateTotalStats(entries: LeaderboardEntry[]) {
   )
 }
 
+export interface SeasonKings {
+  kingOfYeetsId: string | null
+  kingOfDeathsId: string | null
+}
+
+function findStatLeader(
+  leaderboard: PlayerStats[],
+  getValue: (player: PlayerStats) => number,
+  tieBreak: (player: PlayerStats) => number
+): string | null {
+  if (leaderboard.length === 0) return null
+
+  const maxValue = Math.max(...leaderboard.map(getValue))
+  if (maxValue === 0) return null
+
+  const leader = [...leaderboard]
+    .filter((player) => getValue(player) === maxValue)
+    .sort((first, second) => tieBreak(second) - tieBreak(first))[0]
+
+  return leader?.playerId ?? null
+}
+
+export function getSeasonKings(leaderboard: PlayerStats[]): SeasonKings {
+  return {
+    kingOfYeetsId: findStatLeader(
+      leaderboard,
+      (player) => player.yeets,
+      (player) => player.deaths
+    ),
+    kingOfDeathsId: findStatLeader(
+      leaderboard,
+      (player) => player.deaths,
+      (player) => player.yeets
+    ),
+  }
+}
+
