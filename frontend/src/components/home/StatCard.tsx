@@ -13,6 +13,13 @@ const ICON_BY_KIND: Record<StatCardKind, WowIconKey> = {
   yeets: "yeets",
 };
 
+const ICON_CLASS_BY_KIND: Record<StatCardKind, string> = {
+  total: "inset-0 size-full object-cover",
+  deaths:
+    "left-1/2 top-1/2 size-24 -translate-x-1/2 -translate-y-1/2 object-contain",
+  yeets: "inset-0 size-full object-cover",
+};
+
 export function StatCard({ label, value, kind }: StatCardProps) {
   const colorClassName = COLOR_CLASS_BY_KIND[kind];
   const icon = ICON_BY_KIND[kind];
@@ -24,7 +31,7 @@ export function StatCard({ label, value, kind }: StatCardProps) {
         alt=""
         aria-hidden="true"
         loading="lazy"
-        className="pointer-events-none absolute left-1/2 top-1/2 size-24 -translate-x-1/2 -translate-y-1/2 object-contain opacity-[0.80] saturate-125"
+        className={`pointer-events-none absolute opacity-[0.80] saturate-125 ${ICON_CLASS_BY_KIND[kind]}`}
       />
       <div
         className="pointer-events-none absolute inset-0"
