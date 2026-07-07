@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import type { SeasonSummary } from "../../api/types";
 import { getSeasonKings, type PlayerStats } from "../../hooks";
 import { SkullIcon } from "../SkullIcon";
-import { Tag } from "../ui/Tag";
 import { LeaderboardRow } from "./LeaderboardRow";
 import { SeasonPicker } from "./SeasonPicker";
 
