@@ -1,9 +1,11 @@
+import { z } from 'zod'
 import {
-  CurrentSeasonDungeonsResponse,
-  LeaderboardResponse,
-  PlayerStatsResponse,
-  SeasonsResponse,
-} from './types'
+  CurrentSeasonDungeonsResponseSchema,
+  LeaderboardResponseSchema,
+  PlayerStatsResponseSchema,
+  SeasonLeadersResponseSchema,
+  SeasonsResponseSchema,
+} from './schemas'
 import { getAccessToken } from '../utils/token'
 
 // Default to same-origin /api so Vite proxies to the backend in dev.
@@ -15,7 +17,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
  * Automatically includes the access token from URL or localStorage
  * in the X-API-Key header for all requests.
  */
-async function fetchApi<T>(endpoint: string): Promise<T> {
+async function fetchApi<T>(endpoint: string, schema: z.ZodType<T>): Promise<T> {
   const token = getAccessToken()
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -39,24 +41,41 @@ async function fetchApi<T>(endpoint: string): Promise<T> {
     throw new Error(`API error: ${response.status} ${errorText}`)
   }
 
-  return response.json()
+  const json: unknown = await response.json()
+
+  try {
+    return schema.parse(json)
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      throw new Error(`Invalid response from ${endpoint}: ${error.message}`)
+    }
+    throw error
+  }
 }
 
-export async function fetchLeaderboard(seasonId?: string): Promise<LeaderboardResponse> {
+export async function fetchLeaderboard(seasonId?: string) {
   const query = seasonId ? `?seasonId=${encodeURIComponent(seasonId)}` : ''
-  return fetchApi<LeaderboardResponse>(`/api/leaderboard${query}`)
+  return fetchApi(`/api/leaderboard${query}`, LeaderboardResponseSchema)
 }
 
-export async function fetchPlayerStats(playerId: string, seasonId?: string): Promise<PlayerStatsResponse> {
+export async function fetchSeasonLeaders(seasonId?: string) {
   const query = seasonId ? `?seasonId=${encodeURIComponent(seasonId)}` : ''
-  return fetchApi<PlayerStatsResponse>(`/api/players/${encodeURIComponent(playerId)}/stats${query}`)
+  return fetchApi(`/api/seasons/leaders${query}`, SeasonLeadersResponseSchema)
 }
 
-export async function fetchSeasons(): Promise<SeasonsResponse> {
-  return fetchApi<SeasonsResponse>('/api/seasons')
-}
-
-export async function fetchCurrentSeasonDungeons(seasonId?: string): Promise<CurrentSeasonDungeonsResponse> {
+export async function fetchPlayerStats(playerId: string, seasonId?: string) {
   const query = seasonId ? `?seasonId=${encodeURIComponent(seasonId)}` : ''
-  return fetchApi<CurrentSeasonDungeonsResponse>(`/api/seasons/current/dungeons${query}`)
+  return fetchApi(
+    `/api/players/${encodeURIComponent(playerId)}/stats${query}`,
+    PlayerStatsResponseSchema,
+  )
+}
+
+export async function fetchSeasons() {
+  return fetchApi('/api/seasons', SeasonsResponseSchema)
+}
+
+export async function fetchCurrentSeasonDungeons(seasonId?: string) {
+  const query = seasonId ? `?seasonId=${encodeURIComponent(seasonId)}` : ''
+  return fetchApi(`/api/seasons/current/dungeons${query}`, CurrentSeasonDungeonsResponseSchema)
 }

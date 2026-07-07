@@ -1,5 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
-import { fetchCurrentSeasonDungeons, fetchLeaderboard, fetchPlayerStats, fetchSeasons } from '../api/api'
+import {
+  fetchCurrentSeasonDungeons,
+  fetchLeaderboard,
+  fetchPlayerStats,
+  fetchSeasonLeaders,
+  fetchSeasons,
+} from '../api/api'
 import { LeaderboardEntry } from '../api/types'
 
 export interface PlayerStats {
@@ -18,6 +24,15 @@ export function useLeaderboard(seasonId?: string) {
       const response = await fetchLeaderboard(seasonId)
       return response.leaderboard
     },
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
+  })
+}
+
+export function useSeasonLeaders(seasonId?: string) {
+  return useQuery({
+    queryKey: ['season-leaders', seasonId ?? 'current'],
+    queryFn: () => fetchSeasonLeaders(seasonId),
     staleTime: 30_000,
     refetchOnWindowFocus: true,
   })

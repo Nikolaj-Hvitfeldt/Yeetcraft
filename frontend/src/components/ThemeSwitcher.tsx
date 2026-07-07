@@ -1,5 +1,6 @@
 import { useTheme } from '../hooks'
 import type { Theme } from '../hooks'
+import { cn } from '../utils/cn'
 
 const THEMES = [
   { key: 'daytime' as const, label: 'daytime' },
@@ -32,9 +33,10 @@ export function ThemeSwitcher() {
             role="radio"
             aria-checked={isActive}
             onClick={() => setTheme(t.key)}
-            className={`min-h-9 rounded-pill px-lg py-0 text-xs font-bold leading-4 transition-all duration-200 ${
-              isActive ? ACTIVE_THEME_STYLES[t.key] : 'text-text-secondary'
-            }`}
+            className={cn(
+              'min-h-9 rounded-pill px-lg py-0 text-xs font-bold leading-4 transition-all duration-200',
+              isActive ? ACTIVE_THEME_STYLES[t.key] : 'text-text-secondary',
+            )}
           >
             {t.label}
           </button>

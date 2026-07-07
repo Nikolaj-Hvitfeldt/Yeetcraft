@@ -1,0 +1,20 @@
+import type { SeasonSummary } from '../api/types'
+
+export function resolveSeasonId(
+  requestedSeasonId: string | null | undefined,
+  seasons: SeasonSummary[] | undefined,
+): string | undefined {
+  if (!seasons || seasons.length === 0) return undefined
+
+  if (requestedSeasonId && seasons.some((season) => season.id === requestedSeasonId)) {
+    return requestedSeasonId
+  }
+
+  return seasons.find((season) => season.isCurrent)?.id ?? seasons[0]?.id
+}
+
+export function seasonPath(path: string, seasonId: string | undefined): string {
+  if (!seasonId) return path
+  const separator = path.includes('?') ? '&' : '?'
+  return `${path}${separator}seasonId=${encodeURIComponent(seasonId)}`
+}

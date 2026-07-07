@@ -1,21 +1,9 @@
 import type { DungeonStats } from '../../api/types'
+import { getDungeonInitials } from '../../utils/dungeon-badge'
 import { StatItem } from '../ui/StatItem'
-
-const BADGE_CLASS_NAME =
-  'border-accent-primary bg-[#2e1609] text-[#ff7833]'
-
-function getDungeonInitials(name: string, shortName: string | null): string {
-  if (shortName) return shortName
-  return name
-    .split(/\s+/)
-    .map((part) => part.charAt(0))
-    .join('')
-    .slice(0, 4)
-    .toUpperCase()
-}
+import { DungeonBadge } from '../ui/DungeonBadge'
 
 export function NemesisCard({ dungeon, sharePercent, className }: NemesisCardProps) {
-  const badgeClassName = BADGE_CLASS_NAME
   const initials = getDungeonInitials(dungeon.dungeon.name, dungeon.dungeon.shortName)
 
   return (
@@ -24,11 +12,7 @@ export function NemesisCard({ dungeon, sharePercent, className }: NemesisCardPro
     >
       <div className="grid gap-xl p-xl lg:grid-cols-[280px_1fr]">
         <div className="relative overflow-hidden rounded-2xl border border-accent-primary bg-accent-primary p-lg">
-          <span
-            className={`inline-flex h-6 items-center justify-center rounded-[6px] border px-[6px] font-number text-xs font-bold leading-none ${badgeClassName}`}
-          >
-            {initials}
-          </span>
+          <DungeonBadge initials={initials} index={0} variant="inline" />
           <p className="pt-xl font-heading text-2xl font-bold leading-[30px] text-text-primary">
             {dungeon.dungeon.name}
           </p>

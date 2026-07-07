@@ -1,37 +1,19 @@
 import { useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import {
   calculateTotalStats,
   deriveLeaderboard,
   useCurrentSeasonDungeons,
   useLeaderboard,
-  useSeasons,
+  useSeasonId,
 } from '../../hooks'
-import { getAccessToken } from '../../utils/token'
-import { AuthRequired } from '../AuthRequired'
-import { ErrorMessage } from '../ErrorMessage'
-import { LoadingSpinner } from '../LoadingSpinner'
+import { PageShell } from '../layout/PageShell'
 import { DungeonNavPanel } from './DungeonNavPanel'
 import { HomeHero } from './HomeHero'
 import { HomeNavigation } from './HomeNavigation'
 import { RankingsPanel } from './RankingsPanel'
 
-function getSelectedSeasonId(seasons: ReturnType<typeof useSeasons>['data'], requestedSeasonId: string | null): string | undefined {
-  if (requestedSeasonId && seasons?.some((season) => season.id === requestedSeasonId)) {
-    return requestedSeasonId
-  }
-
-  return seasons?.find((season) => season.isCurrent)?.id ?? seasons?.[0]?.id
-}
-
 export function HomePage() {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const requestedSeasonId = searchParams.get('seasonId')
-  const { data: seasons = [], isLoading: isLoadingSeasons } = useSeasons()
-  const selectedSeasonId = useMemo(
-    () => getSelectedSeasonId(seasons, requestedSeasonId),
-    [requestedSeasonId, seasons]
-  )
+  const { seasons, isLoadingSeasons, selectedSeasonId, setSeasonId } = useSeasonId()
 
   const {
     data: leaderboardEntries = [],
@@ -46,43 +28,42 @@ export function HomePage() {
 
   const leaderboard = useMemo(
     () => deriveLeaderboard(leaderboardEntries),
-    [leaderboardEntries]
+    [leaderboardEntries],
   )
-  const totalStats = useMemo(() => calculateTotalStats(leaderboardEntries), [leaderboardEntries])
+  const totalStats = useMemo(
+    () => calculateTotalStats(leaderboardEntries),
+    [leaderboardEntries],
+  )
 
-  const hasToken = getAccessToken()
-  const needsAuth = leaderboardError?.message?.includes('Unauthorized') || leaderboardError?.message?.includes('token')
-
-  if (isLoadingLeaderboard || isLoadingSeasons) return <LoadingSpinner />
-  if (needsAuth && !hasToken) return <AuthRequired />
-  if (leaderboardError && leaderboardEntries.length === 0) {
-    return <ErrorMessage message={leaderboardError.message} />
-  }
+  const pageError =
+    leaderboardError && leaderboardEntries.length === 0 ? leaderboardError : null
 
   return (
-    <main className="min-h-screen overflow-hidden bg-background-app">
-      <div className="min-h-screen home-page-backdrop">
-        <div className="mx-auto flex min-h-screen max-w-[1280px] flex-col px-2xl py-2xl">
-          <HomeNavigation />
-          <HomeHero {...totalStats} />
-          <div className="grid w-full gap-2xl pt-2xl lg:grid-cols-[minmax(0,1fr)_280px]">
-            <RankingsPanel
-              leaderboard={leaderboard}
-              seasons={seasons}
-              selectedSeasonId={selectedSeasonId ?? ''}
-              onSeasonChange={(seasonId) => {
-                setSearchParams({ seasonId }, { replace: true })
-              }}
-            />
-            <DungeonNavPanel
-              dungeons={dungeons}
-              isLoading={isLoadingDungeons}
-              hasError={!!dungeonsError}
-              seasonId={selectedSeasonId}
-            />
+    <PageShell isLoading={isLoadingSeasons} error={pageError}>
+      <main className="min-h-screen overflow-hidden bg-background-app">
+        <div className="min-h-screen home-page-backdrop">
+          <div className="mx-auto flex min-h-screen max-w-[1280px] flex-col px-2xl py-2xl">
+            <HomeNavigation />
+            <HomeHero {...totalStats} />
+            <div className="grid w-full gap-2xl pt-2xl lg:grid-cols-[minmax(0,1fr)_280px]">
+              <RankingsPanel
+                leaderboard={leaderboard}
+                seasons={seasons}
+                selectedSeasonId={selectedSeasonId ?? ''}
+                isLoading={isLoadingLeaderboard}
+                error={leaderboardError}
+                onSeasonChange={setSeasonId}
+              />
+              <DungeonNavPanel
+                dungeons={dungeons}
+                isLoading={isLoadingDungeons}
+                hasError={!!dungeonsError}
+                seasonId={selectedSeasonId}
+              />
+            </div>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </PageShell>
   )
 }

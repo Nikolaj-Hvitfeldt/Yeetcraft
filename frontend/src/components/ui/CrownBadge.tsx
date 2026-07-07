@@ -1,3 +1,4 @@
+import { cn } from '../../utils/cn'
 import { CrownIcon } from './CrownIcon'
 
 const CROWN_BY_KIND = {
@@ -19,10 +20,14 @@ export function CrownBadge({ kind, showLabel = false, className }: CrownBadgePro
   if (showLabel) {
     return (
       <span
-        className={`inline-flex items-center gap-xs rounded-pill border bg-surface-base px-md py-xs text-xs font-bold uppercase tracking-wide ${crown.badgeClassName} ${className ?? ''}`}
+        className={cn(
+          'inline-flex items-center gap-xs rounded-pill border bg-surface-base px-md py-xs text-xs font-bold uppercase tracking-wide',
+          crown.badgeClassName,
+          className,
+        )}
         title={crown.label}
       >
-        <CrownIcon className={`size-[18px] shrink-0 ${crown.iconClassName}`} />
+        <CrownIcon className={cn('size-[18px] shrink-0', crown.iconClassName)} />
         {crown.label}
       </span>
     )
@@ -30,7 +35,7 @@ export function CrownBadge({ kind, showLabel = false, className }: CrownBadgePro
 
   return (
     <span className={className} title={crown.label}>
-      <CrownIcon className={`size-[18px] shrink-0 ${crown.iconClassName}`} />
+      <CrownIcon className={cn('size-[18px] shrink-0', crown.iconClassName)} />
       <span className="sr-only">{crown.label}</span>
     </span>
   )
