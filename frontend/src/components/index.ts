@@ -1,4 +1,5 @@
 export { SkullIcon } from './SkullIcon'
+export { WowIcon } from './WowIcon'
 export { LoadingSpinner } from './LoadingSpinner'
 export { ErrorMessage } from './ErrorMessage'
 export { AuthRequired } from './AuthRequired'
