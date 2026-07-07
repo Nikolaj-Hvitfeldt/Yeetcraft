@@ -61,13 +61,7 @@ export function HomePage() {
 
   return (
     <main className="min-h-screen overflow-hidden bg-background-app">
-      <div
-        className="min-h-screen"
-        style={{
-          backgroundImage:
-            'radial-gradient(circle at 50% 24%, rgba(245, 139, 22, 0.24) 0%, rgba(123, 70, 11, 0.12) 14%, transparent 28%), radial-gradient(circle at 50% 55%, rgba(245, 177, 54, 0.14) 0%, rgba(123, 89, 27, 0.07) 17%, transparent 34%), linear-gradient(148deg, var(--color-background-app) 0%, var(--color-surface-section) 48%, #070604 100%)',
-        }}
-      >
+      <div className="min-h-screen home-page-backdrop">
         <div className="mx-auto flex min-h-screen max-w-[1280px] flex-col px-2xl py-2xl">
           <HomeNavigation />
           <HomeHero {...totalStats} />
