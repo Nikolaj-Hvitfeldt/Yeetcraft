@@ -10,6 +10,7 @@ export {
 } from './useStats'
 export type { PlayerStats } from './useStats'
 export { useAuthGuard } from './useAuthGuard'
+export { usePrefetchPlayerProfile } from './usePrefetchPlayerProfile'
 export { useSeasonId } from './useSeasonId'
 export { useTheme, ThemeProvider } from './useTheme'
 export type { Theme } from './useTheme'

@@ -4,10 +4,18 @@ export function resolveSeasonId(
   requestedSeasonId: string | null | undefined,
   seasons: SeasonSummary[] | undefined,
 ): string | undefined {
-  if (!seasons || seasons.length === 0) return undefined
+  if (requestedSeasonId) {
+    if (!seasons || seasons.length === 0) {
+      return requestedSeasonId
+    }
 
-  if (requestedSeasonId && seasons.some((season) => season.id === requestedSeasonId)) {
-    return requestedSeasonId
+    if (seasons.some((season) => season.id === requestedSeasonId)) {
+      return requestedSeasonId
+    }
+  }
+
+  if (!seasons || seasons.length === 0) {
+    return undefined
   }
 
   return seasons.find((season) => season.isCurrent)?.id ?? seasons[0]?.id

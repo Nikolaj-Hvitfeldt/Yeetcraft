@@ -9,7 +9,7 @@ const seasonIdSchema = z.string().uuid()
 export function useSeasonId() {
   const [searchParams, setSearchParams] = useSearchParams()
   const urlSeasonId = searchParams.get('seasonId')
-  const { data: seasons = [], isLoading: isLoadingSeasons } = useSeasons()
+  const { data: seasons, isPending: isPendingSeasons } = useSeasons()
 
   const validatedUrlSeasonId = useMemo(() => {
     if (!urlSeasonId) return null
@@ -22,13 +22,16 @@ export function useSeasonId() {
     [validatedUrlSeasonId, seasons],
   )
 
+  const isSeasonReady = !isPendingSeasons && selectedSeasonId !== undefined
+
   function setSeasonId(seasonId: string) {
     setSearchParams({ seasonId }, { replace: true })
   }
 
   return {
-    seasons,
-    isLoadingSeasons,
+    seasons: seasons ?? [],
+    isPendingSeasons,
+    isSeasonReady,
     selectedSeasonId,
     setSeasonId,
     homePath: seasonPath('/', selectedSeasonId),

@@ -14,17 +14,20 @@ function getDangerScore(dungeon: DungeonSummary, averageMistakes: number): numbe
 
 export function DungeonDetail() {
   const { dungeonId } = useParams<{ dungeonId: string }>()
-  const { seasons, isLoadingSeasons, selectedSeasonId, homePath } = useSeasonId()
+  const { seasons, isSeasonReady, selectedSeasonId, homePath } = useSeasonId()
   const {
     data: dungeons = [],
-    isLoading: isLoadingDungeons,
+    isPending: isPendingDungeons,
+    isFetching: isFetchingDungeons,
+    isFetched: hasFetchedDungeons,
     error: dungeonsError,
-  } = useCurrentSeasonDungeons(selectedSeasonId)
+  } = useCurrentSeasonDungeons(selectedSeasonId, { enabled: isSeasonReady })
   const {
     data: seasonLeaders,
-    isLoading: isLoadingLeaders,
+    isPending: isPendingLeaders,
+    isFetching: isFetchingLeaders,
     error: leadersError,
-  } = useSeasonLeaders(selectedSeasonId)
+  } = useSeasonLeaders(selectedSeasonId, { enabled: isSeasonReady })
 
   const dungeon = dungeons.find((entry) => entry.id === dungeonId)
   const season = seasons.find((entry) => entry.id === selectedSeasonId)
@@ -39,11 +42,22 @@ export function DungeonDetail() {
   }, [dungeons])
 
   const error = dungeonsError ?? leadersError
-  const isLoading = isLoadingDungeons || isLoadingSeasons || isLoadingLeaders
-  const notFoundMessage = !isLoading && !error && !dungeon ? 'Dungeon was not found.' : null
+  const isPageLoading =
+    !isSeasonReady ||
+    isPendingDungeons ||
+    isPendingLeaders ||
+    ((isFetchingDungeons || isFetchingLeaders) && !dungeon)
+  const notFoundMessage =
+    isSeasonReady &&
+    hasFetchedDungeons &&
+    !isFetchingDungeons &&
+    !error &&
+    !dungeon
+      ? 'Dungeon was not found.'
+      : null
 
   return (
-    <PageShell isLoading={isLoading} error={error} notFoundMessage={notFoundMessage}>
+    <PageShell isLoading={isPageLoading} error={error} notFoundMessage={notFoundMessage}>
       {dungeon ? (
         <div className="min-h-screen bg-background-app px-2xl py-2xl">
           <div className="mx-auto flex max-w-5xl flex-col gap-2xl">

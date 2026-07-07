@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import type { WowIconKey } from '../../assets/wow-icons'
 import type { PlayerStats } from '../../hooks'
+import { usePrefetchPlayerProfile } from '../../hooks'
 import { cn } from '../../utils/cn'
 import { seasonPath } from '../../utils/season'
 import { WowIcon } from '../WowIcon'
@@ -24,10 +25,17 @@ export function LeaderboardRow({
 }: LeaderboardRowProps) {
   const rankIcon = RANK_ICON_BY_PLACE[rank]
   const playerPath = seasonPath(`/player/${player.playerId}`, seasonId)
+  const prefetchPlayerProfile = usePrefetchPlayerProfile()
+
+  function handlePrefetch() {
+    prefetchPlayerProfile(player.playerId, seasonId)
+  }
 
   return (
     <Link
       to={playerPath}
+      onMouseEnter={handlePrefetch}
+      onFocus={handlePrefetch}
       className="group grid min-h-[85px] grid-cols-[52px_1fr] items-center gap-lg rounded-2xl border border-border-subtle bg-surface-base px-md py-md transition-colors hover:border-accent-primary sm:grid-cols-[56px_minmax(220px,1fr)_minmax(230px,auto)]"
     >
       <div

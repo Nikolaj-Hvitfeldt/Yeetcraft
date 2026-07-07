@@ -55,14 +55,24 @@ const TABLE_COLUMNS = [
 
 export function PlayerProfile() {
   const { playerId } = useParams<{ playerId: string }>()
-  const { seasons, isLoadingSeasons, selectedSeasonId, setSeasonId, homePath } = useSeasonId()
+  const {
+    seasons,
+    isSeasonReady,
+    selectedSeasonId,
+    setSeasonId,
+    homePath,
+  } = useSeasonId()
 
   const {
     data: playerStats,
-    isLoading: isLoadingPlayerStats,
+    isPending: isPendingPlayerStats,
+    isFetching: isFetchingPlayerStats,
+    isFetched: hasFetchedPlayerStats,
     error: playerStatsError,
-  } = usePlayerStats(playerId, selectedSeasonId)
-  const { data: seasonLeaders } = useSeasonLeaders(selectedSeasonId)
+  } = usePlayerStats(playerId, selectedSeasonId, { enabled: isSeasonReady })
+  const { data: seasonLeaders } = useSeasonLeaders(selectedSeasonId, {
+    enabled: isSeasonReady,
+  })
 
   const nemesis = useMemo(
     () => (playerStats ? getNemesisDungeon(playerStats.dungeons) : null),
@@ -72,18 +82,24 @@ export function PlayerProfile() {
   const isKingOfYeets = playerStats?.player.id === seasonLeaders?.kingOfYeets?.playerId
   const isKingOfDeaths = playerStats?.player.id === seasonLeaders?.kingOfDeaths?.playerId
 
+  const isPageLoading =
+    !isSeasonReady ||
+    isPendingPlayerStats ||
+    (isFetchingPlayerStats && !playerStats)
+  const notFoundMessage =
+    isSeasonReady &&
+    hasFetchedPlayerStats &&
+    !isFetchingPlayerStats &&
+    !playerStatsError &&
+    !playerStats
+      ? 'Player stats were not found.'
+      : null
+
   return (
     <PageShell
-      isLoading={isLoadingPlayerStats || isLoadingSeasons}
+      isLoading={isPageLoading}
       error={playerStatsError}
-      notFoundMessage={
-        !isLoadingPlayerStats &&
-        !isLoadingSeasons &&
-        !playerStatsError &&
-        !playerStats
-          ? 'Player stats were not found.'
-          : null
-      }
+      notFoundMessage={notFoundMessage}
     >
       {playerStats ? (
         <div className="min-h-screen bg-background-app px-2xl py-2xl">

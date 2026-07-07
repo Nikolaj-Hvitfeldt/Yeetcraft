@@ -17,37 +17,47 @@ export interface PlayerStats {
   yeets: number
 }
 
-export function useLeaderboard(seasonId?: string) {
+export function useLeaderboard(seasonId?: string, options?: QueryEnabledOptions) {
   return useQuery({
     queryKey: ['leaderboard', seasonId ?? 'current'],
     queryFn: async () => {
       const response = await fetchLeaderboard(seasonId)
       return response.leaderboard
     },
+    enabled: (options?.enabled ?? true) && seasonId !== undefined,
     staleTime: 30_000,
     refetchOnWindowFocus: true,
   })
 }
 
-export function useSeasonLeaders(seasonId?: string) {
+export function useSeasonLeaders(seasonId?: string, options?: QueryEnabledOptions) {
   return useQuery({
     queryKey: ['season-leaders', seasonId ?? 'current'],
     queryFn: () => fetchSeasonLeaders(seasonId),
+    enabled: (options?.enabled ?? true) && seasonId !== undefined,
     staleTime: 30_000,
     refetchOnWindowFocus: true,
   })
 }
 
-export function usePlayerStats(playerId: string | undefined, seasonId?: string) {
+export function usePlayerStats(
+  playerId: string | undefined,
+  seasonId?: string,
+  options?: QueryEnabledOptions,
+) {
   return useQuery({
     queryKey: ['player-stats', playerId, seasonId ?? 'current'],
     queryFn: () => {
       if (!playerId) throw new Error('Missing player id')
       return fetchPlayerStats(playerId, seasonId)
     },
-    enabled: !!playerId,
+    enabled: (options?.enabled ?? true) && !!playerId && seasonId !== undefined,
     staleTime: 30_000,
   })
+}
+
+interface QueryEnabledOptions {
+  enabled?: boolean
 }
 
 export function useSeasons() {
@@ -61,13 +71,14 @@ export function useSeasons() {
   })
 }
 
-export function useCurrentSeasonDungeons(seasonId?: string) {
+export function useCurrentSeasonDungeons(seasonId?: string, options?: QueryEnabledOptions) {
   return useQuery({
     queryKey: ['season-dungeons', seasonId ?? 'current'],
     queryFn: async () => {
       const response = await fetchCurrentSeasonDungeons(seasonId)
       return response.dungeons
     },
+    enabled: (options?.enabled ?? true) && seasonId !== undefined,
     staleTime: 60_000,
   })
 }

@@ -16,6 +16,11 @@ describe('resolveSeasonId', () => {
     expect(resolveSeasonId(null, seasons)).toBe('season-2')
   })
 
+  it('trusts requested season before seasons list is loaded', () => {
+    expect(resolveSeasonId('season-1', undefined)).toBe('season-1')
+    expect(resolveSeasonId('season-1', [])).toBe('season-1')
+  })
+
   it('ignores invalid requested season ids', () => {
     expect(resolveSeasonId('missing', seasons)).toBe('season-2')
   })

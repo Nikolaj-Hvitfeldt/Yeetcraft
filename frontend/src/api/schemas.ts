@@ -36,8 +36,18 @@ export const DungeonSummarySchema = z.object({
   totalMistakes: z.number(),
 })
 
-export const DungeonStatsSchema = z.object({
-  dungeon: DungeonSummarySchema,
+export const PlayerDungeonSummarySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  shortName: z.string().nullable(),
+  displayOrder: z.number(),
+  totalDeaths: z.number().optional().default(0),
+  totalYeets: z.number().optional().default(0),
+  totalMistakes: z.number().optional().default(0),
+})
+
+export const PlayerDungeonStatsSchema = z.object({
+  dungeon: PlayerDungeonSummarySchema,
   deaths: z.number(),
   yeets: z.number(),
   totalMistakes: z.number(),
@@ -49,7 +59,7 @@ export const PlayerStatsResponseSchema = z.object({
   totalDeaths: z.number(),
   totalYeets: z.number(),
   totalMistakes: z.number(),
-  dungeons: z.array(DungeonStatsSchema),
+  dungeons: z.array(PlayerDungeonStatsSchema),
 })
 
 export const SeasonsResponseSchema = z.object({
@@ -90,7 +100,7 @@ export type LeaderboardEntry = z.infer<typeof LeaderboardEntrySchema>
 export type LeaderboardResponse = z.infer<typeof LeaderboardResponseSchema>
 export type PlayerSummary = z.infer<typeof PlayerSummarySchema>
 export type DungeonSummary = z.infer<typeof DungeonSummarySchema>
-export type DungeonStats = z.infer<typeof DungeonStatsSchema>
+export type DungeonStats = z.infer<typeof PlayerDungeonStatsSchema>
 export type PlayerStatsResponse = z.infer<typeof PlayerStatsResponseSchema>
 export type SeasonsResponse = z.infer<typeof SeasonsResponseSchema>
 export type CurrentSeasonDungeonsResponse = z.infer<typeof CurrentSeasonDungeonsResponseSchema>
