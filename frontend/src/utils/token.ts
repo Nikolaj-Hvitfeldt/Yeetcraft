@@ -1,9 +1,9 @@
 /**
  * Token management utilities for URL-based authentication.
- * 
+ *
  * This allows friends to access the site via a shared link like:
  * https://yoursite.com?token=friend-secret-key
- * 
+ *
  * The token is automatically extracted from the URL and stored for future requests.
  */
 
@@ -37,18 +37,4 @@ function cleanTokenFromUrl(): void {
   const url = new URL(window.location.href)
   url.searchParams.delete('token')
   window.history.replaceState({}, '', url.toString())
-}
-
-/**
- * Checks if a valid token exists.
- */
-export function hasValidToken(): boolean {
-  return getAccessToken() !== null
-}
-
-/**
- * Clears the stored token (for logout scenarios).
- */
-export function clearToken(): void {
-  localStorage.removeItem(TOKEN_STORAGE_KEY)
 }

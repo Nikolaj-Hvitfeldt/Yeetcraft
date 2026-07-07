@@ -1,11 +1,8 @@
 import type { DungeonStats } from '../../api/types'
 import { StatItem } from '../ui/StatItem'
 
-const BADGE_STYLES = [
-  'border-accent-primary bg-[#2e1609] text-[#ff7833]',
-  'border-accent-primary bg-[#00241e] text-[#00c7a8]',
-  'border-accent-primary bg-[#2e2609] text-[#ffd130]',
-] as const
+const BADGE_CLASS_NAME =
+  'border-accent-primary bg-[#2e1609] text-[#ff7833]'
 
 function getDungeonInitials(name: string, shortName: string | null): string {
   if (shortName) return shortName
@@ -18,7 +15,7 @@ function getDungeonInitials(name: string, shortName: string | null): string {
 }
 
 export function NemesisCard({ dungeon, sharePercent, className }: NemesisCardProps) {
-  const badgeClassName = BADGE_STYLES[0]
+  const badgeClassName = BADGE_CLASS_NAME
   const initials = getDungeonInitials(dungeon.dungeon.name, dungeon.dungeon.shortName)
 
   return (

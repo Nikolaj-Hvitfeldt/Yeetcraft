@@ -1,5 +1,12 @@
-export { useCurrentSeasonDungeons, useLeaderboard, usePlayerStats, useSeasons, deriveLeaderboard, calculateTotalStats, getSeasonKings } from './useStats'
-export type { PlayerStats, SeasonKings } from './useStats'
-export { useHealth } from './useHealth'
+export {
+  useCurrentSeasonDungeons,
+  useLeaderboard,
+  usePlayerStats,
+  useSeasons,
+  deriveLeaderboard,
+  calculateTotalStats,
+  getSeasonKings,
+} from './useStats'
+export type { PlayerStats } from './useStats'
 export { useTheme, ThemeProvider } from './useTheme'
 export type { Theme } from './useTheme'

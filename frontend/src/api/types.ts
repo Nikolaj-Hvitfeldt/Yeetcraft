@@ -1,10 +1,3 @@
-export interface HealthResponse {
-  status: string
-  timestamp: number
-}
-
-export type StatField = 'deaths' | 'yeets'
-
 export interface LeaderboardEntry {
   playerId: string
   displayName: string
@@ -64,41 +57,4 @@ export interface SeasonsResponse {
 export interface CurrentSeasonDungeonsResponse {
   season: SeasonSummary
   dungeons: DungeonSummary[]
-}
-
-export interface StatRow {
-  playerId: string
-  seasonId: string
-  dungeonId: string
-  deaths: number
-  yeets: number
-  totalMistakes: number
-}
-
-export interface StatResponse {
-  stats: StatRow
-}
-
-export interface SetStatsRequest {
-  playerId: string
-  seasonId: string
-  dungeonId: string
-  deaths: number
-  yeets: number
-}
-
-export interface AdjustStatRequest {
-  playerId: string
-  seasonId: string
-  dungeonId: string
-  field: StatField
-  delta: number
-}
-
-/**
- * Error response DTO matching backend ErrorResponse.
- */
-export interface ErrorResponse {
-  error: string
-  message?: string
 }

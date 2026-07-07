@@ -1,12 +1,8 @@
 import {
-  AdjustStatRequest,
   CurrentSeasonDungeonsResponse,
-  HealthResponse,
   LeaderboardResponse,
   PlayerStatsResponse,
   SeasonsResponse,
-  SetStatsRequest,
-  StatResponse,
 } from './types'
 import { getAccessToken } from '../utils/token'
 
@@ -15,30 +11,24 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 
 /**
  * Generic fetch wrapper with automatic token handling.
- * 
+ *
  * Automatically includes the access token from URL or localStorage
  * in the X-API-Key header for all requests.
  */
-async function fetchApi<T>(endpoint: string, options: FetchApiOptions = {}): Promise<T> {
+async function fetchApi<T>(endpoint: string): Promise<T> {
   const token = getAccessToken()
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
   }
-  
-  // Automatically include token in header if available
+
   if (token) {
     headers['X-API-Key'] = token
   }
-  
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    method: options.method ?? 'GET',
-    headers,
-    body: options.body ? JSON.stringify(options.body) : undefined,
-  })
-  
+
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, { headers })
+
   if (!response.ok) {
     if (response.status === 401) {
-      // Only clear when we sent a token that the server rejected.
       if (token) {
         localStorage.removeItem('yeetcraft_token')
       }
@@ -48,16 +38,8 @@ async function fetchApi<T>(endpoint: string, options: FetchApiOptions = {}): Pro
     const errorText = await response.text().catch(() => response.statusText)
     throw new Error(`API error: ${response.status} ${errorText}`)
   }
-  
-  return response.json()
-}
 
-/**
- * GET /api/health
- * Health check endpoint.
- */
-export async function fetchHealth(): Promise<HealthResponse> {
-  return fetchApi<HealthResponse>('/api/health')
+  return response.json()
 }
 
 export async function fetchLeaderboard(seasonId?: string): Promise<LeaderboardResponse> {
@@ -77,23 +59,4 @@ export async function fetchSeasons(): Promise<SeasonsResponse> {
 export async function fetchCurrentSeasonDungeons(seasonId?: string): Promise<CurrentSeasonDungeonsResponse> {
   const query = seasonId ? `?seasonId=${encodeURIComponent(seasonId)}` : ''
   return fetchApi<CurrentSeasonDungeonsResponse>(`/api/seasons/current/dungeons${query}`)
-}
-
-export async function setStats(request: SetStatsRequest): Promise<StatResponse> {
-  return fetchApi<StatResponse>('/api/stats', {
-    method: 'PATCH',
-    body: request,
-  })
-}
-
-export async function adjustStats(request: AdjustStatRequest): Promise<StatResponse> {
-  return fetchApi<StatResponse>('/api/stats/adjust', {
-    method: 'POST',
-    body: request,
-  })
-}
-
-interface FetchApiOptions {
-  method?: 'GET' | 'PATCH' | 'POST'
-  body?: unknown
 }
