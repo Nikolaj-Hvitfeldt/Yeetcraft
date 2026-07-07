@@ -5,6 +5,7 @@ export function DungeonNavPanel({
   dungeons,
   isLoading,
   hasError,
+  seasonId,
 }: DungeonNavPanelProps) {
   return (
     <aside className="min-h-[586px] rounded-lg border border-accent-secondary bg-surface-section p-[17px] shadow-[0px_25px_25px_0px_rgba(0,0,0,0.2)]">
@@ -25,7 +26,7 @@ export function DungeonNavPanel({
         {!isLoading &&
           !hasError &&
           dungeons.map((dungeon, index) => (
-            <DungeonCard key={dungeon.id} dungeon={dungeon} index={index} />
+            <DungeonCard key={dungeon.id} dungeon={dungeon} index={index} seasonId={seasonId} />
           ))}
       </div>
     </aside>
@@ -44,4 +45,5 @@ interface DungeonNavPanelProps {
   dungeons: DungeonSummary[];
   isLoading: boolean;
   hasError: boolean;
+  seasonId?: string;
 }

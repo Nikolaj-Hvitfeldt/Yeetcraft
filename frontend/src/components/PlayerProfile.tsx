@@ -1,98 +1,177 @@
-import type { ChangeEvent } from 'react'
-import { Link, useParams, useSearchParams } from 'react-router-dom'
-import { AuthRequired } from './AuthRequired'
-import { ErrorMessage } from './ErrorMessage'
-import { LoadingSpinner } from './LoadingSpinner'
-import { PlayerProfileTable } from './PlayerProfileTable'
-import { StatsSummary } from './StatsSummary'
-import { usePlayerStats, useSeasons } from '../hooks'
-import { getAccessToken } from '../utils/token'
+import { useMemo } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
+import type { DungeonStats } from "../api/types";
+import {
+  deriveLeaderboard,
+  getSeasonKings,
+  useLeaderboard,
+  usePlayerStats,
+  useSeasons,
+} from "../hooks";
+import { getAccessToken } from "../utils/token";
+import { AuthRequired } from "./AuthRequired";
+import { ErrorMessage } from "./ErrorMessage";
+import { LoadingSpinner } from "./LoadingSpinner";
+import { DungeonTableRow, NemesisCard, SpotlightCard } from "./profile";
+import { SeasonPicker } from "./home/SeasonPicker";
+import { Avatar } from "./ui/Avatar";
+import { BackButton } from "./ui/BackButton";
+import { CrownBadge } from "./ui/CrownBadge";
+import { TableHeader } from "./ui/TableHeader";
 
-/**
- * Player profile page with season-specific aggregate stats.
- */
+function getNemesisDungeon(
+  dungeons: DungeonStats[],
+): { dungeon: DungeonStats; sharePercent: number } | null {
+  if (dungeons.length === 0) return null;
+
+  const totalMistakes = dungeons.reduce(
+    (sum, entry) => sum + entry.totalMistakes,
+    0,
+  );
+  if (totalMistakes === 0) return null;
+
+  const nemesis = dungeons.reduce((current, candidate) =>
+    candidate.totalMistakes > current.totalMistakes ? candidate : current,
+  );
+
+  return {
+    dungeon: nemesis,
+    sharePercent: Math.round((nemesis.totalMistakes / totalMistakes) * 100),
+  };
+}
+
+const TABLE_COLUMNS = [
+  { id: "dungeon", label: "Dungeon", className: "text-text-secondary" },
+  {
+    id: "total",
+    label: "Total",
+    className: "text-center text-stat-yeets",
+    width: "5rem",
+  },
+  {
+    id: "deaths",
+    label: "Deaths",
+    className: "text-center text-stat-total",
+    width: "5rem",
+  },
+  {
+    id: "yeets",
+    label: "Yeets",
+    className: "text-center text-stat-deaths",
+    width: "5rem",
+  },
+];
+
 export function PlayerProfile() {
-  const { playerId } = useParams<{ playerId: string }>()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const selectedSeasonId = searchParams.get('seasonId') ?? undefined
+  const { playerId } = useParams<{ playerId: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedSeasonId = searchParams.get("seasonId") ?? undefined;
 
-  const { data: playerStats, isLoading: isLoadingPlayerStats, error: playerStatsError } = usePlayerStats(playerId, selectedSeasonId)
-  const { data: seasons = [], isLoading: isLoadingSeasons } = useSeasons()
+  const {
+    data: playerStats,
+    isLoading: isLoadingPlayerStats,
+    error: playerStatsError,
+  } = usePlayerStats(playerId, selectedSeasonId);
+  const { data: seasons = [], isLoading: isLoadingSeasons } = useSeasons();
+  const { data: leaderboardEntries = [] } = useLeaderboard(selectedSeasonId);
 
-  const error = playerStatsError
-  const hasToken = getAccessToken()
-  const needsAuth = error?.message?.includes('Unauthorized') || error?.message?.includes('token')
+  const nemesis = useMemo(
+    () => (playerStats ? getNemesisDungeon(playerStats.dungeons) : null),
+    [playerStats],
+  );
+  const leaderboard = useMemo(
+    () => deriveLeaderboard(leaderboardEntries),
+    [leaderboardEntries],
+  );
+  const { kingOfYeetsId, kingOfDeathsId } = useMemo(
+    () => getSeasonKings(leaderboard),
+    [leaderboard],
+  );
+  const isKingOfYeets = playerStats?.player.id === kingOfYeetsId;
+  const isKingOfDeaths = playerStats?.player.id === kingOfDeathsId;
 
-  function handleSeasonChange(event: ChangeEvent<HTMLSelectElement>) {
-    const seasonId = event.target.value
-    if (!seasonId) {
-      setSearchParams({}, { replace: true })
-      return
-    }
-    setSearchParams({ seasonId }, { replace: true })
-  }
+  const error = playerStatsError;
+  const hasToken = getAccessToken();
+  const needsAuth =
+    error?.message?.includes("Unauthorized") ||
+    error?.message?.includes("token");
 
-  if (isLoadingPlayerStats || isLoadingSeasons) return <LoadingSpinner />
-  if (needsAuth && !hasToken) return <AuthRequired />
-  if (error) return <ErrorMessage message={error.message} />
-  if (!playerStats) return <ErrorMessage message="Player stats were not found." />
+  if (isLoadingPlayerStats || isLoadingSeasons) return <LoadingSpinner />;
+  if (needsAuth && !hasToken) return <AuthRequired />;
+  if (error) return <ErrorMessage message={error.message} />;
+  if (!playerStats)
+    return <ErrorMessage message="Player stats were not found." />;
+
+  const backTo = selectedSeasonId ? `/?seasonId=${selectedSeasonId}` : "/";
 
   return (
-    <div className="min-h-screen py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        <Link
-          to="/"
-          className="mb-6 inline-block text-sm uppercase tracking-wider text-text-secondary transition-colors hover:text-accent-primary font-heading"
-        >
-          &larr; Back to Leaderboard
-        </Link>
+    <div className="min-h-screen bg-background-app px-2xl py-2xl">
+      <div className="mx-auto flex max-w-6xl flex-col gap-2xl">
+        <BackButton to={backTo} />
 
-        <div className="mb-8 rounded-md border border-border-subtle bg-surface-base p-8 text-center animate-fade-in">
-          {playerStats.player.avatarUrl && (
-            <img
-              src={playerStats.player.avatarUrl}
-              alt=""
-              className="mx-auto mb-4 h-20 w-20 rounded-full border border-border-subtle"
-            />
-          )}
-          <h1 className="text-4xl mb-2">{playerStats.player.displayName}</h1>
-          <p className="text-lg text-text-secondary">
-            {playerStats.season.name}
-            {playerStats.season.expansion ? ` • ${playerStats.season.expansion}` : ''}
-          </p>
-        </div>
-
-        <StatsSummary
-          total={playerStats.totalMistakes}
-          deaths={playerStats.totalDeaths}
-          yeets={playerStats.totalYeets}
-        />
-
-        <div className="mb-8 rounded-md border border-border-subtle bg-surface-base p-4">
-          <label className="mb-2 block text-sm uppercase tracking-wider text-text-secondary" htmlFor="season-select">
-            Season
-          </label>
-          <select
-            id="season-select"
-            value={playerStats.season.id}
-            onChange={handleSeasonChange}
-            className="w-full rounded-sm border border-border-subtle bg-background-app px-3 py-2 text-text-primary"
-          >
-            {seasons.map((season) => (
-              <option key={season.id} value={season.id}>
-                {season.name}{season.isCurrent ? ' (Current)' : ''}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="rounded-md border border-border-subtle bg-surface-base">
-          <div className="border-b border-border-subtle px-6 py-4">
-            <h2 className="text-2xl">Dungeon Breakdown</h2>
+        <header className="flex flex-col gap-lg rounded-3xl border border-border-subtle bg-surface-section p-2xl sm:flex-row sm:items-center">
+          <Avatar
+            name={playerStats.player.displayName}
+            imageUrl={playerStats.player.avatarUrl}
+            size="lg"
+          />
+          <div className="min-w-0 flex-1">
+            <div className="flex min-w-0 flex-wrap items-center gap-md">
+              <h1 className="font-heading text-4xl font-bold leading-tight text-text-primary">
+                {playerStats.player.displayName}
+              </h1>
+              {isKingOfYeets ? <CrownBadge kind="yeets" showLabel /> : null}
+              {isKingOfDeaths ? <CrownBadge kind="deaths" showLabel /> : null}
+            </div>
+            <p className="pt-sm text-sm leading-5 text-text-secondary">
+              {playerStats.season.name}
+              {playerStats.season.expansion
+                ? ` • ${playerStats.season.expansion}`
+                : ""}
+            </p>
           </div>
-          <PlayerProfileTable dungeons={playerStats.dungeons} />
+          <SeasonPicker
+            seasons={seasons}
+            selectedSeasonId={playerStats.season.id}
+            onSeasonChange={(seasonId) => {
+              setSearchParams({ seasonId }, { replace: true });
+            }}
+          />
+        </header>
+
+        <div className="grid gap-lg lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+          <SpotlightCard
+            category="Biggest Yeeter"
+            title={playerStats.player.displayName}
+            subtitle="biggest yeeter"
+            value={playerStats.totalYeets}
+          />
+          {nemesis ? (
+            <NemesisCard
+              dungeon={nemesis.dungeon}
+              sharePercent={nemesis.sharePercent}
+            />
+          ) : null}
         </div>
+
+        <section className="overflow-hidden rounded-3xl border border-border-subtle bg-surface-base">
+          <div className="border-b border-border-subtle px-xl py-lg">
+            <h2 className="font-heading text-2xl font-bold leading-8 text-text-primary">
+              Dungeon Breakdown
+            </h2>
+          </div>
+          <TableHeader columns={TABLE_COLUMNS} />
+          <div>
+            {playerStats.dungeons.map((dungeon, index) => (
+              <DungeonTableRow
+                key={dungeon.dungeon.id}
+                dungeon={dungeon}
+                index={index}
+              />
+            ))}
+          </div>
+        </section>
       </div>
     </div>
-  )
+  );
 }

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import type { DungeonSummary } from '../../api/types'
 
 const BADGE_STYLES = [
@@ -21,17 +22,19 @@ function getDungeonInitials(dungeon: DungeonSummary): string {
     .toUpperCase()
 }
 
-export function DungeonCard({ dungeon, index }: DungeonCardProps) {
+export function DungeonCard({ dungeon, index, seasonId }: DungeonCardProps) {
   const badgeClassName = BADGE_STYLES[index % BADGE_STYLES.length]
+  const to = seasonId ? `/dungeon/${dungeon.id}?seasonId=${seasonId}` : `/dungeon/${dungeon.id}`
 
   return (
-    <button
-      type="button"
-      className="flex h-11 w-full items-center justify-between rounded-md border border-border-subtle bg-surface-base px-md py-[10px] text-left transition-colors hover:border-accent-primary"
-      aria-label={`${dungeon.name} details coming later`}
+    <Link
+      to={to}
+      className="flex h-11 w-full items-center justify-between rounded-2xl border border-border-subtle bg-surface-base px-md py-[10px] text-left transition-colors hover:border-accent-primary"
     >
       <span className="flex h-6 min-w-0 flex-1 items-center gap-sm">
-        <span className={`flex h-6 w-[52px] shrink-0 items-center justify-center rounded-[6px] border px-[6px] pt-px font-number text-xs font-bold leading-none ${badgeClassName}`}>
+        <span
+          className={`flex h-6 w-[52px] shrink-0 items-center justify-center rounded-[6px] border px-[6px] pt-px font-number text-xs font-bold leading-none ${badgeClassName}`}
+        >
           {getDungeonInitials(dungeon)}
         </span>
         <span className="truncate text-xs font-semibold leading-4 text-text-primary">
@@ -41,11 +44,12 @@ export function DungeonCard({ dungeon, index }: DungeonCardProps) {
       <span className="pl-sm text-base font-semibold leading-5 text-text-secondary" aria-hidden="true">
         &rsaquo;
       </span>
-    </button>
+    </Link>
   )
 }
 
 interface DungeonCardProps {
   dungeon: DungeonSummary
   index: number
+  seasonId?: string
 }

@@ -1,14 +1,27 @@
-import type { SeasonSummary } from '../../api/types'
-import type { PlayerStats } from '../../hooks'
-import { SkullIcon } from '../SkullIcon'
-import { LeaderboardRow } from './LeaderboardRow'
-import { SeasonPicker } from './SeasonPicker'
+import { useMemo } from "react";
+import type { SeasonSummary } from "../../api/types";
+import { getSeasonKings, type PlayerStats } from "../../hooks";
+import { SkullIcon } from "../SkullIcon";
+import { LeaderboardRow } from "./LeaderboardRow";
+import { SeasonPicker } from "./SeasonPicker";
 
-export function RankingsPanel({ leaderboard, seasons, selectedSeasonId, onSeasonChange }: RankingsPanelProps) {
+export function RankingsPanel({
+  leaderboard,
+  seasons,
+  selectedSeasonId,
+  onSeasonChange,
+}: RankingsPanelProps) {
+  const { kingOfYeetsId, kingOfDeathsId } = useMemo(
+    () => getSeasonKings(leaderboard),
+    [leaderboard],
+  );
+
   return (
     <section className="rounded-lg border border-accent-secondary bg-surface-section p-2xl shadow-2xl">
       <div className="flex flex-col gap-lg sm:flex-row sm:items-start sm:justify-between">
-        <h2 className="font-heading text-3xl font-bold leading-9 text-text-accent">Rankings</h2>
+        <h2 className="font-heading text-3xl font-bold leading-9 text-text-accent">
+          Rankings
+        </h2>
         <SeasonPicker
           seasons={seasons}
           selectedSeasonId={selectedSeasonId}
@@ -23,6 +36,8 @@ export function RankingsPanel({ leaderboard, seasons, selectedSeasonId, onSeason
               key={player.playerId}
               player={player}
               rank={index + 1}
+              isKingOfYeets={player.playerId === kingOfYeetsId}
+              isKingOfDeaths={player.playerId === kingOfDeathsId}
             />
           ))
         ) : (
@@ -33,16 +48,20 @@ export function RankingsPanel({ leaderboard, seasons, selectedSeasonId, onSeason
         )}
       </div>
 
-      <p className="pt-2xl text-center text-xs leading-4 text-text-secondary">
-        Showing all dungeons - {leaderboard.length} {leaderboard.length === 1 ? 'player' : 'players'} ranked - click a player for details
+      <p className="flex flex-col items-center gap-sm pt-2xl text-center text-xs leading-4 text-text-secondary sm:flex-row sm:justify-center">
+        <span>
+          Showing all dungeons - {leaderboard.length}{" "}
+          {leaderboard.length === 1 ? "player" : "players"} ranked - click a
+          player for details
+        </span>
       </p>
     </section>
-  )
+  );
 }
 
 interface RankingsPanelProps {
-  leaderboard: PlayerStats[]
-  seasons: SeasonSummary[]
-  selectedSeasonId: string
-  onSeasonChange: (seasonId: string) => void
+  leaderboard: PlayerStats[];
+  seasons: SeasonSummary[];
+  selectedSeasonId: string;
+  onSeasonChange: (seasonId: string) => void;
 }
