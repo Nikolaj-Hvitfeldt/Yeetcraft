@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { z } from 'zod'
 import { useSearchParams } from 'react-router-dom'
 import { resolveSeasonId, seasonPath } from '../utils/season'
@@ -23,6 +23,11 @@ export function useSeasonId() {
   )
 
   const isSeasonReady = !isPendingSeasons && selectedSeasonId !== undefined
+
+  useEffect(() => {
+    if (isPendingSeasons || !selectedSeasonId || validatedUrlSeasonId) return
+    setSearchParams({ seasonId: selectedSeasonId }, { replace: true })
+  }, [isPendingSeasons, selectedSeasonId, validatedUrlSeasonId, setSearchParams])
 
   function setSeasonId(seasonId: string) {
     setSearchParams({ seasonId }, { replace: true })

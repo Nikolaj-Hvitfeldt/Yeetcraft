@@ -4,10 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"regexp"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 
 	"yeetcraft/backend/internal/repository"
 )
@@ -274,14 +276,26 @@ func isValidUUID(value string) bool {
 }
 
 func writeRepositoryError(responseWriter http.ResponseWriter, err error) {
+	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+		return
+	}
+
+	var pgError *pgconn.PgError
+	if errors.As(err, &pgError) && pgError.Code == "22P02" {
+		WriteError(responseWriter, http.StatusBadRequest, "Bad Request", "A request parameter must be a valid UUID.")
+		return
+	}
+
 	switch {
 	case errors.Is(err, repository.ErrNotFound):
 		WriteError(responseWriter, http.StatusNotFound, "Not Found", "The requested resource was not found.")
 	case errors.Is(err, repository.ErrNegativeStat):
 		WriteError(responseWriter, http.StatusBadRequest, "Bad Request", "The resulting stat value cannot be below 0.")
 	case errors.Is(err, repository.ErrDatabaseNotConfigured):
+		log.Printf("repository error: %v", err)
 		InternalServerError(responseWriter)
 	default:
+		log.Printf("repository error: %v", err)
 		InternalServerError(responseWriter)
 	}
 }

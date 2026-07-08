@@ -46,13 +46,21 @@ export function usePlayerStats(
   options?: QueryEnabledOptions,
 ) {
   return useQuery({
-    queryKey: ['player-stats', playerId, seasonId ?? 'current'],
+    queryKey: ['player-stats', playerId, seasonId],
     queryFn: () => {
       if (!playerId) throw new Error('Missing player id')
+      if (!seasonId) throw new Error('Missing season id')
       return fetchPlayerStats(playerId, seasonId)
     },
-    enabled: (options?.enabled ?? true) && !!playerId && seasonId !== undefined,
+    enabled: (options?.enabled ?? true) && !!playerId && !!seasonId,
     staleTime: 30_000,
+    refetchOnMount: 'always',
+    retry: (failureCount, error) => {
+      if (error instanceof Error && error.message.includes('500')) {
+        return failureCount < 2
+      }
+      return failureCount < 1
+    },
   })
 }
 
