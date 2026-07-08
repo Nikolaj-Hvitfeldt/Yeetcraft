@@ -4,6 +4,7 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -100,6 +101,12 @@ func (databaseConfig DatabaseConfig) ConnectionString() string {
 
 func (databaseConfig DatabaseConfig) PgxPoolConfig() (*pgxpool.Config, error) {
 	return pgxpool.ParseConfig(databaseConfig.ConnectionString())
+}
+
+func (databaseConfig DatabaseConfig) UsesTransactionPooler() bool {
+	connectionString := databaseConfig.ConnectionString()
+	return strings.Contains(connectionString, ".pooler.supabase.com:6543") ||
+		strings.Contains(connectionString, ":6543/")
 }
 
 func getenv(key string, fallback string) string {

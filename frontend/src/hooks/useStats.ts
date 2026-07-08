@@ -1,5 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
-import { fetchCurrentSeasonDungeons, fetchLeaderboard, fetchPlayerStats, fetchSeasons } from '../api/api'
+import {
+  fetchCurrentSeasonDungeons,
+  fetchLeaderboard,
+  fetchPlayerStats,
+  fetchSeasonLeaders,
+  fetchSeasons,
+} from '../api/api'
 import { LeaderboardEntry } from '../api/types'
 
 export interface PlayerStats {
@@ -11,28 +17,55 @@ export interface PlayerStats {
   yeets: number
 }
 
-export function useLeaderboard(seasonId?: string) {
+export function useLeaderboard(seasonId?: string, options?: QueryEnabledOptions) {
   return useQuery({
     queryKey: ['leaderboard', seasonId ?? 'current'],
     queryFn: async () => {
       const response = await fetchLeaderboard(seasonId)
       return response.leaderboard
     },
+    enabled: (options?.enabled ?? true) && seasonId !== undefined,
     staleTime: 30_000,
     refetchOnWindowFocus: true,
   })
 }
 
-export function usePlayerStats(playerId: string | undefined, seasonId?: string) {
+export function useSeasonLeaders(seasonId?: string, options?: QueryEnabledOptions) {
   return useQuery({
-    queryKey: ['player-stats', playerId, seasonId ?? 'current'],
+    queryKey: ['season-leaders', seasonId ?? 'current'],
+    queryFn: () => fetchSeasonLeaders(seasonId),
+    enabled: (options?.enabled ?? true) && seasonId !== undefined,
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
+  })
+}
+
+export function usePlayerStats(
+  playerId: string | undefined,
+  seasonId?: string,
+  options?: QueryEnabledOptions,
+) {
+  return useQuery({
+    queryKey: ['player-stats', playerId, seasonId],
     queryFn: () => {
       if (!playerId) throw new Error('Missing player id')
+      if (!seasonId) throw new Error('Missing season id')
       return fetchPlayerStats(playerId, seasonId)
     },
-    enabled: !!playerId,
+    enabled: (options?.enabled ?? true) && !!playerId && !!seasonId,
     staleTime: 30_000,
+    refetchOnMount: 'always',
+    retry: (failureCount, error) => {
+      if (error instanceof Error && error.message.includes('500')) {
+        return failureCount < 2
+      }
+      return failureCount < 1
+    },
   })
+}
+
+interface QueryEnabledOptions {
+  enabled?: boolean
 }
 
 export function useSeasons() {
@@ -46,13 +79,14 @@ export function useSeasons() {
   })
 }
 
-export function useCurrentSeasonDungeons(seasonId?: string) {
+export function useCurrentSeasonDungeons(seasonId?: string, options?: QueryEnabledOptions) {
   return useQuery({
     queryKey: ['season-dungeons', seasonId ?? 'current'],
     queryFn: async () => {
       const response = await fetchCurrentSeasonDungeons(seasonId)
       return response.dungeons
     },
+    enabled: (options?.enabled ?? true) && seasonId !== undefined,
     staleTime: 60_000,
   })
 }

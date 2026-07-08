@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"yeetcraft/backend/internal/config"
@@ -18,6 +19,10 @@ func NewPool(ctx context.Context, databaseConfig config.DatabaseConfig) (*pgxpoo
 	poolConfig, err := databaseConfig.PgxPoolConfig()
 	if err != nil {
 		return nil, fmt.Errorf("parse database config: %w", err)
+	}
+
+	if databaseConfig.UsesTransactionPooler() {
+		poolConfig.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
 	}
 
 	pool, err := pgxpool.NewWithConfig(ctx, poolConfig)

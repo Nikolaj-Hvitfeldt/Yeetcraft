@@ -48,6 +48,7 @@ func main() {
 	protectedRouter.Get("/api/leaderboard", statsHandler.Leaderboard)
 	protectedRouter.Get("/api/players/{playerId}/stats", statsHandler.PlayerStats)
 	protectedRouter.Get("/api/seasons", statsHandler.Seasons)
+	protectedRouter.Get("/api/seasons/leaders", statsHandler.SeasonLeaders)
 	protectedRouter.Get("/api/seasons/current/dungeons", statsHandler.CurrentSeasonDungeons)
 	protectedRouter.Patch("/api/stats", statsHandler.SetStats)
 	protectedRouter.Post("/api/stats/adjust", statsHandler.AdjustStat)
