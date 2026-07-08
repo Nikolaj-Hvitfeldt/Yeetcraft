@@ -3,7 +3,12 @@ import { getDungeonInitials } from '../../utils/dungeon-badge'
 import { StatItem } from '../ui/StatItem'
 import { DungeonBadge } from '../ui/DungeonBadge'
 
-export function NemesisCard({ dungeon, sharePercent, className }: NemesisCardProps) {
+export function NemesisCard({
+  dungeon,
+  sharePercent,
+  bannerImageUrl,
+  className,
+}: NemesisCardProps) {
   const initials = getDungeonInitials(dungeon.dungeon.name, dungeon.dungeon.shortName)
 
   return (
@@ -12,8 +17,16 @@ export function NemesisCard({ dungeon, sharePercent, className }: NemesisCardPro
     >
       <div className="grid gap-xl p-xl lg:grid-cols-[280px_1fr]">
         <div className="relative overflow-hidden rounded-2xl border border-accent-primary bg-accent-primary p-lg">
+          {bannerImageUrl ? (
+            <img
+              src={bannerImageUrl}
+              alt=""
+              className="absolute inset-0 size-full object-cover"
+            />
+          ) : null}
+          <div className="absolute inset-0 bg-black/20" aria-hidden="true" />
           <DungeonBadge initials={initials} index={0} variant="inline" />
-          <p className="pt-xl font-heading text-2xl font-bold leading-[30px] text-text-primary">
+          <p className="relative pt-xl font-heading text-2xl font-bold leading-[30px] text-text-primary">
             {dungeon.dungeon.name}
           </p>
         </div>
@@ -44,5 +57,6 @@ export function NemesisCard({ dungeon, sharePercent, className }: NemesisCardPro
 interface NemesisCardProps {
   dungeon: DungeonStats
   sharePercent: number
+  bannerImageUrl?: string | null
   className?: string
 }

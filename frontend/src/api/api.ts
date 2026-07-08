@@ -3,8 +3,10 @@ import {
   CurrentSeasonDungeonsResponseSchema,
   LeaderboardResponseSchema,
   PlayerStatsResponseSchema,
+  StatResponseSchema,
   SeasonLeadersResponseSchema,
   SeasonsResponseSchema,
+  SetStatsRequestSchema,
 } from './schemas'
 import { getAccessToken } from '../utils/token'
 
@@ -78,4 +80,31 @@ export async function fetchSeasons() {
 export async function fetchCurrentSeasonDungeons(seasonId?: string) {
   const query = seasonId ? `?seasonId=${encodeURIComponent(seasonId)}` : ''
   return fetchApi(`/api/seasons/current/dungeons${query}`, CurrentSeasonDungeonsResponseSchema)
+}
+
+export async function fetchSetStats(request: z.infer<typeof SetStatsRequestSchema>) {
+  // Ensure we validate the request shape at runtime too (helps catch mistakes early).
+  SetStatsRequestSchema.parse(request)
+
+  const token = getAccessToken()
+  const response = await fetch(`${API_BASE_URL}/api/stats`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { 'X-API-Key': token } : {}),
+    },
+    body: JSON.stringify(request),
+  })
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      const error = await response.json().catch(() => ({ message: 'Unauthorized' }))
+      throw new Error(error.message || 'Unauthorized. Please use the shared link with a valid token.')
+    }
+    const errorText = await response.text().catch(() => response.statusText)
+    throw new Error(`API error: ${response.status} ${errorText}`)
+  }
+
+  const json: unknown = await response.json()
+  return StatResponseSchema.parse(json).stats
 }

@@ -5,7 +5,12 @@ function getSeasonLabel(season: SeasonSummary): string {
   return season.expansion ? `${season.expansion} ${season.name}` : season.name
 }
 
-export function SeasonPicker({ seasons, selectedSeasonId, onSeasonChange }: SeasonPickerProps) {
+export function SeasonPicker({
+  seasons,
+  selectedSeasonId,
+  onSeasonChange,
+  fluid = false,
+}: SeasonPickerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const pickerRef = useRef<HTMLDivElement>(null)
   const selectedSeason = seasons.find((season) => season.id === selectedSeasonId)
@@ -36,7 +41,7 @@ export function SeasonPicker({ seasons, selectedSeasonId, onSeasonChange }: Seas
   }
 
   return (
-    <div ref={pickerRef} className="relative h-9 w-[199px]">
+    <div ref={pickerRef} className={`relative h-9 ${fluid ? 'w-full' : 'w-[199px]'}`}>
       <button
         type="button"
         aria-haspopup="listbox"
@@ -51,7 +56,7 @@ export function SeasonPicker({ seasons, selectedSeasonId, onSeasonChange }: Seas
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-[44px] z-20 w-[199px] overflow-hidden rounded-md border border-border-subtle bg-surface-section shadow-[0px_20px_12.5px_0px_rgba(0,0,0,0.2),0px_8px_5px_0px_rgba(0,0,0,0.2)]">
+        <div className={`absolute right-0 top-[44px] z-20 overflow-hidden rounded-md border border-border-subtle bg-surface-section shadow-[0px_20px_12.5px_0px_rgba(0,0,0,0.2),0px_8px_5px_0px_rgba(0,0,0,0.2)] ${fluid ? 'w-full' : 'w-[199px]'}`}>
           <ul role="listbox" aria-label="Season" className="max-h-56 overflow-y-auto p-xs">
             {seasons.map((season) => {
               const isSelected = season.id === selectedSeasonId
@@ -104,4 +109,5 @@ interface SeasonPickerProps {
   seasons: SeasonSummary[]
   selectedSeasonId: string
   onSeasonChange: (seasonId: string) => void
+  fluid?: boolean
 }

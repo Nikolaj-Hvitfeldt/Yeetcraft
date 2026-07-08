@@ -1,15 +1,19 @@
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 
-export function BackButton({ to = '/', label = 'Back to leaderboard', className }: BackButtonProps) {
+export function BackButton({
+  to = "/",
+  label = "Back to leaderboard",
+  className,
+}: BackButtonProps) {
   return (
     <Link
       to={to}
-      className={`inline-flex h-11 items-center gap-sm rounded-2xl border border-border-subtle bg-surface-base px-lg text-sm font-semibold leading-[18px] text-text-link transition-colors hover:border-accent-primary hover:text-accent-primary ${className ?? ''}`}
+      className={`inline-flex h-11 items-center gap-sm rounded-2xl border border-border-subtle bg-surface-section px-lg text-sm font-semibold leading-[18px] transition-colors hover:border-accent-primary hover:text-accent-primary ${className ?? ""}`}
     >
       <ChevronLeftIcon className="size-4 shrink-0" />
       {label}
     </Link>
-  )
+  );
 }
 
 function ChevronLeftIcon({ className }: { className?: string }) {
@@ -29,11 +33,11 @@ function ChevronLeftIcon({ className }: { className?: string }) {
         strokeLinejoin="round"
       />
     </svg>
-  )
+  );
 }
 
 interface BackButtonProps {
-  to?: string
-  label?: string
-  className?: string
+  to?: string;
+  label?: string;
+  className?: string;
 }

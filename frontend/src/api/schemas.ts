@@ -62,6 +62,27 @@ export const PlayerStatsResponseSchema = z.object({
   dungeons: z.array(PlayerDungeonStatsSchema),
 })
 
+export const StatRowSchema = z.object({
+  playerId: z.string(),
+  seasonId: z.string(),
+  dungeonId: z.string(),
+  deaths: z.number(),
+  yeets: z.number(),
+  totalMistakes: z.number(),
+})
+
+export const SetStatsRequestSchema = z.object({
+  playerId: z.string(),
+  seasonId: z.string(),
+  dungeonId: z.string(),
+  deaths: z.number(),
+  yeets: z.number(),
+})
+
+export const StatResponseSchema = z.object({
+  stats: StatRowSchema,
+})
+
 export const SeasonsResponseSchema = z.object({
   seasons: z.array(SeasonSummarySchema),
 })
@@ -107,3 +128,4 @@ export type CurrentSeasonDungeonsResponse = z.infer<typeof CurrentSeasonDungeons
 export type SeasonLeaderPlayer = z.infer<typeof SeasonLeaderPlayerSchema>
 export type SeasonTopPlayer = z.infer<typeof SeasonTopPlayerSchema>
 export type SeasonLeadersResponse = z.infer<typeof SeasonLeadersResponseSchema>
+export type StatRow = z.infer<typeof StatRowSchema>
