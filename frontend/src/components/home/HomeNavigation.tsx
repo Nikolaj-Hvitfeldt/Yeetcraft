@@ -1,18 +1,42 @@
-import { ThemeSwitcher } from '../ThemeSwitcher'
+import { Link } from "react-router-dom";
+import logoDaytimeFull from "../../assets/logos/logoDaytimeFull.webp";
+import logoMidnightFull from "../../assets/logos/logoMidnightFull.webp";
+import { useSeasonId } from "../../hooks";
+import { useTheme } from "../../hooks/useTheme";
+import { ThemeSwitcher } from "../ThemeSwitcher";
+
+const logosByTheme = {
+  daytime: logoDaytimeFull,
+  midnight: logoMidnightFull,
+} as const;
 
 export function HomeNavigation() {
+  const { theme } = useTheme();
+  const { homePath } = useSeasonId();
+
   return (
     <nav className="flex w-full items-center justify-between px-xs py-sm">
-      <div className="flex items-center gap-md rounded-md py-sm pr-md">
-        <div className="flex size-10 items-center justify-center rounded-md bg-accent-secondary text-background-app shadow-lg">
-          <span className="font-heading text-xl font-bold leading-none">Y</span>
-        </div>
+      <Link
+        to={homePath}
+        className="flex items-center gap-md rounded-md py-sm pr-md transition-opacity hover:opacity-90"
+      >
+        <span className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-md shadow-lg">
+          <img
+            src={logosByTheme[theme]}
+            alt=""
+            className="size-full object-contain"
+          />
+        </span>
         <div>
-          <p className="font-heading text-xl font-bold leading-6 text-accent-primary">YeetCraft</p>
-          <p className="text-xs font-semibold leading-4 text-text-secondary">Mythic+ Hall of Shame</p>
+          <p className="font-heading text-xl font-bold leading-6 text-accent-primary">
+            YeetCraft
+          </p>
+          <p className="text-xs font-semibold leading-4 text-text-secondary">
+            Mythic+ Hall of Shame
+          </p>
         </div>
-      </div>
+      </Link>
       <ThemeSwitcher />
     </nav>
-  )
+  );
 }

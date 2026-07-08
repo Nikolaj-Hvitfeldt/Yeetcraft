@@ -4,6 +4,7 @@ import deaths from './deaths.webp'
 import dungeon from './dungeon.webp'
 import edit from './edit.webp'
 import gold from './gold.webp'
+import info from './info.webp'
 import leaderboard from './leaderboard.webp'
 import nemesis from './nemesis.webp'
 import platinum from './platinum.webp'
@@ -30,6 +31,7 @@ export const wowIcons = {
   silver,
   gold,
   platinum,
+  info,
 } as const
 
 export type WowIconKey = keyof typeof wowIcons
