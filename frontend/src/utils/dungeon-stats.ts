@@ -9,6 +9,7 @@ import { getDungeonFlavorTitle } from "./dungeon-flavor-title";
 export interface DungeonHighlight {
   playerId: string;
   displayName: string;
+  avatarUrl: string | null;
   value: number;
   subtitle: string;
 }
@@ -21,6 +22,10 @@ export interface DungeonMistakeMix {
 export interface DungeonAchievement {
   icon: WowIconKey;
   title: string;
+  holder?: {
+    displayName: string;
+    avatarUrl: string | null;
+  };
   description: string;
 }
 
@@ -172,6 +177,7 @@ export function getDungeonHighlights(leaderboard: DungeonLeaderboardEntry[]): {
       ? {
           playerId: biggestYeeterEntry.playerId,
           displayName: biggestYeeterEntry.displayName,
+          avatarUrl: biggestYeeterEntry.avatarUrl,
           value: biggestYeeterEntry.yeets,
           subtitle: "biggest yeeter",
         }
@@ -180,6 +186,7 @@ export function getDungeonHighlights(leaderboard: DungeonLeaderboardEntry[]): {
       ? {
           playerId: mostDeathsEntry.playerId,
           displayName: mostDeathsEntry.displayName,
+          avatarUrl: mostDeathsEntry.avatarUrl,
           value: mostDeathsEntry.deaths,
           subtitle: "most deaths",
         }
@@ -188,6 +195,7 @@ export function getDungeonHighlights(leaderboard: DungeonLeaderboardEntry[]): {
       ? {
           playerId: safestPlayerEntry.playerId,
           displayName: safestPlayerEntry.displayName,
+          avatarUrl: safestPlayerEntry.avatarUrl,
           value: safestPlayerEntry.totalMistakes,
           subtitle:
             safestPlayerEntry.totalMistakes === 0 ? "mistakes" : "mistakes",
@@ -217,22 +225,25 @@ export function getDungeonAchievements(
     {
       icon: "yeets",
       title: "Orbital Launch",
+      holder: highlights.biggestYeeter
+        ? {
+            displayName: highlights.biggestYeeter.displayName,
+            avatarUrl: highlights.biggestYeeter.avatarUrl,
+          }
+        : undefined,
       description: highlights.biggestYeeter
         ? `${highlights.biggestYeeter.displayName} owns the yeet narrative here.`
         : "No yeet champion recorded yet.",
     },
     {
-      icon: "gold",
-      title: "Actually Focused",
-      description: highlights.safestPlayer
-        ? highlights.safestPlayer.value === 0
-          ? `${highlights.safestPlayer.displayName} is currently the safest pick.`
-          : `${highlights.safestPlayer.displayName} is currently the safest pick.`
-        : "No safest player recorded yet.",
-    },
-    {
       icon: "deaths",
       title: "Mechanic Magnet",
+      holder: highlights.mostDeaths
+        ? {
+            displayName: highlights.mostDeaths.displayName,
+            avatarUrl: highlights.mostDeaths.avatarUrl,
+          }
+        : undefined,
       description: highlights.mostDeaths
         ? `${highlights.mostDeaths.displayName} found the floor most often.`
         : "No death magnet recorded yet.",

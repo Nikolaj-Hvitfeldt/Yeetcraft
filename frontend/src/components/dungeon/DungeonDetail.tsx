@@ -190,9 +190,9 @@ export function DungeonDetail() {
               onRetry={handleRetry}
             />
 
-            <aside className="flex flex-col gap-lg">
+            <aside className="flex h-full min-h-0 flex-col gap-lg">
               <MistakeMixSection mix={mistakeMix} />
-              <AchievementsSection achievements={achievements} />
+              <AchievementsSection achievements={achievements} className="mt-auto" />
             </aside>
           </div>
 

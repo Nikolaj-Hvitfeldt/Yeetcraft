@@ -166,10 +166,11 @@ describe('getDungeonAchievements', () => {
   it('builds deterministic achievement copy', () => {
     const achievements = getDungeonAchievements(getDungeonHighlights(leaderboard))
 
-    expect(achievements).toHaveLength(3)
+    expect(achievements).toHaveLength(2)
+    expect(achievements[0]?.holder?.displayName).toBe('Niklas')
+    expect(achievements[1]?.holder?.displayName).toBe('Niklas')
     expect(achievements[0]?.description).toContain('Niklas')
-    expect(achievements[1]?.description).toContain('Martin')
-    expect(achievements[2]?.description).toContain('Niklas')
+    expect(achievements[1]?.description).toContain('Niklas')
   })
 })
 
