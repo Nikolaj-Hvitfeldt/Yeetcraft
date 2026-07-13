@@ -86,6 +86,28 @@ type StatRow struct {
 	TotalMistakes int    `json:"totalMistakes"`
 }
 
+type DungeonReference struct {
+	ID           string  `json:"id"`
+	Name         string  `json:"name"`
+	ShortName    *string `json:"shortName"`
+	DisplayOrder int     `json:"displayOrder"`
+}
+
+type DungeonLeaderboardEntry struct {
+	PlayerID      string  `json:"playerId"`
+	DisplayName   string  `json:"displayName"`
+	AvatarURL     *string `json:"avatarUrl"`
+	Deaths        int     `json:"deaths"`
+	Yeets         int     `json:"yeets"`
+	TotalMistakes int     `json:"totalMistakes"`
+}
+
+type DungeonLeaderboard struct {
+	Season      SeasonSummary           `json:"season"`
+	Dungeon     DungeonReference        `json:"dungeon"`
+	Leaderboard []DungeonLeaderboardEntry `json:"leaderboard"`
+}
+
 func NewStatsRepository(pool *pgxpool.Pool) StatsRepository {
 	return StatsRepository{
 		pool: pool,
@@ -311,6 +333,70 @@ func (statsRepository StatsRepository) ListSeasonDungeons(ctx context.Context, s
 	return season, dungeons, nil
 }
 
+func (statsRepository StatsRepository) ListDungeonLeaderboard(ctx context.Context, seasonID string, dungeonID string) (DungeonLeaderboard, error) {
+	if statsRepository.pool == nil {
+		return DungeonLeaderboard{}, ErrDatabaseNotConfigured
+	}
+
+	season, err := statsRepository.resolveSeason(ctx, seasonID)
+	if err != nil {
+		return DungeonLeaderboard{}, err
+	}
+
+	dungeon, err := statsRepository.getSeasonDungeon(ctx, season.ID, dungeonID)
+	if err != nil {
+		return DungeonLeaderboard{}, err
+	}
+
+	const query = `
+		select
+			players.id::text,
+			players.display_name,
+			players.avatar_url,
+			coalesce(pds.deaths, 0)::int as deaths,
+			coalesce(pds.yeets, 0)::int as yeets,
+			(coalesce(pds.deaths, 0) + coalesce(pds.yeets, 0))::int as total_mistakes
+		from players
+		left join player_dungeon_stats pds
+			on pds.player_id = players.id
+			and pds.season_id = $1::uuid
+			and pds.dungeon_id = $2::uuid
+		order by total_mistakes desc, yeets desc, players.display_name asc
+	`
+
+	rows, err := statsRepository.pool.Query(ctx, query, season.ID, dungeon.ID)
+	if err != nil {
+		return DungeonLeaderboard{}, fmt.Errorf("query dungeon leaderboard: %w", err)
+	}
+	defer rows.Close()
+
+	leaderboard := make([]DungeonLeaderboardEntry, 0)
+	for rows.Next() {
+		var entry DungeonLeaderboardEntry
+		if err := rows.Scan(
+			&entry.PlayerID,
+			&entry.DisplayName,
+			&entry.AvatarURL,
+			&entry.Deaths,
+			&entry.Yeets,
+			&entry.TotalMistakes,
+		); err != nil {
+			return DungeonLeaderboard{}, fmt.Errorf("scan dungeon leaderboard: %w", err)
+		}
+		leaderboard = append(leaderboard, entry)
+	}
+
+	if err := rows.Err(); err != nil {
+		return DungeonLeaderboard{}, fmt.Errorf("iterate dungeon leaderboard: %w", err)
+	}
+
+	return DungeonLeaderboard{
+		Season:      season,
+		Dungeon:     dungeon,
+		Leaderboard: leaderboard,
+	}, nil
+}
+
 func (statsRepository StatsRepository) ListDungeonMistakeLeaders(ctx context.Context, seasonID string) ([]DungeonMistakeLeader, error) {
 	if statsRepository.pool == nil {
 		return nil, ErrDatabaseNotConfigured
@@ -470,6 +556,35 @@ func (statsRepository StatsRepository) resolveSeason(ctx context.Context, season
 	}
 
 	return season, nil
+}
+
+func (statsRepository StatsRepository) getSeasonDungeon(ctx context.Context, seasonID string, dungeonID string) (DungeonReference, error) {
+	const query = `
+		select
+			dungeons.id::text,
+			dungeons.name,
+			dungeons.short_name,
+			season_dungeons.display_order
+		from season_dungeons
+		join dungeons on dungeons.id = season_dungeons.dungeon_id
+		where season_dungeons.season_id = $1::uuid
+			and season_dungeons.dungeon_id = $2::uuid
+	`
+
+	var dungeon DungeonReference
+	if err := statsRepository.pool.QueryRow(ctx, query, seasonID, dungeonID).Scan(
+		&dungeon.ID,
+		&dungeon.Name,
+		&dungeon.ShortName,
+		&dungeon.DisplayOrder,
+	); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return DungeonReference{}, ErrNotFound
+		}
+		return DungeonReference{}, fmt.Errorf("get season dungeon: %w", err)
+	}
+
+	return dungeon, nil
 }
 
 func (statsRepository StatsRepository) getPlayer(ctx context.Context, playerID string) (PlayerSummary, error) {

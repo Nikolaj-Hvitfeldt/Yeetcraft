@@ -22,6 +22,7 @@ type StatsRepository interface {
 	GetPlayerStats(ctx context.Context, playerID string, seasonID string) (repository.PlayerStats, error)
 	ListSeasons(ctx context.Context) ([]repository.SeasonSummary, error)
 	ListSeasonDungeons(ctx context.Context, seasonID string) (repository.SeasonSummary, []repository.DungeonSummary, error)
+	ListDungeonLeaderboard(ctx context.Context, seasonID string, dungeonID string) (repository.DungeonLeaderboard, error)
 	SetStats(ctx context.Context, playerID string, seasonID string, dungeonID string, deaths int, yeets int) (repository.StatRow, error)
 	SetStatsBatch(ctx context.Context, playerID string, seasonID string, updates []repository.StatUpdate) ([]repository.StatRow, error)
 }
@@ -121,6 +122,28 @@ func (statsHandler StatsHandler) Seasons(responseWriter http.ResponseWriter, req
 	WriteJSON(responseWriter, http.StatusOK, SeasonsResponse{
 		Seasons: seasons,
 	})
+}
+
+func (statsHandler StatsHandler) DungeonLeaderboard(responseWriter http.ResponseWriter, request *http.Request) {
+	seasonID := chi.URLParam(request, "seasonId")
+	if !isValidUUID(seasonID) {
+		WriteError(responseWriter, http.StatusBadRequest, "Bad Request", "seasonId must be a valid UUID.")
+		return
+	}
+
+	dungeonID := chi.URLParam(request, "dungeonId")
+	if !isValidUUID(dungeonID) {
+		WriteError(responseWriter, http.StatusBadRequest, "Bad Request", "dungeonId must be a valid UUID.")
+		return
+	}
+
+	leaderboard, err := statsHandler.statsRepository.ListDungeonLeaderboard(request.Context(), seasonID, dungeonID)
+	if err != nil {
+		writeRepositoryError(responseWriter, err)
+		return
+	}
+
+	WriteJSON(responseWriter, http.StatusOK, leaderboard)
 }
 
 func (statsHandler StatsHandler) CurrentSeasonDungeons(responseWriter http.ResponseWriter, request *http.Request) {
