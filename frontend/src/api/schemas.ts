@@ -159,5 +159,6 @@ export type SeasonsResponse = z.infer<typeof SeasonsResponseSchema>
 export type CurrentSeasonDungeonsResponse = z.infer<typeof CurrentSeasonDungeonsResponseSchema>
 export type SeasonLeaderPlayer = z.infer<typeof SeasonLeaderPlayerSchema>
 export type SeasonTopPlayer = z.infer<typeof SeasonTopPlayerSchema>
+export type DungeonMistakeLeader = z.infer<typeof DungeonMistakeLeaderSchema>
 export type SeasonLeadersResponse = z.infer<typeof SeasonLeadersResponseSchema>
 export type StatRow = z.infer<typeof StatRowSchema>

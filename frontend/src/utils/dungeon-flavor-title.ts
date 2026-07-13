@@ -43,7 +43,9 @@ function pickHighestScoringDungeon(
   context: DungeonTitleContext,
   minimumScore = 1,
 ): DungeonSummary | null {
-  const eligible = dungeons.filter((dungeon) => !excludedDungeonIds.has(dungeon.id));
+  const eligible = dungeons.filter(
+    (dungeon) => !excludedDungeonIds.has(dungeon.id),
+  );
   let winner: DungeonSummary | null = null;
   let winningScore = minimumScore - 1;
 
@@ -69,7 +71,10 @@ function pickLowestScoringDungeon(
   excludedDungeonIds: Set<string>,
   getScore: (dungeon: DungeonSummary, context: DungeonTitleContext) => number,
   context: DungeonTitleContext,
-  isEligible?: (dungeon: DungeonSummary, context: DungeonTitleContext) => boolean,
+  isEligible?: (
+    dungeon: DungeonSummary,
+    context: DungeonTitleContext,
+  ) => boolean,
 ): DungeonSummary | null {
   const eligible = dungeons.filter(
     (dungeon) =>
@@ -109,7 +114,10 @@ function buildBlameShareByDungeonId(
   dungeonMistakeLeaders: DungeonMistakeLeader[],
 ): Map<string, number> {
   const leaderMistakesByDungeonId = new Map(
-    dungeonMistakeLeaders.map((leader) => [leader.dungeonId, leader.totalMistakes]),
+    dungeonMistakeLeaders.map((leader) => [
+      leader.dungeonId,
+      leader.totalMistakes,
+    ]),
   );
   const blameShareByDungeonId = new Map<string, number>();
 
@@ -129,7 +137,9 @@ function buildBlameShareByDungeonId(
   return blameShareByDungeonId;
 }
 
-function buildDungeonTitleContext(input: DungeonFlavorTitleInput): DungeonTitleContext {
+function buildDungeonTitleContext(
+  input: DungeonFlavorTitleInput,
+): DungeonTitleContext {
   return {
     allDungeons: input.allDungeons,
     blameShareByDungeonId: buildBlameShareByDungeonId(
@@ -175,7 +185,8 @@ const UNIQUE_DUNGEON_TITLE_RULES: UniqueDungeonTitleRule[] = [
   },
   {
     title: "The Scapegoat Factory",
-    tooltip: "One player owns the biggest share of mistakes here.",
+    tooltip:
+      "One player is responsible for the biggest share of mistakes here.",
     pickWinner: (dungeons, context, excludedDungeonIds) =>
       pickHighestScoringDungeon(
         dungeons,

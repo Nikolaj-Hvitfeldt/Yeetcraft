@@ -1,4 +1,5 @@
 import type { DungeonSummary, SeasonSummary } from '../../api/types'
+import { getDungeonLore } from '../../utils/dungeon-lore'
 import { StatCard } from '../home/StatCard'
 import { DungeonPicker } from './DungeonPicker'
 
@@ -31,8 +32,7 @@ export function DungeonHeroSection({
           </h1>
 
           <p className="max-w-xl pt-md text-sm leading-5 text-text-secondary">
-            A focused shame archive for this key: who fell over, who got launched, and who
-            somehow escaped the dungeon with dignity intact.
+            {getDungeonLore(dungeon)}
           </p>
 
           <div className="flex max-w-[576px] flex-wrap gap-x-[84px] gap-y-lg pt-2xl">

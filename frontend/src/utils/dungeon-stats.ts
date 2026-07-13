@@ -316,7 +316,7 @@ function getBlameVerdict(
     return "Almost all the blame traces back to one player.";
   }
   if (blameShare >= 70) {
-    return "One player owns most of the blame here.";
+    return "One player is responsible for most of the blame here.";
   }
   if (blameShare >= 40) {
     return "Blame is shared, with a few standouts here.";
