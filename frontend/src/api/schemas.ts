@@ -16,10 +16,6 @@ export const LeaderboardEntrySchema = z.object({
   totalMistakes: z.number(),
 })
 
-export const LeaderboardResponseSchema = z.object({
-  leaderboard: z.array(LeaderboardEntrySchema),
-})
-
 export const PlayerSummarySchema = z.object({
   id: z.string(),
   displayName: z.string(),
@@ -71,14 +67,6 @@ export const StatRowSchema = z.object({
   totalMistakes: z.number(),
 })
 
-export const SetStatsRequestSchema = z.object({
-  playerId: z.string(),
-  seasonId: z.string(),
-  dungeonId: z.string(),
-  deaths: z.number(),
-  yeets: z.number(),
-})
-
 export const SetStatsBatchDungeonUpdateSchema = z.object({
   dungeonId: z.string(),
   deaths: z.number().int().min(0),
@@ -89,10 +77,6 @@ export const SetStatsBatchRequestSchema = z.object({
   playerId: z.string(),
   seasonId: z.string(),
   stats: z.array(SetStatsBatchDungeonUpdateSchema).min(1),
-})
-
-export const StatResponseSchema = z.object({
-  stats: StatRowSchema,
 })
 
 export const StatsBatchResponseSchema = z.object({
@@ -133,6 +117,7 @@ export const DungeonMistakeLeaderSchema = z.object({
 
 export const SeasonLeadersResponseSchema = z.object({
   season: SeasonSummarySchema,
+  leaderboard: z.array(LeaderboardEntrySchema).default([]),
   kingOfYeets: SeasonLeaderPlayerSchema.nullable(),
   kingOfDeaths: SeasonLeaderPlayerSchema.nullable(),
   topPlayer: SeasonTopPlayerSchema.nullable(),
@@ -141,7 +126,6 @@ export const SeasonLeadersResponseSchema = z.object({
 
 export type SeasonSummary = z.infer<typeof SeasonSummarySchema>
 export type LeaderboardEntry = z.infer<typeof LeaderboardEntrySchema>
-export type LeaderboardResponse = z.infer<typeof LeaderboardResponseSchema>
 export type PlayerSummary = z.infer<typeof PlayerSummarySchema>
 export type DungeonSummary = z.infer<typeof DungeonSummarySchema>
 export type DungeonStats = z.infer<typeof PlayerDungeonStatsSchema>

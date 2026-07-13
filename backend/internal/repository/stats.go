@@ -15,12 +15,15 @@ var (
 	ErrNegativeStat          = errors.New("stat value cannot be below zero")
 )
 
-type StatField string
-
-const (
-	StatFieldDeaths StatField = "deaths"
-	StatFieldYeets  StatField = "yeets"
-)
+const upsertStatsQuery = `
+	insert into player_dungeon_stats (player_id, season_id, dungeon_id, deaths, yeets)
+	values ($1::uuid, $2::uuid, $3::uuid, $4, $5)
+	on conflict (player_id, season_id, dungeon_id)
+	do update set
+		deaths = excluded.deaths,
+		yeets = excluded.yeets
+	returning player_id::text, season_id::text, dungeon_id::text, deaths, yeets, deaths + yeets as total_mistakes
+`
 
 type StatsRepository struct {
 	pool *pgxpool.Pool
@@ -249,10 +252,6 @@ func (statsRepository StatsRepository) ListSeasons(ctx context.Context) ([]Seaso
 	return seasons, nil
 }
 
-func (statsRepository StatsRepository) ListCurrentSeasonDungeons(ctx context.Context) (SeasonSummary, []DungeonSummary, error) {
-	return statsRepository.ListSeasonDungeons(ctx, "")
-}
-
 func (statsRepository StatsRepository) ListSeasonDungeons(ctx context.Context, seasonID string) (SeasonSummary, []DungeonSummary, error) {
 	if statsRepository.pool == nil {
 		return SeasonSummary{}, nil, ErrDatabaseNotConfigured
@@ -364,22 +363,16 @@ func (statsRepository StatsRepository) SetStats(ctx context.Context, playerID st
 		return StatRow{}, ErrDatabaseNotConfigured
 	}
 
+	if deaths < 0 || yeets < 0 {
+		return StatRow{}, ErrNegativeStat
+	}
+
 	if err := statsRepository.ensureStatReferencesExist(ctx, playerID, seasonID, dungeonID); err != nil {
 		return StatRow{}, err
 	}
 
-	const query = `
-		insert into player_dungeon_stats (player_id, season_id, dungeon_id, deaths, yeets)
-		values ($1::uuid, $2::uuid, $3::uuid, $4, $5)
-		on conflict (player_id, season_id, dungeon_id)
-		do update set
-			deaths = excluded.deaths,
-			yeets = excluded.yeets
-		returning player_id::text, season_id::text, dungeon_id::text, deaths, yeets, deaths + yeets as total_mistakes
-	`
-
 	var statRow StatRow
-	if err := statsRepository.pool.QueryRow(ctx, query, playerID, seasonID, dungeonID, deaths, yeets).Scan(
+	if err := statsRepository.pool.QueryRow(ctx, upsertStatsQuery, playerID, seasonID, dungeonID, deaths, yeets).Scan(
 		&statRow.PlayerID,
 		&statRow.SeasonID,
 		&statRow.DungeonID,
@@ -444,49 +437,6 @@ func (statsRepository StatsRepository) SetStatsBatch(ctx context.Context, player
 	}
 
 	return statRows, nil
-}
-
-func (statsRepository StatsRepository) AdjustStat(ctx context.Context, playerID string, seasonID string, dungeonID string, field StatField, delta int) (StatRow, error) {
-	if statsRepository.pool == nil {
-		return StatRow{}, ErrDatabaseNotConfigured
-	}
-
-	if err := statsRepository.ensureStatReferencesExist(ctx, playerID, seasonID, dungeonID); err != nil {
-		return StatRow{}, err
-	}
-
-	transaction, err := statsRepository.pool.Begin(ctx)
-	if err != nil {
-		return StatRow{}, fmt.Errorf("begin adjust stat transaction: %w", err)
-	}
-	defer transaction.Rollback(ctx)
-
-	deaths, yeets, err := getLockedStatValues(ctx, transaction, playerID, seasonID, dungeonID)
-	if err != nil {
-		return StatRow{}, err
-	}
-
-	switch field {
-	case StatFieldDeaths:
-		deaths += delta
-	case StatFieldYeets:
-		yeets += delta
-	}
-
-	if deaths < 0 || yeets < 0 {
-		return StatRow{}, ErrNegativeStat
-	}
-
-	statRow, err := upsertStatValues(ctx, transaction, playerID, seasonID, dungeonID, deaths, yeets)
-	if err != nil {
-		return StatRow{}, err
-	}
-
-	if err := transaction.Commit(ctx); err != nil {
-		return StatRow{}, fmt.Errorf("commit adjust stat transaction: %w", err)
-	}
-
-	return statRow, nil
 }
 
 func (statsRepository StatsRepository) resolveSeason(ctx context.Context, seasonID string) (SeasonSummary, error) {
@@ -563,41 +513,9 @@ func (statsRepository StatsRepository) ensureStatReferencesExist(ctx context.Con
 	return nil
 }
 
-func getLockedStatValues(ctx context.Context, transaction pgx.Tx, playerID string, seasonID string, dungeonID string) (int, int, error) {
-	const query = `
-		select deaths, yeets
-		from player_dungeon_stats
-		where player_id = $1::uuid
-			and season_id = $2::uuid
-			and dungeon_id = $3::uuid
-		for update
-	`
-
-	var deaths int
-	var yeets int
-	if err := transaction.QueryRow(ctx, query, playerID, seasonID, dungeonID).Scan(&deaths, &yeets); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return 0, 0, nil
-		}
-		return 0, 0, fmt.Errorf("get locked stat values: %w", err)
-	}
-
-	return deaths, yeets, nil
-}
-
 func upsertStatValues(ctx context.Context, transaction pgx.Tx, playerID string, seasonID string, dungeonID string, deaths int, yeets int) (StatRow, error) {
-	const query = `
-		insert into player_dungeon_stats (player_id, season_id, dungeon_id, deaths, yeets)
-		values ($1::uuid, $2::uuid, $3::uuid, $4, $5)
-		on conflict (player_id, season_id, dungeon_id)
-		do update set
-			deaths = excluded.deaths,
-			yeets = excluded.yeets
-		returning player_id::text, season_id::text, dungeon_id::text, deaths, yeets, deaths + yeets as total_mistakes
-	`
-
 	var statRow StatRow
-	if err := transaction.QueryRow(ctx, query, playerID, seasonID, dungeonID, deaths, yeets).Scan(
+	if err := transaction.QueryRow(ctx, upsertStatsQuery, playerID, seasonID, dungeonID, deaths, yeets).Scan(
 		&statRow.PlayerID,
 		&statRow.SeasonID,
 		&statRow.DungeonID,

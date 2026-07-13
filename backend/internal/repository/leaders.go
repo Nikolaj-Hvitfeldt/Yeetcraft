@@ -20,10 +20,11 @@ type SeasonTopPlayer struct {
 }
 
 type SeasonLeaders struct {
-	Season                SeasonSummary         `json:"season"`
-	KingOfYeets           *SeasonLeaderPlayer   `json:"kingOfYeets"`
-	KingOfDeaths          *SeasonLeaderPlayer   `json:"kingOfDeaths"`
-	TopPlayer             *SeasonTopPlayer      `json:"topPlayer"`
+	Season                SeasonSummary          `json:"season"`
+	Leaderboard           []LeaderboardEntry     `json:"leaderboard"`
+	KingOfYeets           *SeasonLeaderPlayer    `json:"kingOfYeets"`
+	KingOfDeaths          *SeasonLeaderPlayer    `json:"kingOfDeaths"`
+	TopPlayer             *SeasonTopPlayer       `json:"topPlayer"`
 	DungeonMistakeLeaders []DungeonMistakeLeader `json:"dungeonMistakeLeaders"`
 }
 
@@ -34,6 +35,10 @@ type DungeonMistakeLeader struct {
 }
 
 func (statsRepository StatsRepository) GetSeasonLeaders(ctx context.Context, seasonID string) (SeasonLeaders, error) {
+	if statsRepository.pool == nil {
+		return SeasonLeaders{}, ErrDatabaseNotConfigured
+	}
+
 	season, err := statsRepository.resolveSeason(ctx, seasonID)
 	if err != nil {
 		return SeasonLeaders{}, err
@@ -58,6 +63,7 @@ func (statsRepository StatsRepository) GetSeasonLeaders(ctx context.Context, sea
 func ComputeSeasonLeaders(season SeasonSummary, leaderboard []LeaderboardEntry) SeasonLeaders {
 	return SeasonLeaders{
 		Season:       season,
+		Leaderboard:  leaderboard,
 		KingOfYeets:  findYeetsKing(leaderboard),
 		KingOfDeaths: findDeathsKing(leaderboard),
 		TopPlayer:    findTopPlayer(leaderboard),

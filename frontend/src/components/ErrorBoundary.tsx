@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from 'react'
+import { getUserFacingErrorMessage } from '../utils/api-error'
 
 interface ErrorBoundaryProps {
   children: ReactNode
@@ -35,7 +36,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         <div className="max-w-md rounded-md border border-border-subtle bg-surface-base p-8 text-center">
           <h2 className="text-2xl mb-4">Something went wrong</h2>
           <p className="mb-6 text-text-secondary">
-            {this.state.error?.message || 'An unexpected error occurred.'}
+            {getUserFacingErrorMessage(this.state.error)}
           </p>
           <button
             onClick={this.handleReload}

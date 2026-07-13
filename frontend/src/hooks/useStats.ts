@@ -1,14 +1,13 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import {
   fetchCurrentSeasonDungeons,
-  fetchLeaderboard,
   fetchPlayerStats,
   fetchSeasonLeaders,
   fetchSeasons,
 } from '../api/api'
 import { LeaderboardEntry } from '../api/types'
 
-export interface PlayerStats {
+export interface LeaderboardPlayerStats {
   playerId: string
   playerName: string
   avatarUrl: string | null
@@ -17,17 +16,8 @@ export interface PlayerStats {
   yeets: number
 }
 
-export function useLeaderboard(seasonId?: string, options?: QueryEnabledOptions) {
-  return useQuery({
-    queryKey: ['leaderboard', seasonId ?? 'current'],
-    queryFn: async () => {
-      const response = await fetchLeaderboard(seasonId)
-      return response.leaderboard
-    },
-    enabled: (options?.enabled ?? true) && seasonId !== undefined,
-    staleTime: 30_000,
-    refetchOnWindowFocus: true,
-  })
+interface QueryEnabledOptions {
+  enabled?: boolean
 }
 
 export function useSeasonLeaders(seasonId?: string, options?: QueryEnabledOptions) {
@@ -37,6 +27,7 @@ export function useSeasonLeaders(seasonId?: string, options?: QueryEnabledOption
     enabled: (options?.enabled ?? true) && seasonId !== undefined,
     staleTime: 30_000,
     refetchOnWindowFocus: true,
+    placeholderData: keepPreviousData,
   })
 }
 
@@ -55,6 +46,7 @@ export function usePlayerStats(
     enabled: (options?.enabled ?? true) && !!playerId && !!seasonId,
     staleTime: 30_000,
     refetchOnMount: 'always',
+    placeholderData: keepPreviousData,
     retry: (failureCount, error) => {
       if (error instanceof Error && error.message.includes('500')) {
         return failureCount < 2
@@ -62,10 +54,6 @@ export function usePlayerStats(
       return failureCount < 1
     },
   })
-}
-
-interface QueryEnabledOptions {
-  enabled?: boolean
 }
 
 export function useSeasons() {
@@ -88,10 +76,11 @@ export function useCurrentSeasonDungeons(seasonId?: string, options?: QueryEnabl
     },
     enabled: (options?.enabled ?? true) && seasonId !== undefined,
     staleTime: 60_000,
+    placeholderData: keepPreviousData,
   })
 }
 
-export function deriveLeaderboard(entries: LeaderboardEntry[]): PlayerStats[] {
+export function deriveLeaderboard(entries: LeaderboardEntry[]): LeaderboardPlayerStats[] {
   const leaderboard = entries.map((entry) => ({
     playerId: entry.playerId,
     playerName: entry.displayName,
@@ -101,11 +90,10 @@ export function deriveLeaderboard(entries: LeaderboardEntry[]): PlayerStats[] {
     yeets: entry.totalYeets,
   }))
 
-  return leaderboard
-    .sort((firstEntry, secondEntry) => {
-      if (secondEntry.total !== firstEntry.total) return secondEntry.total - firstEntry.total
-      return secondEntry.yeets - firstEntry.yeets
-    })
+  return leaderboard.sort((firstEntry, secondEntry) => {
+    if (secondEntry.total !== firstEntry.total) return secondEntry.total - firstEntry.total
+    return secondEntry.yeets - firstEntry.yeets
+  })
 }
 
 export function calculateTotalStats(entries: LeaderboardEntry[]) {
@@ -115,7 +103,7 @@ export function calculateTotalStats(entries: LeaderboardEntry[]) {
       deaths: totals.deaths + entry.totalDeaths,
       yeets: totals.yeets + entry.totalYeets,
     }),
-    { total: 0, deaths: 0, yeets: 0 }
+    { total: 0, deaths: 0, yeets: 0 },
   )
 }
 
@@ -125,9 +113,9 @@ export interface SeasonKings {
 }
 
 function findStatLeader(
-  leaderboard: PlayerStats[],
-  getValue: (player: PlayerStats) => number,
-  tieBreak: (player: PlayerStats) => number
+  leaderboard: LeaderboardPlayerStats[],
+  getValue: (player: LeaderboardPlayerStats) => number,
+  tieBreak: (player: LeaderboardPlayerStats) => number,
 ): string | null {
   if (leaderboard.length === 0) return null
 
@@ -141,18 +129,18 @@ function findStatLeader(
   return leader?.playerId ?? null
 }
 
-export function getSeasonKings(leaderboard: PlayerStats[]): SeasonKings {
+/** Used in tests to document server crown tie-break rules. */
+export function getSeasonKings(leaderboard: LeaderboardPlayerStats[]): SeasonKings {
   return {
     kingOfYeetsId: findStatLeader(
       leaderboard,
       (player) => player.yeets,
-      (player) => player.deaths
+      (player) => player.deaths,
     ),
     kingOfDeathsId: findStatLeader(
       leaderboard,
       (player) => player.deaths,
-      (player) => player.yeets
+      (player) => player.yeets,
     ),
   }
 }
-

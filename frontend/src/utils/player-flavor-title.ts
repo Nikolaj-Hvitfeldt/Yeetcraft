@@ -1,5 +1,5 @@
 import type { DungeonStats, SeasonLeadersResponse } from "../api/types";
-import { countDungeonsWithMistakes, getNemesisDungeon } from "./player-stats";
+import { countDungeonsWithMistakes, getNemesisDungeon, type NemesisDungeon } from "./player-stats";
 
 const NEMESIS_SHARE_MEDIUM_THRESHOLD = 35;
 const NEMESIS_SHARE_LOW_THRESHOLD = 30;
@@ -18,6 +18,7 @@ export type FlavorTitleInput = {
   playerId: string;
   seasonLeaders?: SeasonLeadersResponse | null;
   leaderboardRank?: number | null;
+  nemesis?: NemesisDungeon | null;
 };
 
 function getDungeonName(dungeon: DungeonStats): string {
@@ -85,7 +86,7 @@ export function getPlayerFlavorTitle(input: FlavorTitleInput): string {
     return "Still on the Loading Screen";
   }
 
-  const nemesis = getNemesisDungeon(input.dungeons);
+  const nemesis = input.nemesis ?? getNemesisDungeon(input.dungeons);
   const yeetRatio = input.totalYeets / input.totalMistakes;
   const deathRatio = input.totalDeaths / input.totalMistakes;
   const dungeonsWithMistakes = countDungeonsWithMistakes(input.dungeons);

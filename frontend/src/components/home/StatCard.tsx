@@ -1,12 +1,7 @@
 import type { WowIconKey } from '../../assets/wow-icons'
 import { WowIcon } from '../WowIcon'
 import { cn } from '../../utils/cn'
-
-const COLOR_CLASS_BY_KIND: Record<StatCardKind, string> = {
-  total: 'text-stat-total',
-  deaths: 'text-stat-deaths',
-  yeets: 'text-stat-yeets',
-}
+import { STAT_COLOR_BY_KIND, type StatKind } from '../../utils/stat-colors'
 
 const ICON_BY_KIND: Record<StatCardKind, WowIconKey> = {
   total: 'total',
@@ -27,7 +22,7 @@ const OBJECT_FIT_BY_KIND: Record<StatCardKind, 'contain' | 'cover'> = {
 }
 
 export function StatCard({ label, value, kind }: StatCardProps) {
-  const colorClassName = COLOR_CLASS_BY_KIND[kind]
+  const colorClassName = STAT_COLOR_BY_KIND[kind]
   const icon = ICON_BY_KIND[kind]
 
   return (
@@ -58,7 +53,7 @@ export function StatCard({ label, value, kind }: StatCardProps) {
   )
 }
 
-export type StatCardKind = 'total' | 'deaths' | 'yeets'
+export type StatCardKind = StatKind
 
 interface StatCardProps {
   label: string

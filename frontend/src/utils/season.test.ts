@@ -1,37 +1,32 @@
 import { describe, expect, it } from 'vitest'
 import type { SeasonSummary } from '../api/types'
-import { resolveSeasonId, seasonPath } from './season'
+import { resolveSeasonId } from './season'
+import { toSlug } from './slug'
+
+const seasonOneId = '11111111-1111-4111-8111-111111111111'
+const seasonTwoId = '22222222-2222-4222-8222-222222222222'
 
 const seasons: SeasonSummary[] = [
-  { id: 'season-1', name: 'Season 1', expansion: 'Dragonflight', isCurrent: false },
-  { id: 'season-2', name: 'Season 2', expansion: null, isCurrent: true },
+  { id: seasonOneId, name: 'Midnight Season 1', expansion: 'Midnight', isCurrent: false },
+  { id: seasonTwoId, name: 'Midnight Season 2', expansion: 'Midnight', isCurrent: true },
 ]
 
 describe('resolveSeasonId', () => {
-  it('returns requested season when valid', () => {
-    expect(resolveSeasonId('season-1', seasons)).toBe('season-1')
+  it('returns requested season when valid slug', () => {
+    expect(resolveSeasonId(toSlug('Midnight Season 1'), seasons)).toBe(seasonOneId)
   })
 
   it('falls back to current season', () => {
-    expect(resolveSeasonId(null, seasons)).toBe('season-2')
+    expect(resolveSeasonId(null, seasons)).toBe(seasonTwoId)
   })
 
-  it('trusts requested season before seasons list is loaded', () => {
-    expect(resolveSeasonId('season-1', undefined)).toBe('season-1')
-    expect(resolveSeasonId('season-1', [])).toBe('season-1')
+  it('returns undefined before seasons list is loaded', () => {
+    expect(resolveSeasonId(toSlug('Midnight Season 1'), undefined)).toBeUndefined()
+    expect(resolveSeasonId(toSlug('Midnight Season 1'), [])).toBeUndefined()
   })
 
-  it('ignores invalid requested season ids', () => {
-    expect(resolveSeasonId('missing', seasons)).toBe('season-2')
-  })
-})
-
-describe('seasonPath', () => {
-  it('appends seasonId query param', () => {
-    expect(seasonPath('/player/abc', 'season-1')).toBe('/player/abc?seasonId=season-1')
-  })
-
-  it('returns path unchanged when seasonId is missing', () => {
-    expect(seasonPath('/player/abc', undefined)).toBe('/player/abc')
+  it('ignores invalid requested season slugs once seasons are loaded', () => {
+    expect(resolveSeasonId('missing', seasons)).toBe(seasonTwoId)
+    expect(resolveSeasonId('not-a-real-season', seasons)).toBe(seasonTwoId)
   })
 })

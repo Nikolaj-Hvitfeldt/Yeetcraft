@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
 import logoDaytimeFull from "../../assets/logos/logoDaytimeFull.webp";
 import logoMidnightFull from "../../assets/logos/logoMidnightFull.webp";
-import { useSeasonId } from "../../hooks";
-import { useTheme } from "../../hooks/useTheme";
+import { useTheme } from "../../hooks";
 import { ThemeSwitcher } from "../ThemeSwitcher";
 
 const logosByTheme = {
@@ -10,9 +9,8 @@ const logosByTheme = {
   midnight: logoMidnightFull,
 } as const;
 
-export function HomeNavigation() {
+export function HomeNavigation({ homePath }: HomeNavigationProps) {
   const { theme } = useTheme();
-  const { homePath } = useSeasonId();
 
   return (
     <nav className="flex w-full items-center justify-between px-xs py-sm">
@@ -39,4 +37,8 @@ export function HomeNavigation() {
       <ThemeSwitcher />
     </nav>
   );
+}
+
+interface HomeNavigationProps {
+  homePath: string;
 }

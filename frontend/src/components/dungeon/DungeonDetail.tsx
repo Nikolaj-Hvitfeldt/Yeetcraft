@@ -1,8 +1,10 @@
-import { useMemo } from 'react'
-import { useParams } from 'react-router-dom'
+import { useEffect, useMemo } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import type { DungeonSummary } from '../../api/types'
 import { useCurrentSeasonDungeons, useSeasonId, useSeasonLeaders } from '../../hooks'
-import { PageShell } from '../layout/PageShell'
+import { PageBoundary } from '../layout/PageBoundary'
+import { buildDungeonPath } from '../../utils/routes'
+import { dungeonSlug, findDungeonBySlug } from '../../utils/slug'
 import { BackButton } from '../ui/BackButton'
 import { AchievementCard } from './AchievementCard'
 import { ReputationCard } from './ReputationCard'
@@ -13,26 +15,28 @@ function getDangerScore(dungeon: DungeonSummary, averageMistakes: number): numbe
 }
 
 export function DungeonDetail() {
-  const { dungeonId } = useParams<{ dungeonId: string }>()
-  const { seasons, isSeasonReady, selectedSeasonId, homePath } = useSeasonId()
+  const { dungeonSlug: dungeonSlugParam } = useParams<{ dungeonSlug: string }>()
+  const navigate = useNavigate()
+  const { isSeasonReady, selectedSeasonId, selectedSeason, homePath } = useSeasonId()
   const {
-    data: dungeons = [],
+    data: dungeonsData,
     isPending: isPendingDungeons,
     isFetching: isFetchingDungeons,
     isFetched: hasFetchedDungeons,
+    isPlaceholderData: isShowingStaleDungeons,
     error: dungeonsError,
+    refetch: refetchDungeons,
   } = useCurrentSeasonDungeons(selectedSeasonId, { enabled: isSeasonReady })
   const {
     data: seasonLeaders,
     isPending: isPendingLeaders,
     isFetching: isFetchingLeaders,
     error: leadersError,
+    refetch: refetchLeaders,
   } = useSeasonLeaders(selectedSeasonId, { enabled: isSeasonReady })
 
-  const dungeon = dungeons.find((entry) => entry.id === dungeonId)
-  const season = seasons.find((entry) => entry.id === selectedSeasonId)
-    ?? seasons.find((entry) => entry.isCurrent)
-    ?? seasons[0]
+  const dungeons = dungeonsData ?? []
+  const dungeon = findDungeonBySlug(dungeons, dungeonSlugParam)
 
   const topPlayer = seasonLeaders?.topPlayer
   const averageMistakes = useMemo(() => {
@@ -42,26 +46,47 @@ export function DungeonDetail() {
   }, [dungeons])
 
   const error = dungeonsError ?? leadersError
+  const hasInitialData = dungeonsData !== undefined && seasonLeaders !== undefined
   const isPageLoading =
-    !isSeasonReady ||
-    isPendingDungeons ||
-    isPendingLeaders ||
-    ((isFetchingDungeons || isFetchingLeaders) && !dungeon)
+    !isSeasonReady || ((isPendingDungeons || isPendingLeaders) && !hasInitialData)
+  const isRefreshingDetail =
+    (isFetchingDungeons || isFetchingLeaders) && hasInitialData && !isPageLoading
   const notFoundMessage =
     isSeasonReady &&
     hasFetchedDungeons &&
     !isFetchingDungeons &&
     !error &&
+    dungeonSlugParam &&
     !dungeon
       ? 'Dungeon was not found.'
       : null
 
+  useEffect(() => {
+    if (!dungeon || !selectedSeason || !dungeonSlugParam) return
+
+    const canonicalSlug = dungeonSlug(dungeon)
+    if (dungeonSlugParam === canonicalSlug) return
+
+    navigate(buildDungeonPath(selectedSeason, dungeon), { replace: true })
+  }, [dungeon, dungeonSlugParam, navigate, selectedSeason])
+
+  function handleRetry() {
+    void refetchDungeons()
+    void refetchLeaders()
+  }
+
   return (
-    <PageShell isLoading={isPageLoading} error={error} notFoundMessage={notFoundMessage}>
+    <PageBoundary
+      isLoading={isPageLoading}
+      isRefreshing={isRefreshingDetail}
+      isShowingStaleData={(isShowingStaleDungeons && isFetchingDungeons) || (isFetchingLeaders && !!seasonLeaders)}
+      error={error}
+      notFoundMessage={notFoundMessage}
+      onRetry={handleRetry}
+    >
       {dungeon ? (
-        <div className="min-h-screen bg-background-app px-2xl py-2xl">
-          <div className="mx-auto flex max-w-5xl flex-col gap-2xl">
-            <BackButton to={homePath} />
+        <div className="flex flex-col gap-2xl">
+          <BackButton to={homePath} />
 
             <header className="rounded-3xl border border-border-subtle bg-surface-section p-2xl">
               <p className="text-xs font-bold uppercase leading-4 tracking-[0.2em] text-accent-primary">
@@ -70,10 +95,10 @@ export function DungeonDetail() {
               <h1 className="pt-sm font-heading text-4xl font-bold leading-tight text-text-primary">
                 {dungeon.name}
               </h1>
-              {season ? (
+              {selectedSeason ? (
                 <p className="pt-sm text-sm leading-5 text-text-secondary">
-                  {season.expansion ? `${season.expansion} ` : ''}
-                  {season.name}
+                  {selectedSeason.expansion ? `${selectedSeason.expansion} ` : ''}
+                  {selectedSeason.name}
                 </p>
               ) : null}
             </header>
@@ -113,9 +138,8 @@ export function DungeonDetail() {
                 </div>
               </div>
             </section>
-          </div>
         </div>
       ) : null}
-    </PageShell>
+    </PageBoundary>
   )
 }

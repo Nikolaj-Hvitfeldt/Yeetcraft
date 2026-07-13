@@ -1,18 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { z } from 'zod'
 import { fetchSetStatsBatch } from '../api/api'
+import { SetStatsBatchRequestSchema } from '../api/schemas'
 import type { PlayerStatsResponse, StatRow } from '../api/types'
 
-export type SetStatsBatchDungeonUpdate = {
-  dungeonId: string
-  deaths: number
-  yeets: number
-}
-
-export type SetPlayerStatsBatchRequest = {
-  playerId: string
-  seasonId: string
-  stats: SetStatsBatchDungeonUpdate[]
-}
+export type SetPlayerStatsBatchRequest = z.infer<typeof SetStatsBatchRequestSchema>
 
 type PlayerStatsQueryKey = ['player-stats', string, string]
 
@@ -22,7 +14,7 @@ type MutationContext = {
 
 function applyDungeonUpdates(
   playerStats: PlayerStatsResponse,
-  updates: SetStatsBatchDungeonUpdate[],
+  updates: SetPlayerStatsBatchRequest['stats'],
 ): PlayerStatsResponse {
   const updatesByDungeonId = new Map(updates.map((update) => [update.dungeonId, update]))
 
@@ -53,7 +45,7 @@ function applyDungeonUpdates(
 export function useSetPlayerStats() {
   const queryClient = useQueryClient()
 
-  const mutation = useMutation({
+  return useMutation({
     scope: {
       id: 'set-player-stats',
     },
@@ -85,15 +77,8 @@ export function useSetPlayerStats() {
       )
     },
     onSettled: (_data, _error, request) => {
-      invalidatePlayerProfileQueries(request.playerId, request.seasonId)
+      void queryClient.invalidateQueries({ queryKey: ['player-stats', request.playerId, request.seasonId] })
+      void queryClient.invalidateQueries({ queryKey: ['season-leaders', request.seasonId] })
     },
   })
-
-  function invalidatePlayerProfileQueries(playerId: string, seasonId: string) {
-    void queryClient.invalidateQueries({ queryKey: ['player-stats', playerId, seasonId] })
-    void queryClient.invalidateQueries({ queryKey: ['leaderboard', seasonId] })
-    void queryClient.invalidateQueries({ queryKey: ['season-leaders', seasonId] })
-  }
-
-  return { ...mutation, invalidatePlayerProfileQueries }
 }

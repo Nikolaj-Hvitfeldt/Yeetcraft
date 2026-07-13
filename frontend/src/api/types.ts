@@ -3,7 +3,6 @@ export type {
   DungeonStats,
   DungeonSummary,
   LeaderboardEntry,
-  LeaderboardResponse,
   PlayerStatsResponse,
   PlayerSummary,
   SeasonLeaderPlayer,

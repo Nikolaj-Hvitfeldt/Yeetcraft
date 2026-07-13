@@ -21,19 +21,13 @@ type StatsRepository interface {
 	GetSeasonLeaders(ctx context.Context, seasonID string) (repository.SeasonLeaders, error)
 	GetPlayerStats(ctx context.Context, playerID string, seasonID string) (repository.PlayerStats, error)
 	ListSeasons(ctx context.Context) ([]repository.SeasonSummary, error)
-	ListCurrentSeasonDungeons(ctx context.Context) (repository.SeasonSummary, []repository.DungeonSummary, error)
 	ListSeasonDungeons(ctx context.Context, seasonID string) (repository.SeasonSummary, []repository.DungeonSummary, error)
 	SetStats(ctx context.Context, playerID string, seasonID string, dungeonID string, deaths int, yeets int) (repository.StatRow, error)
 	SetStatsBatch(ctx context.Context, playerID string, seasonID string, updates []repository.StatUpdate) ([]repository.StatRow, error)
-	AdjustStat(ctx context.Context, playerID string, seasonID string, dungeonID string, field repository.StatField, delta int) (repository.StatRow, error)
 }
 
 type StatsHandler struct {
 	statsRepository StatsRepository
-}
-
-type LeaderboardResponse struct {
-	Leaderboard []repository.LeaderboardEntry `json:"leaderboard"`
 }
 
 type SeasonsResponse struct {
@@ -73,36 +67,10 @@ type SetStatsBatchRequest struct {
 	Stats    []SetStatsBatchDungeonUpdate `json:"stats"`
 }
 
-type AdjustStatRequest struct {
-	PlayerID  string `json:"playerId"`
-	SeasonID  string `json:"seasonId"`
-	DungeonID string `json:"dungeonId"`
-	Field     string `json:"field"`
-	Delta     int    `json:"delta"`
-}
-
 func NewStatsHandler(statsRepository StatsRepository) StatsHandler {
 	return StatsHandler{
 		statsRepository: statsRepository,
 	}
-}
-
-func (statsHandler StatsHandler) Leaderboard(responseWriter http.ResponseWriter, request *http.Request) {
-	seasonID := request.URL.Query().Get("seasonId")
-	if seasonID != "" && !isValidUUID(seasonID) {
-		WriteError(responseWriter, http.StatusBadRequest, "Bad Request", "seasonId must be a valid UUID.")
-		return
-	}
-
-	leaderboard, err := statsHandler.statsRepository.ListLeaderboard(request.Context(), seasonID)
-	if err != nil {
-		writeRepositoryError(responseWriter, err)
-		return
-	}
-
-	WriteJSON(responseWriter, http.StatusOK, LeaderboardResponse{
-		Leaderboard: leaderboard,
-	})
 }
 
 func (statsHandler StatsHandler) SeasonLeaders(responseWriter http.ResponseWriter, request *http.Request) {
@@ -271,45 +239,6 @@ func (statsHandler StatsHandler) SetStatsBatch(responseWriter http.ResponseWrite
 	})
 }
 
-func (statsHandler StatsHandler) AdjustStat(responseWriter http.ResponseWriter, request *http.Request) {
-	var adjustStatRequest AdjustStatRequest
-	if !decodeJSONRequest(responseWriter, request, &adjustStatRequest) {
-		return
-	}
-
-	if !validateStatTarget(responseWriter, adjustStatRequest.PlayerID, adjustStatRequest.SeasonID, adjustStatRequest.DungeonID) {
-		return
-	}
-
-	if adjustStatRequest.Delta == 0 {
-		WriteError(responseWriter, http.StatusBadRequest, "Bad Request", "delta must not be 0.")
-		return
-	}
-
-	statField, isValidField := parseStatField(adjustStatRequest.Field)
-	if !isValidField {
-		WriteError(responseWriter, http.StatusBadRequest, "Bad Request", `field must be either "deaths" or "yeets".`)
-		return
-	}
-
-	statRow, err := statsHandler.statsRepository.AdjustStat(
-		request.Context(),
-		adjustStatRequest.PlayerID,
-		adjustStatRequest.SeasonID,
-		adjustStatRequest.DungeonID,
-		statField,
-		adjustStatRequest.Delta,
-	)
-	if err != nil {
-		writeRepositoryError(responseWriter, err)
-		return
-	}
-
-	WriteJSON(responseWriter, http.StatusOK, StatResponse{
-		Stats: statRow,
-	})
-}
-
 func decodeJSONRequest(responseWriter http.ResponseWriter, request *http.Request, destination any) bool {
 	decoder := json.NewDecoder(request.Body)
 	decoder.DisallowUnknownFields()
@@ -341,23 +270,18 @@ func validateStatTarget(responseWriter http.ResponseWriter, playerID string, sea
 	return true
 }
 
-func parseStatField(field string) (repository.StatField, bool) {
-	switch field {
-	case string(repository.StatFieldDeaths):
-		return repository.StatFieldDeaths, true
-	case string(repository.StatFieldYeets):
-		return repository.StatFieldYeets, true
-	default:
-		return "", false
-	}
-}
-
 func isValidUUID(value string) bool {
 	return uuidPattern.MatchString(value)
 }
 
 func writeRepositoryError(responseWriter http.ResponseWriter, err error) {
-	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+	if errors.Is(err, context.Canceled) {
+		WriteError(responseWriter, 499, "Client Closed Request", "The request was canceled.")
+		return
+	}
+
+	if errors.Is(err, context.DeadlineExceeded) {
+		WriteError(responseWriter, http.StatusRequestTimeout, "Request Timeout", "The request timed out.")
 		return
 	}
 
