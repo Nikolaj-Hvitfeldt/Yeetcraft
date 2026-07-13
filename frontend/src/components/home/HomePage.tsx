@@ -15,7 +15,7 @@ import { HomeNavigation } from './HomeNavigation'
 import { RankingsPanel } from './RankingsPanel'
 
 export function HomePage() {
-  const { seasons, isPendingSeasons, isSeasonReady, selectedSeasonId, setSeasonId, homePath } =
+  const { seasons, isPendingSeasons, isSeasonReady, selectedSeasonId, selectedSeason, setSeasonId, homePath } =
     useSeasonId()
 
   const {
@@ -83,7 +83,7 @@ export function HomePage() {
           onRetry={() => {
             void refetchDungeons()
           }}
-          seasonId={selectedSeasonId}
+          season={selectedSeason}
           bannerSeasonKey={bannerSeasonKey}
         />
       </div>

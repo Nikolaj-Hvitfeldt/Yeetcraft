@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import type { DungeonStats } from "../../api/types";
 import {
   deriveLeaderboard,
@@ -9,6 +9,8 @@ import {
   useSetPlayerStats,
 } from "../../hooks";
 import { PageBoundary } from "../layout/PageBoundary";
+import { buildPlayerPath } from "../../utils/routes";
+import { findPlayerBySlug, isUuid, playerSlug } from "../../utils/slug";
 import { SeasonPicker } from "../home/SeasonPicker";
 import { HomeNavigation } from "../home/HomeNavigation";
 import { StatCard } from "../home/StatCard";
@@ -30,9 +32,25 @@ import { getCharactersForPlayer } from "../../utils/player-characters";
 import { type PlayerCharacter } from "../../data/player-characters";
 
 export function PlayerProfile() {
-  const { playerId } = useParams<{ playerId: string }>();
-  const { seasons, isSeasonReady, selectedSeasonId, setSeasonId, homePath } =
+  const { playerSlug: playerSlugParam } = useParams<{ playerSlug: string }>();
+  const navigate = useNavigate();
+  const { seasons, isSeasonReady, selectedSeasonId, selectedSeason, setSeasonId, homePath } =
     useSeasonId();
+
+  const { data: seasonLeaders } = useSeasonLeaders(selectedSeasonId, {
+    enabled: isSeasonReady,
+  });
+
+  const resolvedPlayerId = useMemo(() => {
+    if (!playerSlugParam) return undefined;
+    if (isUuid(playerSlugParam)) return playerSlugParam;
+
+    const leaderboardEntry = findPlayerBySlug(
+      seasonLeaders?.leaderboard ?? [],
+      playerSlugParam,
+    );
+    return leaderboardEntry?.playerId;
+  }, [playerSlugParam, seasonLeaders?.leaderboard]);
 
   const {
     data: playerStats,
@@ -42,10 +60,7 @@ export function PlayerProfile() {
     isPlaceholderData: isShowingStalePlayerStats,
     error: playerStatsError,
     refetch: refetchPlayerStats,
-  } = usePlayerStats(playerId, selectedSeasonId, { enabled: isSeasonReady });
-  const { data: seasonLeaders } = useSeasonLeaders(selectedSeasonId, {
-    enabled: isSeasonReady,
-  });
+  } = usePlayerStats(resolvedPlayerId, selectedSeasonId, { enabled: isSeasonReady });
 
   const nemesis = useMemo(
     () => (playerStats ? getNemesisDungeon(playerStats.dungeons) : null),
@@ -79,7 +94,7 @@ export function PlayerProfile() {
   useEffect(() => {
     setIsEditing(false);
     setDraftDungeons(null);
-  }, [playerId, selectedSeasonId]);
+  }, [playerSlugParam, selectedSeasonId]);
 
   useEffect(() => {
     if (!toastMessage) return;
@@ -195,7 +210,10 @@ export function PlayerProfile() {
       ? draftDungeons
       : (playerStats?.dungeons ?? []);
 
-  const isPageLoading = !isSeasonReady || (isPendingPlayerStats && !playerStats);
+  const isPageLoading =
+    !isSeasonReady ||
+    (isPendingPlayerStats && !playerStats) ||
+    (!!playerSlugParam && !resolvedPlayerId && !playerStats && (isPendingPlayerStats || !hasFetchedPlayerStats));
   const isRefreshingProfile =
     isFetchingPlayerStats && !!playerStats && !isPendingPlayerStats;
   const notFoundMessage =
@@ -205,7 +223,23 @@ export function PlayerProfile() {
     !playerStatsError &&
     !playerStats
       ? "Player stats were not found."
-      : null;
+      : isSeasonReady &&
+          seasonLeaders &&
+          playerSlugParam &&
+          !isUuid(playerSlugParam) &&
+          !resolvedPlayerId &&
+          !isPendingPlayerStats
+        ? "Player stats were not found."
+        : null;
+
+  useEffect(() => {
+    if (!playerStats || !selectedSeason || !playerSlugParam) return;
+
+    const canonicalSlug = playerSlug(playerStats.player);
+    if (playerSlugParam === canonicalSlug) return;
+
+    navigate(buildPlayerPath(selectedSeason, playerStats.player), { replace: true });
+  }, [navigate, playerSlugParam, playerStats, selectedSeason]);
 
   return (
     <PageBoundary
@@ -328,7 +362,7 @@ export function PlayerProfile() {
               }}
               isSaving={isSaving}
               onAdjust={handleAdjustDraft}
-              seasonId={selectedSeasonId ?? playerStats.season.id}
+              season={playerStats.season}
             />
         </div>
       ) : null}

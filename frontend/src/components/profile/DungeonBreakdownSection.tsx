@@ -1,4 +1,4 @@
-import type { DungeonStats } from "../../api/types";
+import type { DungeonStats, SeasonSummary } from "../../api/types";
 import { DungeonTableRow } from "./DungeonTableRow";
 import { TableHeader } from "../ui/TableHeader";
 import { STAT_COLOR_BY_KIND } from "../../utils/stat-colors";
@@ -38,7 +38,7 @@ export function DungeonBreakdownSection({
   onDone,
   isSaving,
   onAdjust,
-  seasonId,
+  season,
 }: DungeonBreakdownSectionProps) {
   return (
     <section className="overflow-hidden rounded-3xl border border-accent-secondary bg-surface-section p-2xl">
@@ -113,7 +113,7 @@ export function DungeonBreakdownSection({
                 gridTemplateColumns={DUNGEON_TABLE_GRID}
                 onAdjust={onAdjust}
                 disabled={isSaving}
-                seasonId={seasonId}
+                season={season}
               />
             ))}
           </div>
@@ -135,5 +135,5 @@ interface DungeonBreakdownSectionProps {
     field: "deaths" | "yeets",
     delta: 1 | -1,
   ) => void;
-  seasonId?: string;
+  season?: SeasonSummary;
 }

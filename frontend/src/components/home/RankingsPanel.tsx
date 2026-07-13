@@ -51,7 +51,7 @@ export function RankingsPanel({
                   key={player.playerId}
                   player={player}
                   rank={index + 1}
-                  seasonId={selectedSeasonId || undefined}
+                  season={seasons.find((season) => season.id === selectedSeasonId)}
                   isKingOfYeets={player.playerId === kingOfYeetsId}
                   isKingOfDeaths={player.playerId === kingOfDeathsId}
                 />

@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom'
 import type { WowIconKey } from '../../assets/wow-icons'
 import type { LeaderboardPlayerStats } from '../../hooks'
 import { cn } from '../../utils/cn'
-import { seasonPath } from '../../utils/season'
+import type { SeasonSummary } from '../../api/types'
+import { buildPlayerPath } from '../../utils/routes'
 import { WowIcon } from '../WowIcon'
 import { Avatar } from '../ui/Avatar'
 import { CrownBadge } from '../ui/CrownBadge'
@@ -18,12 +19,12 @@ const RANK_ICON_BY_PLACE: Record<number, WowIconKey> = {
 export function LeaderboardRow({
   player,
   rank,
-  seasonId,
+  season,
   isKingOfYeets,
   isKingOfDeaths,
 }: LeaderboardRowProps) {
   const rankIcon = RANK_ICON_BY_PLACE[rank]
-  const playerPath = seasonPath(`/player/${player.playerId}`, seasonId)
+  const playerPath = season ? buildPlayerPath(season, { displayName: player.playerName }) : '#'
 
   return (
     <Link
@@ -75,7 +76,7 @@ export function LeaderboardRow({
 interface LeaderboardRowProps {
   player: LeaderboardPlayerStats
   rank: number
-  seasonId?: string
+  season?: SeasonSummary
   isKingOfYeets: boolean
   isKingOfDeaths: boolean
 }

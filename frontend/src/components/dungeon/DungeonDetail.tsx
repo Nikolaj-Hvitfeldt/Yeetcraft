@@ -1,9 +1,11 @@
-import { useMemo } from 'react'
-import { useParams } from 'react-router-dom'
+import { useEffect, useMemo } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import type { DungeonSummary } from '../../api/types'
 import { useCurrentSeasonDungeons, useSeasonId, useSeasonLeaders } from '../../hooks'
 import { findSelectedSeason } from '../../utils/season'
 import { PageBoundary } from '../layout/PageBoundary'
+import { buildDungeonPath } from '../../utils/routes'
+import { dungeonSlug, findDungeonBySlug } from '../../utils/slug'
 import { BackButton } from '../ui/BackButton'
 import { AchievementCard } from './AchievementCard'
 import { ReputationCard } from './ReputationCard'
@@ -14,8 +16,9 @@ function getDangerScore(dungeon: DungeonSummary, averageMistakes: number): numbe
 }
 
 export function DungeonDetail() {
-  const { dungeonId } = useParams<{ dungeonId: string }>()
-  const { seasons, isSeasonReady, selectedSeasonId, homePath } = useSeasonId()
+  const { dungeonSlug: dungeonSlugParam } = useParams<{ dungeonSlug: string }>()
+  const navigate = useNavigate()
+  const { seasons, isSeasonReady, selectedSeasonId, selectedSeason, homePath } = useSeasonId()
   const {
     data: dungeonsData,
     isPending: isPendingDungeons,
@@ -34,7 +37,10 @@ export function DungeonDetail() {
   } = useSeasonLeaders(selectedSeasonId, { enabled: isSeasonReady })
 
   const dungeons = dungeonsData ?? []
-  const dungeon = dungeons.find((entry) => entry.id === dungeonId)
+  const matchedDungeon = findDungeonBySlug(dungeons, dungeonSlugParam)
+  const dungeon = matchedDungeon
+    ? dungeons.find((entry) => entry.id === matchedDungeon.id)
+    : undefined
   const season = findSelectedSeason(seasons, selectedSeasonId)
 
   const topPlayer = seasonLeaders?.topPlayer
@@ -55,9 +61,19 @@ export function DungeonDetail() {
     hasFetchedDungeons &&
     !isFetchingDungeons &&
     !error &&
+    dungeonSlugParam &&
     !dungeon
       ? 'Dungeon was not found.'
       : null
+
+  useEffect(() => {
+    if (!dungeon || !selectedSeason || !dungeonSlugParam) return
+
+    const canonicalSlug = dungeonSlug(dungeon)
+    if (dungeonSlugParam === canonicalSlug) return
+
+    navigate(buildDungeonPath(selectedSeason, dungeon), { replace: true })
+  }, [dungeon, dungeonSlugParam, navigate, selectedSeason])
 
   function handleRetry() {
     void refetchDungeons()

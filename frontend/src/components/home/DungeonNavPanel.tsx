@@ -1,4 +1,4 @@
-import type { DungeonSummary } from '../../api/types'
+import type { DungeonSummary, SeasonSummary } from '../../api/types'
 import type { DungeonBannerSeasonKey } from '../../assets/dungeon-images'
 import { PanelState } from '../ui/PanelState'
 import { DungeonCard } from './DungeonCard'
@@ -9,7 +9,7 @@ export function DungeonNavPanel({
   error,
   refreshError,
   onRetry,
-  seasonId,
+  season,
   bannerSeasonKey,
 }: DungeonNavPanelProps) {
   return (
@@ -36,7 +36,7 @@ export function DungeonNavPanel({
               <DungeonCard
                 key={dungeon.id}
                 dungeon={dungeon}
-                seasonId={seasonId}
+                season={season}
                 bannerSeasonKey={bannerSeasonKey}
               />
             ))
@@ -52,6 +52,6 @@ interface DungeonNavPanelProps {
   error?: Error | null
   refreshError?: Error | null
   onRetry?: () => void
-  seasonId?: string
+  season?: SeasonSummary
   bannerSeasonKey?: DungeonBannerSeasonKey
 }

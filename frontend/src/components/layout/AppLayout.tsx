@@ -6,7 +6,7 @@ const APP_LAYOUT_CONTENT_CLASS =
 
 export function AppLayout() {
   const { pathname } = useLocation()
-  const isHome = pathname === '/'
+  const isHome = /^\/[^/]+$/.test(pathname)
 
   return (
     <div

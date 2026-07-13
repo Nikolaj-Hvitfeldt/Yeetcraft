@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom'
-import type { DungeonSummary } from '../../api/types'
+import type { DungeonSummary, SeasonSummary } from '../../api/types'
 import type { DungeonBannerSeasonKey } from '../../assets/dungeon-images'
 import { cn } from '../../utils/cn'
+import { buildDungeonPath } from '../../utils/routes'
 import { getDungeonBannerImage } from '../../utils/dungeon-image'
-import { seasonPath } from '../../utils/season'
 
-export function DungeonCard({ dungeon, seasonId, bannerSeasonKey }: DungeonCardProps) {
-  const to = seasonPath(`/dungeon/${dungeon.id}`, seasonId)
+export function DungeonCard({ dungeon, season, bannerSeasonKey }: DungeonCardProps) {
+  const to = season ? buildDungeonPath(season, dungeon) : '#'
   const bannerImageUrl = bannerSeasonKey
     ? getDungeonBannerImage(bannerSeasonKey, dungeon)
     : null
@@ -59,6 +59,6 @@ export function DungeonCard({ dungeon, seasonId, bannerSeasonKey }: DungeonCardP
 
 interface DungeonCardProps {
   dungeon: DungeonSummary
-  seasonId?: string
+  season?: SeasonSummary
   bannerSeasonKey?: DungeonBannerSeasonKey
 }
