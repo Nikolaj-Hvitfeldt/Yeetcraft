@@ -125,11 +125,18 @@ export const SeasonTopPlayerSchema = z.object({
   totalDeaths: z.number(),
 })
 
+export const DungeonMistakeLeaderSchema = z.object({
+  dungeonId: z.string(),
+  playerId: z.string(),
+  totalMistakes: z.number(),
+})
+
 export const SeasonLeadersResponseSchema = z.object({
   season: SeasonSummarySchema,
   kingOfYeets: SeasonLeaderPlayerSchema.nullable(),
   kingOfDeaths: SeasonLeaderPlayerSchema.nullable(),
   topPlayer: SeasonTopPlayerSchema.nullable(),
+  dungeonMistakeLeaders: z.array(DungeonMistakeLeaderSchema).default([]),
 })
 
 export type SeasonSummary = z.infer<typeof SeasonSummarySchema>
