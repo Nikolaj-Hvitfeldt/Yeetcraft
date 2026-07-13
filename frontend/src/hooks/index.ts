@@ -1,5 +1,6 @@
 export {
   useCurrentSeasonDungeons,
+  useDungeonLeaderboard,
   usePlayerStats,
   useSeasonLeaders,
   useSeasons,

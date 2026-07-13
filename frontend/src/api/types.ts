@@ -1,5 +1,8 @@
 export type {
   CurrentSeasonDungeonsResponse,
+  DungeonLeaderboardEntry,
+  DungeonLeaderboardResponse,
+  DungeonReference,
   DungeonStats,
   DungeonSummary,
   LeaderboardEntry,

@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import {
   CurrentSeasonDungeonsResponseSchema,
+  DungeonLeaderboardResponseSchema,
   PlayerStatsResponseSchema,
   SeasonLeadersResponseSchema,
   SeasonsResponseSchema,
@@ -106,6 +107,13 @@ export async function fetchCurrentSeasonDungeons(seasonId?: string) {
   return fetchApi(
     `/api/seasons/current/dungeons${buildSeasonQuery(seasonId)}`,
     CurrentSeasonDungeonsResponseSchema,
+  )
+}
+
+export async function fetchDungeonLeaderboard(seasonId: string, dungeonId: string) {
+  return fetchApi(
+    `/api/seasons/${encodeURIComponent(seasonId)}/dungeons/${encodeURIComponent(dungeonId)}/leaderboard`,
+    DungeonLeaderboardResponseSchema,
   )
 }
 

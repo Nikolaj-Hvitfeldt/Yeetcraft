@@ -79,6 +79,8 @@ export function useSetPlayerStats() {
     onSettled: (_data, _error, request) => {
       void queryClient.invalidateQueries({ queryKey: ['player-stats', request.playerId, request.seasonId] })
       void queryClient.invalidateQueries({ queryKey: ['season-leaders', request.seasonId] })
+      void queryClient.invalidateQueries({ queryKey: ['season-dungeons', request.seasonId] })
+      void queryClient.invalidateQueries({ queryKey: ['dungeon-leaderboard', request.seasonId] })
     },
   })
 }
