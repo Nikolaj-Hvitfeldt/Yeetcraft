@@ -1,12 +1,12 @@
-import { useMemo } from 'react'
-import type { SeasonSummary } from '../../api/types'
-import { getSeasonKings, type PlayerStats } from '../../hooks'
-import { cn } from '../../utils/cn'
-import { SkullIcon } from '../SkullIcon'
-import { LoadingSpinner } from '../LoadingSpinner'
-import { Tag } from '../ui/Tag'
-import { LeaderboardRow } from './LeaderboardRow'
-import { SeasonPicker } from './SeasonPicker'
+import { useMemo } from "react";
+import type { SeasonSummary } from "../../api/types";
+import { getSeasonKings, type PlayerStats } from "../../hooks";
+import { cn } from "../../utils/cn";
+import { SkullIcon } from "../SkullIcon";
+import { LoadingSpinner } from "../LoadingSpinner";
+import { Tag } from "../ui/Tag";
+import { LeaderboardRow } from "./LeaderboardRow";
+import { SeasonPicker } from "./SeasonPicker";
 
 export function RankingsPanel({
   leaderboard,
@@ -19,9 +19,9 @@ export function RankingsPanel({
   const { kingOfYeetsId, kingOfDeathsId } = useMemo(
     () => getSeasonKings(leaderboard),
     [leaderboard],
-  )
+  );
 
-  const playerLabel = leaderboard.length === 1 ? 'player' : 'players'
+  const playerLabel = leaderboard.length === 1 ? "player" : "players";
 
   return (
     <section className="rounded-lg border border-accent-secondary bg-surface-section p-2xl shadow-2xl">
@@ -66,7 +66,7 @@ export function RankingsPanel({
 
       <div
         className={cn(
-          'flex flex-col items-center gap-sm pt-2xl text-center sm:flex-row sm:justify-center',
+          "flex flex-col items-center gap-sm pt-2xl text-center sm:flex-row sm:justify-center",
         )}
       >
         <Tag>Showing all dungeons</Tag>
@@ -76,14 +76,14 @@ export function RankingsPanel({
         <Tag>Click a player for details</Tag>
       </div>
     </section>
-  )
+  );
 }
 
 interface RankingsPanelProps {
-  leaderboard: PlayerStats[]
-  seasons: SeasonSummary[]
-  selectedSeasonId: string
-  isLoading?: boolean
-  error?: Error | null
-  onSeasonChange: (seasonId: string) => void
+  leaderboard: PlayerStats[];
+  seasons: SeasonSummary[];
+  selectedSeasonId: string;
+  isLoading?: boolean;
+  error?: Error | null;
+  onSeasonChange: (seasonId: string) => void;
 }
