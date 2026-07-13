@@ -76,17 +76,26 @@ export function DungeonDetail() {
     [dungeon],
   )
 
-  const achievements = useMemo(
-    () => getDungeonAchievements(highlights),
-    [highlights],
-  )
-
   const reputationScores = useMemo(
     () =>
       dungeon
         ? getDungeonReputationScores(dungeon, dungeons, sortedLeaderboard)
         : { dangerRating: 0, yeetFactor: 0, blameShare: 0 },
     [dungeon, dungeons, sortedLeaderboard],
+  )
+
+  const achievements = useMemo(
+    () =>
+      dungeon
+        ? getDungeonAchievements({
+            dungeon,
+            leaderboard: sortedLeaderboard,
+            reputationScores,
+            mistakeMix,
+            seasonLeaders,
+          })
+        : [],
+    [dungeon, sortedLeaderboard, reputationScores, mistakeMix, seasonLeaders],
   )
 
   const meatGrinderSummary = useMemo(

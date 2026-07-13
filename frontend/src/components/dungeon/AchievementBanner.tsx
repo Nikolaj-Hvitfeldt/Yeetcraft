@@ -166,7 +166,14 @@ export function AchievementBanner({
                     {holder.displayName}
                   </span>
                 </>
-              ) : null}
+              ) : (
+                <WowIcon
+                  icon="achievementShield"
+                  fluid
+                  objectFit="contain"
+                  className="size-7 object-contain drop-shadow-sm sm:size-8"
+                />
+              )}
             </div>
           </div>
         </div>

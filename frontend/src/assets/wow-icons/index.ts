@@ -1,5 +1,6 @@
 import achievementFrame from './achievementFrame.webp'
 import achievementFrameSimple from './achievementFrameSimple.webp'
+import achievementShield from './achievementShield.webp'
 import bronze from './bronze.webp'
 import deaths from './deaths.webp'
 import dungeon from './dungeon.webp'
@@ -27,6 +28,7 @@ export const wowIcons = {
   nemesis,
   achievementFrame,
   achievementFrameSimple,
+  achievementShield,
   edit,
   save,
   bronze,

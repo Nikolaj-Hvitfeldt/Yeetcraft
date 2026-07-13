@@ -1,10 +1,12 @@
-import type { WowIconKey } from "../assets/wow-icons";
 import type {
   DungeonLeaderboardEntry,
   DungeonMistakeLeader,
   DungeonSummary,
 } from "../api/types";
 import { getDungeonFlavorTitle } from "./dungeon-flavor-title";
+
+export type { DungeonAchievement } from "./dungeon-achievements";
+export { getDungeonAchievements } from "./dungeon-achievements";
 
 export interface DungeonHighlight {
   playerId: string;
@@ -17,16 +19,6 @@ export interface DungeonHighlight {
 export interface DungeonMistakeMix {
   deathsPercent: number;
   yeetsPercent: number;
-}
-
-export interface DungeonAchievement {
-  icon: WowIconKey;
-  title: string;
-  holder?: {
-    displayName: string;
-    avatarUrl: string | null;
-  };
-  description: string;
 }
 
 export interface DungeonReputationScores {
@@ -216,39 +208,6 @@ export function getMistakeMix(dungeon: DungeonSummary): DungeonMistakeMix {
     deathsPercent,
     yeetsPercent: 100 - deathsPercent,
   };
-}
-
-export function getDungeonAchievements(
-  highlights: ReturnType<typeof getDungeonHighlights>,
-): DungeonAchievement[] {
-  return [
-    {
-      icon: "yeets",
-      title: "Orbital Launch",
-      holder: highlights.biggestYeeter
-        ? {
-            displayName: highlights.biggestYeeter.displayName,
-            avatarUrl: highlights.biggestYeeter.avatarUrl,
-          }
-        : undefined,
-      description: highlights.biggestYeeter
-        ? `${highlights.biggestYeeter.displayName} owns the yeet narrative here.`
-        : "No yeet champion recorded yet.",
-    },
-    {
-      icon: "deaths",
-      title: "Mechanic Magnet",
-      holder: highlights.mostDeaths
-        ? {
-            displayName: highlights.mostDeaths.displayName,
-            avatarUrl: highlights.mostDeaths.avatarUrl,
-          }
-        : undefined,
-      description: highlights.mostDeaths
-        ? `${highlights.mostDeaths.displayName} found the floor most often.`
-        : "No death magnet recorded yet.",
-    },
-  ];
 }
 
 export function getDungeonReputationScores(

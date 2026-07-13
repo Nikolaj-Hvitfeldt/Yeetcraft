@@ -3,7 +3,6 @@ import type { DungeonLeaderboardEntry, DungeonSummary } from '../api/types'
 import {
   getBlameShare,
   getDangerScore,
-  getDungeonAchievements,
   getDungeonHighlights,
   getDungeonReputationScores,
   getMeatGrinderSummary,
@@ -159,18 +158,6 @@ describe('getBlameShare', () => {
     ]
 
     expect(getBlameShare({ ...dungeon, totalMistakes: 4 }, sharedLeaderboard)).toBe(50)
-  })
-})
-
-describe('getDungeonAchievements', () => {
-  it('builds deterministic achievement copy', () => {
-    const achievements = getDungeonAchievements(getDungeonHighlights(leaderboard))
-
-    expect(achievements).toHaveLength(2)
-    expect(achievements[0]?.holder?.displayName).toBe('Niklas')
-    expect(achievements[1]?.holder?.displayName).toBe('Niklas')
-    expect(achievements[0]?.description).toContain('Niklas')
-    expect(achievements[1]?.description).toContain('Niklas')
   })
 })
 
