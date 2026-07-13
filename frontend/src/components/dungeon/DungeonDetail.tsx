@@ -2,7 +2,6 @@ import { useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import type { DungeonSummary } from '../../api/types'
 import { useCurrentSeasonDungeons, useSeasonId, useSeasonLeaders } from '../../hooks'
-import { findSelectedSeason } from '../../utils/season'
 import { PageBoundary } from '../layout/PageBoundary'
 import { buildDungeonPath } from '../../utils/routes'
 import { dungeonSlug, findDungeonBySlug } from '../../utils/slug'
@@ -18,7 +17,7 @@ function getDangerScore(dungeon: DungeonSummary, averageMistakes: number): numbe
 export function DungeonDetail() {
   const { dungeonSlug: dungeonSlugParam } = useParams<{ dungeonSlug: string }>()
   const navigate = useNavigate()
-  const { seasons, isSeasonReady, selectedSeasonId, selectedSeason, homePath } = useSeasonId()
+  const { isSeasonReady, selectedSeasonId, selectedSeason, homePath } = useSeasonId()
   const {
     data: dungeonsData,
     isPending: isPendingDungeons,
@@ -37,11 +36,7 @@ export function DungeonDetail() {
   } = useSeasonLeaders(selectedSeasonId, { enabled: isSeasonReady })
 
   const dungeons = dungeonsData ?? []
-  const matchedDungeon = findDungeonBySlug(dungeons, dungeonSlugParam)
-  const dungeon = matchedDungeon
-    ? dungeons.find((entry) => entry.id === matchedDungeon.id)
-    : undefined
-  const season = findSelectedSeason(seasons, selectedSeasonId)
+  const dungeon = findDungeonBySlug(dungeons, dungeonSlugParam)
 
   const topPlayer = seasonLeaders?.topPlayer
   const averageMistakes = useMemo(() => {
@@ -100,10 +95,10 @@ export function DungeonDetail() {
               <h1 className="pt-sm font-heading text-4xl font-bold leading-tight text-text-primary">
                 {dungeon.name}
               </h1>
-              {season ? (
+              {selectedSeason ? (
                 <p className="pt-sm text-sm leading-5 text-text-secondary">
-                  {season.expansion ? `${season.expansion} ` : ''}
-                  {season.name}
+                  {selectedSeason.expansion ? `${selectedSeason.expansion} ` : ''}
+                  {selectedSeason.name}
                 </p>
               ) : null}
             </header>

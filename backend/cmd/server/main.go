@@ -42,7 +42,6 @@ func main() {
 
 	router.Get("/api/health", healthHandler.Get)
 	protectedRouter := router.With(appmiddleware.APIKey(appConfig.APIKey))
-	protectedRouter.Get("/api/leaderboard", statsHandler.Leaderboard)
 	protectedRouter.Get("/api/players/{playerId}/stats", statsHandler.PlayerStats)
 	protectedRouter.Get("/api/seasons", statsHandler.Seasons)
 	protectedRouter.Get("/api/seasons/leaders", statsHandler.SeasonLeaders)

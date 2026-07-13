@@ -12,10 +12,6 @@ const seasons: SeasonSummary[] = [
 ]
 
 describe('resolveSeasonId', () => {
-  it('returns requested season when valid id', () => {
-    expect(resolveSeasonId(seasonOneId, seasons)).toBe(seasonOneId)
-  })
-
   it('returns requested season when valid slug', () => {
     expect(resolveSeasonId(toSlug('Midnight Season 1'), seasons)).toBe(seasonOneId)
   })
@@ -24,12 +20,12 @@ describe('resolveSeasonId', () => {
     expect(resolveSeasonId(null, seasons)).toBe(seasonTwoId)
   })
 
-  it('trusts requested uuid before seasons list is loaded', () => {
-    expect(resolveSeasonId(seasonOneId, undefined)).toBe(seasonOneId)
-    expect(resolveSeasonId(seasonOneId, [])).toBe(seasonOneId)
+  it('returns undefined before seasons list is loaded', () => {
+    expect(resolveSeasonId(toSlug('Midnight Season 1'), undefined)).toBeUndefined()
+    expect(resolveSeasonId(toSlug('Midnight Season 1'), [])).toBeUndefined()
   })
 
-  it('ignores invalid requested season keys once seasons are loaded', () => {
+  it('ignores invalid requested season slugs once seasons are loaded', () => {
     expect(resolveSeasonId('missing', seasons)).toBe(seasonTwoId)
     expect(resolveSeasonId('not-a-real-season', seasons)).toBe(seasonTwoId)
   })

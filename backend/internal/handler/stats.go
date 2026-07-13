@@ -30,10 +30,6 @@ type StatsHandler struct {
 	statsRepository StatsRepository
 }
 
-type LeaderboardResponse struct {
-	Leaderboard []repository.LeaderboardEntry `json:"leaderboard"`
-}
-
 type SeasonsResponse struct {
 	Seasons []repository.SeasonSummary `json:"seasons"`
 }
@@ -75,24 +71,6 @@ func NewStatsHandler(statsRepository StatsRepository) StatsHandler {
 	return StatsHandler{
 		statsRepository: statsRepository,
 	}
-}
-
-func (statsHandler StatsHandler) Leaderboard(responseWriter http.ResponseWriter, request *http.Request) {
-	seasonID := request.URL.Query().Get("seasonId")
-	if seasonID != "" && !isValidUUID(seasonID) {
-		WriteError(responseWriter, http.StatusBadRequest, "Bad Request", "seasonId must be a valid UUID.")
-		return
-	}
-
-	leaderboard, err := statsHandler.statsRepository.ListLeaderboard(request.Context(), seasonID)
-	if err != nil {
-		writeRepositoryError(responseWriter, err)
-		return
-	}
-
-	WriteJSON(responseWriter, http.StatusOK, LeaderboardResponse{
-		Leaderboard: leaderboard,
-	})
 }
 
 func (statsHandler StatsHandler) SeasonLeaders(responseWriter http.ResponseWriter, request *http.Request) {

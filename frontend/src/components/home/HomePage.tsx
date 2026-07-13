@@ -8,7 +8,6 @@ import {
 } from '../../hooks'
 import { PageBoundary } from '../layout/PageBoundary'
 import { resolveDungeonBannerSeasonKey } from '../../utils/dungeon-image'
-import { findSelectedSeason } from '../../utils/season'
 import { DungeonNavPanel } from './DungeonNavPanel'
 import { HomeHero } from './HomeHero'
 import { HomeNavigation } from './HomeNavigation'
@@ -47,12 +46,10 @@ export function HomePage() {
     [leaderboardEntries],
   )
 
-  const bannerSeasonKey = useMemo(() => {
-    const selectedSeason = findSelectedSeason(seasons, selectedSeasonId)
-    return selectedSeason
-      ? resolveDungeonBannerSeasonKey(selectedSeason.name)
-      : undefined
-  }, [seasons, selectedSeasonId])
+  const bannerSeasonKey = useMemo(
+    () => (selectedSeason ? resolveDungeonBannerSeasonKey(selectedSeason.name) : undefined),
+    [selectedSeason],
+  )
 
   const isRefreshingHome = isFetchingLeaderboard || isFetchingDungeons
 

@@ -1,8 +1,9 @@
 import type { DungeonSummary, DungeonStats } from '../api/types'
 import { dungeonBannersBySeason, type DungeonBannerSeasonKey } from '../assets/dungeon-images'
+import { toSlug } from './slug'
 
 function normalizeDungeonName(input: string): string {
-  return input.toLowerCase().replace(/[^a-z0-9]/g, '')
+  return toSlug(input).replace(/-/g, '')
 }
 
 const NAME_TO_BANNER_KEY: Record<string, string> = {

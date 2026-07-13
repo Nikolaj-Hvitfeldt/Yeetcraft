@@ -10,14 +10,12 @@ import {
 } from "../../hooks";
 import { PageBoundary } from "../layout/PageBoundary";
 import { buildPlayerPath } from "../../utils/routes";
-import { findPlayerBySlug, isUuid, playerSlug } from "../../utils/slug";
+import { findPlayerBySlug, playerSlug } from "../../utils/slug";
 import { SeasonPicker } from "../home/SeasonPicker";
 import { HomeNavigation } from "../home/HomeNavigation";
 import { StatCard } from "../home/StatCard";
-import {
-  DungeonBreakdownSection,
-  NemesisCard,
-} from ".";
+import { DungeonBreakdownSection } from "./DungeonBreakdownSection";
+import { NemesisCard } from "./NemesisCard";
 import { Avatar } from "../ui/Avatar";
 import { BackButton } from "../ui/BackButton";
 import { CharacterTag } from "../ui/CharacterTag";
@@ -43,13 +41,8 @@ export function PlayerProfile() {
 
   const resolvedPlayerId = useMemo(() => {
     if (!playerSlugParam) return undefined;
-    if (isUuid(playerSlugParam)) return playerSlugParam;
 
-    const leaderboardEntry = findPlayerBySlug(
-      seasonLeaders?.leaderboard ?? [],
-      playerSlugParam,
-    );
-    return leaderboardEntry?.playerId;
+    return findPlayerBySlug(seasonLeaders?.leaderboard ?? [], playerSlugParam)?.playerId;
   }, [playerSlugParam, seasonLeaders?.leaderboard]);
 
   const {
@@ -213,22 +206,24 @@ export function PlayerProfile() {
   const isPageLoading =
     !isSeasonReady ||
     (isPendingPlayerStats && !playerStats) ||
-    (!!playerSlugParam && !resolvedPlayerId && !playerStats && (isPendingPlayerStats || !hasFetchedPlayerStats));
+    (!!playerSlugParam &&
+      !resolvedPlayerId &&
+      !playerStats &&
+      (!seasonLeaders || isPendingPlayerStats));
   const isRefreshingProfile =
     isFetchingPlayerStats && !!playerStats && !isPendingPlayerStats;
   const notFoundMessage =
     isSeasonReady &&
-    hasFetchedPlayerStats &&
-    !isFetchingPlayerStats &&
-    !playerStatsError &&
-    !playerStats
+    seasonLeaders &&
+    playerSlugParam &&
+    !resolvedPlayerId &&
+    !isPendingPlayerStats
       ? "Player stats were not found."
       : isSeasonReady &&
-          seasonLeaders &&
-          playerSlugParam &&
-          !isUuid(playerSlugParam) &&
-          !resolvedPlayerId &&
-          !isPendingPlayerStats
+          hasFetchedPlayerStats &&
+          !isFetchingPlayerStats &&
+          !playerStatsError &&
+          !playerStats
         ? "Player stats were not found."
         : null;
 

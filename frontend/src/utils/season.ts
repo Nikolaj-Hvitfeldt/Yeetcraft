@@ -1,5 +1,5 @@
 import type { SeasonSummary } from '../api/types'
-import { findSeasonBySlug, isUuid } from './slug'
+import { findSeasonBySlug } from './slug'
 
 export function findSelectedSeason(
   seasons: SeasonSummary[],
@@ -14,15 +14,11 @@ export function findSelectedSeason(
 }
 
 export function resolveSeasonId(
-  requestedSeasonKey: string | null | undefined,
+  requestedSeasonSlug: string | null | undefined,
   seasons: SeasonSummary[] | undefined,
 ): string | undefined {
-  if (requestedSeasonKey) {
-    if (!seasons || seasons.length === 0) {
-      return isUuid(requestedSeasonKey) ? requestedSeasonKey : undefined
-    }
-
-    const matchedSeason = findSeasonBySlug(seasons, requestedSeasonKey)
+  if (requestedSeasonSlug && seasons?.length) {
+    const matchedSeason = findSeasonBySlug(seasons, requestedSeasonSlug)
     if (matchedSeason) return matchedSeason.id
   }
 

@@ -31,16 +31,6 @@ export function useSeasonLeaders(seasonId?: string, options?: QueryEnabledOption
   })
 }
 
-/** @deprecated Prefer useSeasonLeaders and read response.leaderboard */
-export function useLeaderboard(seasonId?: string, options?: QueryEnabledOptions) {
-  const query = useSeasonLeaders(seasonId, options)
-
-  return {
-    ...query,
-    data: query.data?.leaderboard ?? [],
-  }
-}
-
 export function usePlayerStats(
   playerId: string | undefined,
   seasonId?: string,

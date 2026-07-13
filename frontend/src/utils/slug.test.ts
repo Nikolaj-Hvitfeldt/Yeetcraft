@@ -53,12 +53,6 @@ describe('slug lookups', () => {
     expect(findPlayerBySlug(players, 'seb')?.playerId).toBe(playerOneId)
     expect(findDungeonBySlug(dungeons, 'magisters-terrace')?.id).toBe(dungeonOneId)
   })
-
-  it('still resolves legacy uuid params', () => {
-    expect(findSeasonBySlug(seasons, seasonOneId)?.id).toBe(seasonOneId)
-    expect(findPlayerBySlug(players, playerOneId)?.playerId).toBe(playerOneId)
-    expect(findDungeonBySlug(dungeons, dungeonOneId)?.id).toBe(dungeonOneId)
-  })
 })
 
 describe('route builders', () => {

@@ -6,7 +6,6 @@ import { DungeonDetail } from './components/dungeon'
 import { PlayerProfile } from './components/profile'
 import { HomePage } from './components/home'
 import { RootRedirect } from './components/routing/RootRedirect'
-import { LegacyDungeonRedirect, LegacyPlayerRedirect } from './components/routing/LegacyRedirects'
 
 /**
  * Main application component with routing, error boundary, and theme.
@@ -18,8 +17,6 @@ export function App() {
         <Routes>
           <Route element={<AppLayout />}>
             <Route path="/" element={<RootRedirect />} />
-            <Route path="/player/:playerId" element={<LegacyPlayerRedirect />} />
-            <Route path="/dungeon/:dungeonId" element={<LegacyDungeonRedirect />} />
             <Route path="/:seasonSlug/player/:playerSlug" element={<PlayerProfile />} />
             <Route path="/:seasonSlug/dungeon/:dungeonSlug" element={<DungeonDetail />} />
             <Route path="/:seasonSlug" element={<HomePage />} />

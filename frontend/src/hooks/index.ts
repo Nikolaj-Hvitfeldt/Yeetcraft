@@ -1,12 +1,10 @@
 export {
   useCurrentSeasonDungeons,
-  useLeaderboard,
   usePlayerStats,
   useSeasonLeaders,
   useSeasons,
   deriveLeaderboard,
   calculateTotalStats,
-  getSeasonKings,
 } from './useStats'
 export type { LeaderboardPlayerStats } from './useStats'
 export { useAuthGuard } from './useAuthGuard'

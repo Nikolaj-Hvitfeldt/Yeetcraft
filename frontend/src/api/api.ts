@@ -87,11 +87,6 @@ async function fetchApiWithBody<T>(
   return schema.parse(json)
 }
 
-export async function fetchLeaderboard(seasonId?: string) {
-  const response = await fetchSeasonLeaders(seasonId)
-  return { leaderboard: response.leaderboard }
-}
-
 export async function fetchSeasonLeaders(seasonId?: string) {
   return fetchApi(`/api/seasons/leaders${buildSeasonQuery(seasonId)}`, SeasonLeadersResponseSchema)
 }

@@ -1,12 +1,5 @@
 import type { DungeonSummary, LeaderboardEntry, PlayerSummary, SeasonSummary } from '../api/types'
 
-const UUID_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-
-export function isUuid(value: string): boolean {
-  return UUID_PATTERN.test(value)
-}
-
 export function toSlug(value: string): string {
   return value
     .trim()
@@ -20,7 +13,6 @@ export function findSeasonBySlug(
   slug: string | undefined,
 ): SeasonSummary | undefined {
   if (!slug) return undefined
-  if (isUuid(slug)) return seasons.find((season) => season.id === slug)
   return seasons.find((season) => toSlug(season.name) === slug)
 }
 
@@ -29,16 +21,14 @@ export function findPlayerBySlug(
   slug: string | undefined,
 ): Pick<LeaderboardEntry, 'playerId' | 'displayName'> | undefined {
   if (!slug) return undefined
-  if (isUuid(slug)) return players.find((player) => player.playerId === slug)
   return players.find((player) => toSlug(player.displayName) === slug)
 }
 
-export function findDungeonBySlug(
-  dungeons: Array<Pick<DungeonSummary, 'id' | 'name'>>,
+export function findDungeonBySlug<T extends Pick<DungeonSummary, 'id' | 'name'>>(
+  dungeons: T[],
   slug: string | undefined,
-): Pick<DungeonSummary, 'id' | 'name'> | undefined {
+): T | undefined {
   if (!slug) return undefined
-  if (isUuid(slug)) return dungeons.find((dungeon) => dungeon.id === slug)
   return dungeons.find((dungeon) => toSlug(dungeon.name) === slug)
 }
 

@@ -16,10 +16,6 @@ export const LeaderboardEntrySchema = z.object({
   totalMistakes: z.number(),
 })
 
-export const LeaderboardResponseSchema = z.object({
-  leaderboard: z.array(LeaderboardEntrySchema),
-})
-
 export const PlayerSummarySchema = z.object({
   id: z.string(),
   displayName: z.string(),
@@ -130,7 +126,6 @@ export const SeasonLeadersResponseSchema = z.object({
 
 export type SeasonSummary = z.infer<typeof SeasonSummarySchema>
 export type LeaderboardEntry = z.infer<typeof LeaderboardEntrySchema>
-export type LeaderboardResponse = z.infer<typeof LeaderboardResponseSchema>
 export type PlayerSummary = z.infer<typeof PlayerSummarySchema>
 export type DungeonSummary = z.infer<typeof DungeonSummarySchema>
 export type DungeonStats = z.infer<typeof PlayerDungeonStatsSchema>
