@@ -8,7 +8,7 @@ export {
   calculateTotalStats,
   getSeasonKings,
 } from './useStats'
-export type { PlayerStats } from './useStats'
+export type { LeaderboardPlayerStats } from './useStats'
 export { useAuthGuard } from './useAuthGuard'
 export { useSeasonId } from './useSeasonId'
 export { useSetPlayerStats } from './useSetPlayerStats'

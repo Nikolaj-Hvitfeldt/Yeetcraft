@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import type { DungeonSummary } from '../../api/types'
 import { useCurrentSeasonDungeons, useSeasonId, useSeasonLeaders } from '../../hooks'
+import { findSelectedSeason } from '../../utils/season'
 import { PageShell } from '../layout/PageShell'
 import { BackButton } from '../ui/BackButton'
 import { AchievementCard } from './AchievementCard'
@@ -30,9 +31,7 @@ export function DungeonDetail() {
   } = useSeasonLeaders(selectedSeasonId, { enabled: isSeasonReady })
 
   const dungeon = dungeons.find((entry) => entry.id === dungeonId)
-  const season = seasons.find((entry) => entry.id === selectedSeasonId)
-    ?? seasons.find((entry) => entry.isCurrent)
-    ?? seasons[0]
+  const season = findSelectedSeason(seasons, selectedSeasonId)
 
   const topPlayer = seasonLeaders?.topPlayer
   const averageMistakes = useMemo(() => {

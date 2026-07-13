@@ -1,34 +1,33 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import type { DungeonStats } from "../api/types";
+import type { DungeonStats } from "../../api/types";
 import {
   deriveLeaderboard,
-  useLeaderboard,
   usePlayerStats,
   useSeasonId,
   useSeasonLeaders,
   useSetPlayerStats,
-} from "../hooks";
-import { PageShell } from "./layout/PageShell";
-import { SeasonPicker } from "./home/SeasonPicker";
-import { HomeNavigation } from "./home/HomeNavigation";
-import { StatCard } from "./home/StatCard";
-import { NemesisCard } from "./profile";
-import { Avatar } from "./ui/Avatar";
-import { BackButton } from "./ui/BackButton";
-import { CharacterTag } from "./ui/CharacterTag";
-import { CrownBadge } from "./ui/CrownBadge";
-import { DungeonBreakdownSection } from "./profile/DungeonBreakdownSection";
+} from "../../hooks";
+import { PageShell } from "../layout/PageShell";
+import { SeasonPicker } from "../home/SeasonPicker";
+import { HomeNavigation } from "../home/HomeNavigation";
+import { StatCard } from "../home/StatCard";
+import {
+  DungeonBreakdownSection,
+  NemesisCard,
+} from ".";
+import { Avatar } from "../ui/Avatar";
+import { BackButton } from "../ui/BackButton";
+import { CharacterTag } from "../ui/CharacterTag";
+import { CrownBadge } from "../ui/CrownBadge";
 import {
   getDungeonBannerImageFromStats,
   resolveDungeonBannerSeasonKey,
-} from "../utils/dungeon-image";
-import { getPlayerFlavorTitle } from "../utils/player-flavor-title";
-import { getNemesisDungeon } from "../utils/player-stats";
-import { getCharactersForPlayer } from "../utils/player-characters";
-import {
-  type PlayerCharacter,
-} from "../data/player-characters";
+} from "../../utils/dungeon-image";
+import { getPlayerFlavorTitle } from "../../utils/player-flavor-title";
+import { getNemesisDungeon } from "../../utils/player-stats";
+import { getCharactersForPlayer } from "../../utils/player-characters";
+import { type PlayerCharacter } from "../../data/player-characters";
 
 export function PlayerProfile() {
   const { playerId } = useParams<{ playerId: string }>();
@@ -45,24 +44,21 @@ export function PlayerProfile() {
   const { data: seasonLeaders } = useSeasonLeaders(selectedSeasonId, {
     enabled: isSeasonReady,
   });
-  const { data: leaderboardEntries = [] } = useLeaderboard(selectedSeasonId, {
-    enabled: isSeasonReady,
-  });
-
-  const leaderboardRank = useMemo(() => {
-    if (!playerStats) return null;
-
-    const leaderboard = deriveLeaderboard(leaderboardEntries);
-    const rankIndex = leaderboard.findIndex(
-      (entry) => entry.playerId === playerStats.player.id,
-    );
-    return rankIndex === -1 ? null : rankIndex + 1;
-  }, [leaderboardEntries, playerStats]);
 
   const nemesis = useMemo(
     () => (playerStats ? getNemesisDungeon(playerStats.dungeons) : null),
     [playerStats],
   );
+
+  const leaderboardRank = useMemo(() => {
+    if (!playerStats) return null;
+
+    const leaderboard = deriveLeaderboard(seasonLeaders?.leaderboard ?? []);
+    const rankIndex = leaderboard.findIndex(
+      (entry) => entry.playerId === playerStats.player.id,
+    );
+    return rankIndex === -1 ? null : rankIndex + 1;
+  }, [playerStats, seasonLeaders?.leaderboard]);
 
   const isKingOfYeets =
     playerStats?.player.id === seasonLeaders?.kingOfYeets?.playerId;
@@ -79,7 +75,6 @@ export function PlayerProfile() {
     useSetPlayerStats();
 
   useEffect(() => {
-    // Keep edit mode in sync with navigation/context.
     setIsEditing(false);
     setDraftDungeons(null);
   }, [playerId, selectedSeasonId]);
@@ -104,11 +99,12 @@ export function PlayerProfile() {
           playerId: playerStats.player.id,
           seasonLeaders,
           leaderboardRank,
+          nemesis,
         })
       : "Season Adventurer";
 
     return { characters, flavor };
-  }, [leaderboardRank, playerStats, seasonLeaders]);
+  }, [leaderboardRank, nemesis, playerStats, seasonLeaders]);
 
   function handleEnterEdit() {
     if (!playerStats) return;
@@ -225,7 +221,7 @@ export function PlayerProfile() {
           ) : null}
 
           <div className="mx-auto flex max-w-6xl flex-col gap-2xl">
-            <HomeNavigation />
+            <HomeNavigation homePath={homePath} />
             <BackButton to={homePath} className="self-start" />
 
             <header className="relative flex flex-col gap-2xl overflow-hidden rounded-3xl border border-accent-secondary bg-surface-section p-2xl shadow-2xl sm:flex-row sm:items-start sm:justify-between">

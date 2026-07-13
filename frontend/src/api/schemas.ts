@@ -71,14 +71,6 @@ export const StatRowSchema = z.object({
   totalMistakes: z.number(),
 })
 
-export const SetStatsRequestSchema = z.object({
-  playerId: z.string(),
-  seasonId: z.string(),
-  dungeonId: z.string(),
-  deaths: z.number(),
-  yeets: z.number(),
-})
-
 export const SetStatsBatchDungeonUpdateSchema = z.object({
   dungeonId: z.string(),
   deaths: z.number().int().min(0),
@@ -89,10 +81,6 @@ export const SetStatsBatchRequestSchema = z.object({
   playerId: z.string(),
   seasonId: z.string(),
   stats: z.array(SetStatsBatchDungeonUpdateSchema).min(1),
-})
-
-export const StatResponseSchema = z.object({
-  stats: StatRowSchema,
 })
 
 export const StatsBatchResponseSchema = z.object({
@@ -133,6 +121,7 @@ export const DungeonMistakeLeaderSchema = z.object({
 
 export const SeasonLeadersResponseSchema = z.object({
   season: SeasonSummarySchema,
+  leaderboard: z.array(LeaderboardEntrySchema).default([]),
   kingOfYeets: SeasonLeaderPlayerSchema.nullable(),
   kingOfDeaths: SeasonLeaderPlayerSchema.nullable(),
   topPlayer: SeasonTopPlayerSchema.nullable(),

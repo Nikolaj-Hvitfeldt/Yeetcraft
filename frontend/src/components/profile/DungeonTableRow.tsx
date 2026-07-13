@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import type { DungeonStats } from '../../api/types'
 import { seasonPath } from '../../utils/season'
 import { cn } from '../../utils/cn'
+import { STAT_COLOR_BY_KIND } from '../../utils/stat-colors'
 import { StatCounter } from './StatCounter'
 
 type DungeonTableMode = 'browse' | 'edit'
@@ -58,10 +59,10 @@ export function DungeonTableRow({
         </>
       ) : (
         <>
-          <p className="justify-self-center text-center font-number text-sm leading-[18px] text-stat-total">
+          <p className={cn('justify-self-center text-center font-number text-sm leading-[18px]', STAT_COLOR_BY_KIND.deaths)}>
             {dungeon.deaths}
           </p>
-          <p className="justify-self-center text-center font-number text-sm leading-[18px] text-stat-deaths">
+          <p className={cn('justify-self-center text-center font-number text-sm leading-[18px]', STAT_COLOR_BY_KIND.yeets)}>
             {dungeon.yeets}
           </p>
         </>

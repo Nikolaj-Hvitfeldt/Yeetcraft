@@ -1,3 +1,5 @@
+export { DungeonBreakdownSection } from './DungeonBreakdownSection'
 export { DungeonTableRow } from './DungeonTableRow'
 export { NemesisCard } from './NemesisCard'
+export { PlayerProfile } from './PlayerProfile'
 export { SpotlightCard } from './SpotlightCard'

@@ -1,9 +1,8 @@
 import { InfoTooltip } from './InfoTooltip'
+import { STAT_COLOR_BY_KIND, type StatKind } from '../../utils/stat-colors'
 
 const COLOR_CLASS_BY_KIND: Record<StatItemKind, string> = {
-  total: 'text-stat-total',
-  deaths: 'text-stat-deaths',
-  yeets: 'text-stat-yeets',
+  ...STAT_COLOR_BY_KIND,
   default: 'text-text-primary',
 }
 
@@ -41,7 +40,7 @@ export function StatItem({
   )
 }
 
-export type StatItemKind = 'total' | 'deaths' | 'yeets' | 'default'
+export type StatItemKind = StatKind | 'default'
 
 interface StatItemProps {
   label: string

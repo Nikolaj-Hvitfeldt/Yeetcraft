@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from './hooks'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { DungeonDetail } from './components/dungeon'
-import { PlayerProfile } from './components/PlayerProfile'
+import { PlayerProfile } from './components/profile'
 import { HomePage } from './components/home'
 
 /**

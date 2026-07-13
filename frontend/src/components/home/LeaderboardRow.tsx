@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import type { WowIconKey } from '../../assets/wow-icons'
-import type { PlayerStats } from '../../hooks'
+import type { LeaderboardPlayerStats } from '../../hooks'
 import { cn } from '../../utils/cn'
 import { seasonPath } from '../../utils/season'
 import { WowIcon } from '../WowIcon'
@@ -73,7 +73,7 @@ export function LeaderboardRow({
 }
 
 interface LeaderboardRowProps {
-  player: PlayerStats
+  player: LeaderboardPlayerStats
   rank: number
   seasonId?: string
   isKingOfYeets: boolean

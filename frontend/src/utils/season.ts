@@ -1,5 +1,17 @@
 import type { SeasonSummary } from '../api/types'
 
+export function findSelectedSeason(
+  seasons: SeasonSummary[],
+  seasonId: string | null | undefined,
+): SeasonSummary | undefined {
+  if (seasonId) {
+    const matchedSeason = seasons.find((season) => season.id === seasonId)
+    if (matchedSeason) return matchedSeason
+  }
+
+  return seasons.find((season) => season.isCurrent) ?? seasons[0]
+}
+
 export function resolveSeasonId(
   requestedSeasonId: string | null | undefined,
   seasons: SeasonSummary[] | undefined,

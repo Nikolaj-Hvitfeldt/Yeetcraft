@@ -1,11 +1,7 @@
 import { cn } from '../../utils/cn'
+import { STAT_COLOR_BY_KIND, type StatKind } from '../../utils/stat-colors'
 
-type StatCounterField = 'deaths' | 'yeets'
-
-const COLOR_CLASS_BY_FIELD: Record<StatCounterField, string> = {
-  deaths: 'text-stat-total',
-  yeets: 'text-stat-deaths',
-}
+type StatCounterField = Exclude<StatKind, 'total'>
 
 export function StatCounter({
   value,
@@ -14,7 +10,7 @@ export function StatCounter({
   disabled = false,
   className,
 }: StatCounterProps) {
-  const colorClass = COLOR_CLASS_BY_FIELD[field]
+  const colorClass = STAT_COLOR_BY_KIND[field]
   const isMinusDisabled = disabled || value <= 0
 
   return (

@@ -1,6 +1,7 @@
 import type { DungeonStats } from "../../api/types";
 import { DungeonTableRow } from "./DungeonTableRow";
 import { TableHeader } from "../ui/TableHeader";
+import { STAT_COLOR_BY_KIND } from "../../utils/stat-colors";
 
 type DungeonBreakdownMode = "browse" | "edit";
 
@@ -12,19 +13,19 @@ const TABLE_COLUMNS = [
   {
     id: "total",
     label: "Total",
-    className: "justify-self-center text-center text-stat-yeets",
+    className: `justify-self-center text-center ${STAT_COLOR_BY_KIND.total}`,
     width: "5.5rem",
   },
   {
     id: "deaths",
     label: "Deaths",
-    className: "justify-self-center text-center text-stat-total",
+    className: `justify-self-center text-center ${STAT_COLOR_BY_KIND.deaths}`,
     width: "5.5rem",
   },
   {
     id: "yeets",
     label: "Yeets",
-    className: "justify-self-center text-center text-stat-deaths",
+    className: `justify-self-center text-center ${STAT_COLOR_BY_KIND.yeets}`,
     width: "5.5rem",
   },
 ];

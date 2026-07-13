@@ -22,6 +22,10 @@ func TestComputeSeasonLeaders(t *testing.T) {
 		t.Fatalf("expected top player p1, got %#v", leaders.TopPlayer)
 	}
 
+	if len(leaders.Leaderboard) != len(leaderboard) {
+		t.Fatalf("expected leaderboard length %d, got %d", len(leaderboard), len(leaders.Leaderboard))
+	}
+
 	if leaders.KingOfYeets == nil || leaders.KingOfYeets.PlayerID != "p1" {
 		t.Fatalf("expected yeets king p1 by deaths tie-break, got %#v", leaders.KingOfYeets)
 	}

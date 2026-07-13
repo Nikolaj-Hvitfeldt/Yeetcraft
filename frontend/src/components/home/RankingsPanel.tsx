@@ -1,6 +1,5 @@
-import { useMemo } from "react";
 import type { SeasonSummary } from "../../api/types";
-import { getSeasonKings, type PlayerStats } from "../../hooks";
+import type { LeaderboardPlayerStats } from "../../hooks";
 import { cn } from "../../utils/cn";
 import { SkullIcon } from "../SkullIcon";
 import { LoadingSpinner } from "../LoadingSpinner";
@@ -15,12 +14,9 @@ export function RankingsPanel({
   isLoading,
   error,
   onSeasonChange,
+  kingOfYeetsId,
+  kingOfDeathsId,
 }: RankingsPanelProps) {
-  const { kingOfYeetsId, kingOfDeathsId } = useMemo(
-    () => getSeasonKings(leaderboard),
-    [leaderboard],
-  );
-
   const playerLabel = leaderboard.length === 1 ? "player" : "players";
 
   return (
@@ -80,10 +76,12 @@ export function RankingsPanel({
 }
 
 interface RankingsPanelProps {
-  leaderboard: PlayerStats[];
+  leaderboard: LeaderboardPlayerStats[];
   seasons: SeasonSummary[];
   selectedSeasonId: string;
   isLoading?: boolean;
   error?: Error | null;
   onSeasonChange: (seasonId: string) => void;
+  kingOfYeetsId: string | null;
+  kingOfDeathsId: string | null;
 }

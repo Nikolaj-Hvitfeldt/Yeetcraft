@@ -51,6 +51,7 @@ function makeSeasonLeaders(overrides: Partial<SeasonLeadersResponse> = {}): Seas
       expansion: 'Midnight',
       isCurrent: true,
     },
+    leaderboard: [],
     kingOfYeets: null,
     kingOfDeaths: null,
     topPlayer: null,
