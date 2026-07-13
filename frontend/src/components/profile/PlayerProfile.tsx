@@ -8,7 +8,7 @@ import {
   useSeasonLeaders,
   useSetPlayerStats,
 } from "../../hooks";
-import { PageShell } from "../layout/PageShell";
+import { PageBoundary } from "../layout/PageBoundary";
 import { SeasonPicker } from "../home/SeasonPicker";
 import { HomeNavigation } from "../home/HomeNavigation";
 import { StatCard } from "../home/StatCard";
@@ -208,7 +208,7 @@ export function PlayerProfile() {
       : null;
 
   return (
-    <PageShell
+    <PageBoundary
       isLoading={isPageLoading}
       isRefreshing={isRefreshingProfile}
       isShowingStaleData={isShowingStalePlayerStats && isFetchingPlayerStats}
@@ -219,16 +219,15 @@ export function PlayerProfile() {
       }}
     >
       {playerStats ? (
-        <div className="relative min-h-screen bg-background-app px-2xl py-2xl">
+        <div className="flex flex-col gap-2xl">
           {toastMessage ? (
             <div className="fixed bottom-4 right-4 z-50 animate-fade-in rounded-lg border border-red-400/40 bg-red-950/40 px-lg py-md text-sm font-semibold text-red-300 shadow-lg">
               {toastMessage}
             </div>
           ) : null}
 
-          <div className="mx-auto flex max-w-6xl flex-col gap-2xl">
-            <HomeNavigation homePath={homePath} />
-            <BackButton to={homePath} className="self-start" />
+          <HomeNavigation homePath={homePath} />
+          <BackButton to={homePath} className="self-start" />
 
             <header className="relative flex flex-col gap-2xl overflow-hidden rounded-3xl border border-accent-secondary bg-surface-section p-2xl shadow-2xl sm:flex-row sm:items-start sm:justify-between">
               <div className="flex min-w-0 flex-1 items-start gap-lg">
@@ -331,9 +330,8 @@ export function PlayerProfile() {
               onAdjust={handleAdjustDraft}
               seasonId={selectedSeasonId ?? playerStats.season.id}
             />
-          </div>
         </div>
       ) : null}
-    </PageShell>
+    </PageBoundary>
   );
 }

@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import type { DungeonSummary } from '../../api/types'
 import { useCurrentSeasonDungeons, useSeasonId, useSeasonLeaders } from '../../hooks'
 import { findSelectedSeason } from '../../utils/season'
-import { PageShell } from '../layout/PageShell'
+import { PageBoundary } from '../layout/PageBoundary'
 import { BackButton } from '../ui/BackButton'
 import { AchievementCard } from './AchievementCard'
 import { ReputationCard } from './ReputationCard'
@@ -65,7 +65,7 @@ export function DungeonDetail() {
   }
 
   return (
-    <PageShell
+    <PageBoundary
       isLoading={isPageLoading}
       isRefreshing={isRefreshingDetail}
       isShowingStaleData={(isShowingStaleDungeons && isFetchingDungeons) || (isFetchingLeaders && !!seasonLeaders)}
@@ -74,9 +74,8 @@ export function DungeonDetail() {
       onRetry={handleRetry}
     >
       {dungeon ? (
-        <div className="min-h-screen bg-background-app px-2xl py-2xl">
-          <div className="mx-auto flex max-w-5xl flex-col gap-2xl">
-            <BackButton to={homePath} />
+        <div className="flex flex-col gap-2xl">
+          <BackButton to={homePath} />
 
             <header className="rounded-3xl border border-border-subtle bg-surface-section p-2xl">
               <p className="text-xs font-bold uppercase leading-4 tracking-[0.2em] text-accent-primary">
@@ -128,9 +127,8 @@ export function DungeonDetail() {
                 </div>
               </div>
             </section>
-          </div>
         </div>
       ) : null}
-    </PageShell>
+    </PageBoundary>
   )
 }

@@ -6,7 +6,7 @@ import { useAuthGuard } from '../../hooks/useAuthGuard'
 import { getUserFacingErrorMessage, isRetryableError } from '../../utils/api-error'
 import { cn } from '../../utils/cn'
 
-export function PageShell({
+export function PageBoundary({
   isLoading,
   isRefreshing,
   isShowingStaleData,
@@ -14,7 +14,7 @@ export function PageShell({
   notFoundMessage,
   onRetry,
   children,
-}: PageShellProps) {
+}: PageBoundaryProps) {
   const { showAuthRequired } = useAuthGuard(error ?? null)
   const blockingError = error && !children ? error : null
 
@@ -67,7 +67,7 @@ function RefreshingBar() {
   )
 }
 
-interface PageShellProps {
+interface PageBoundaryProps {
   isLoading?: boolean
   isRefreshing?: boolean
   isShowingStaleData?: boolean
