@@ -51,6 +51,7 @@ func main() {
 	protectedRouter.Get("/api/seasons/leaders", statsHandler.SeasonLeaders)
 	protectedRouter.Get("/api/seasons/current/dungeons", statsHandler.CurrentSeasonDungeons)
 	protectedRouter.Patch("/api/stats", statsHandler.SetStats)
+	protectedRouter.Patch("/api/stats/batch", statsHandler.SetStatsBatch)
 	protectedRouter.Post("/api/stats/adjust", statsHandler.AdjustStat)
 
 	serverAddress := appConfig.Server.Address()

@@ -15,7 +15,7 @@ export function DungeonNavPanel({
         </h2>
       </div>
 
-      <div className="flex flex-col gap-[10px] overflow-hidden rounded-lg">
+      <div className="flex flex-col gap-[10px]">
         {isLoading && <PanelMessage message="Loading dungeons..." />}
         {hasError && !isLoading && (
           <PanelMessage message="Could not load dungeons." />

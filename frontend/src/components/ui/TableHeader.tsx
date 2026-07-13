@@ -1,8 +1,11 @@
-export function TableHeader({ columns, className }: TableHeaderProps) {
+export function TableHeader({ columns, className, gridTemplateColumns }: TableHeaderProps) {
+  const resolvedGrid =
+    gridTemplateColumns ?? columns.map((column) => column.width ?? '1fr').join(' ')
+
   return (
     <div
-      className={`grid h-12 items-center rounded-t-2xl bg-surface-section px-lg text-xs font-bold leading-4 ${className ?? ''}`}
-      style={{ gridTemplateColumns: columns.map((column) => column.width ?? '1fr').join(' ') }}
+      className={`grid h-[49px] w-full items-center bg-surface-section px-lg text-xs font-bold leading-4 ${className ?? ''}`}
+      style={{ gridTemplateColumns: resolvedGrid }}
     >
       {columns.map((column) => (
         <span key={column.id} className={column.className}>
@@ -23,4 +26,5 @@ interface TableHeaderColumn {
 interface TableHeaderProps {
   columns: TableHeaderColumn[]
   className?: string
+  gridTemplateColumns?: string
 }

@@ -24,6 +24,7 @@ type StatsRepository interface {
 	ListCurrentSeasonDungeons(ctx context.Context) (repository.SeasonSummary, []repository.DungeonSummary, error)
 	ListSeasonDungeons(ctx context.Context, seasonID string) (repository.SeasonSummary, []repository.DungeonSummary, error)
 	SetStats(ctx context.Context, playerID string, seasonID string, dungeonID string, deaths int, yeets int) (repository.StatRow, error)
+	SetStatsBatch(ctx context.Context, playerID string, seasonID string, updates []repository.StatUpdate) ([]repository.StatRow, error)
 	AdjustStat(ctx context.Context, playerID string, seasonID string, dungeonID string, field repository.StatField, delta int) (repository.StatRow, error)
 }
 
@@ -48,12 +49,28 @@ type StatResponse struct {
 	Stats repository.StatRow `json:"stats"`
 }
 
+type StatsBatchResponse struct {
+	Stats []repository.StatRow `json:"stats"`
+}
+
 type SetStatsRequest struct {
 	PlayerID  string `json:"playerId"`
 	SeasonID  string `json:"seasonId"`
 	DungeonID string `json:"dungeonId"`
 	Deaths    int    `json:"deaths"`
 	Yeets     int    `json:"yeets"`
+}
+
+type SetStatsBatchDungeonUpdate struct {
+	DungeonID string `json:"dungeonId"`
+	Deaths    int    `json:"deaths"`
+	Yeets     int    `json:"yeets"`
+}
+
+type SetStatsBatchRequest struct {
+	PlayerID string                       `json:"playerId"`
+	SeasonID string                       `json:"seasonId"`
+	Stats    []SetStatsBatchDungeonUpdate `json:"stats"`
 }
 
 type AdjustStatRequest struct {
@@ -187,6 +204,70 @@ func (statsHandler StatsHandler) SetStats(responseWriter http.ResponseWriter, re
 
 	WriteJSON(responseWriter, http.StatusOK, StatResponse{
 		Stats: statRow,
+	})
+}
+
+func (statsHandler StatsHandler) SetStatsBatch(responseWriter http.ResponseWriter, request *http.Request) {
+	var setStatsBatchRequest SetStatsBatchRequest
+	if !decodeJSONRequest(responseWriter, request, &setStatsBatchRequest) {
+		return
+	}
+
+	if !isValidUUID(setStatsBatchRequest.PlayerID) {
+		WriteError(responseWriter, http.StatusBadRequest, "Bad Request", "playerId must be a valid UUID.")
+		return
+	}
+
+	if !isValidUUID(setStatsBatchRequest.SeasonID) {
+		WriteError(responseWriter, http.StatusBadRequest, "Bad Request", "seasonId must be a valid UUID.")
+		return
+	}
+
+	if len(setStatsBatchRequest.Stats) == 0 {
+		WriteError(responseWriter, http.StatusBadRequest, "Bad Request", "stats must contain at least one dungeon update.")
+		return
+	}
+
+	updates := make([]repository.StatUpdate, 0, len(setStatsBatchRequest.Stats))
+	seenDungeonIDs := make(map[string]struct{}, len(setStatsBatchRequest.Stats))
+
+	for _, dungeonUpdate := range setStatsBatchRequest.Stats {
+		if !isValidUUID(dungeonUpdate.DungeonID) {
+			WriteError(responseWriter, http.StatusBadRequest, "Bad Request", "dungeonId must be a valid UUID.")
+			return
+		}
+
+		if _, isDuplicate := seenDungeonIDs[dungeonUpdate.DungeonID]; isDuplicate {
+			WriteError(responseWriter, http.StatusBadRequest, "Bad Request", "stats must not contain duplicate dungeonId values.")
+			return
+		}
+		seenDungeonIDs[dungeonUpdate.DungeonID] = struct{}{}
+
+		if dungeonUpdate.Deaths < 0 || dungeonUpdate.Yeets < 0 {
+			WriteError(responseWriter, http.StatusBadRequest, "Bad Request", "deaths and yeets must be greater than or equal to 0.")
+			return
+		}
+
+		updates = append(updates, repository.StatUpdate{
+			DungeonID: dungeonUpdate.DungeonID,
+			Deaths:    dungeonUpdate.Deaths,
+			Yeets:     dungeonUpdate.Yeets,
+		})
+	}
+
+	statRows, err := statsHandler.statsRepository.SetStatsBatch(
+		request.Context(),
+		setStatsBatchRequest.PlayerID,
+		setStatsBatchRequest.SeasonID,
+		updates,
+	)
+	if err != nil {
+		writeRepositoryError(responseWriter, err)
+		return
+	}
+
+	WriteJSON(responseWriter, http.StatusOK, StatsBatchResponse{
+		Stats: statRows,
 	})
 }
 

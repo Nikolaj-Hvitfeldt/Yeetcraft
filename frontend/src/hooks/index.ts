@@ -11,5 +11,6 @@ export {
 export type { PlayerStats } from './useStats'
 export { useAuthGuard } from './useAuthGuard'
 export { useSeasonId } from './useSeasonId'
+export { useSetPlayerStats } from './useSetPlayerStats'
 export { useTheme, ThemeProvider } from './useTheme'
 export type { Theme } from './useTheme'

@@ -1,3 +1,5 @@
+import { InfoTooltip } from './InfoTooltip'
+
 const COLOR_CLASS_BY_KIND: Record<StatItemKind, string> = {
   total: 'text-stat-total',
   deaths: 'text-stat-deaths',
@@ -11,6 +13,7 @@ export function StatItem({
   kind = 'default',
   variant = 'card',
   className,
+  infoTooltip,
 }: StatItemProps) {
   const colorClassName = COLOR_CLASS_BY_KIND[kind]
 
@@ -25,10 +28,15 @@ export function StatItem({
 
   return (
     <div
-      className={`flex h-[73px] min-w-[12rem] flex-col justify-center rounded-2xl border border-border-subtle bg-surface-base p-md ${className ?? ''}`}
+      className={`flex h-[73px] min-w-[12rem] flex-col justify-center overflow-visible rounded-2xl border border-border-subtle bg-surface-base p-md ${className ?? ''}`}
     >
       <p className={`font-number text-2xl font-bold leading-7 ${colorClassName}`}>{value}</p>
-      <p className="text-[10px] leading-[14px] text-text-secondary">{label}</p>
+      <div className="flex items-center">
+        <p className="text-[10px] leading-[14px] text-text-secondary">{label}</p>
+        {infoTooltip ? (
+          <InfoTooltip content={infoTooltip} label={`About ${label}`} />
+        ) : null}
+      </div>
     </div>
   )
 }
@@ -41,4 +49,5 @@ interface StatItemProps {
   kind?: StatItemKind
   variant?: 'card' | 'inline'
   className?: string
+  infoTooltip?: string
 }

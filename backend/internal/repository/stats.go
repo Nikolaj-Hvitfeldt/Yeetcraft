@@ -312,6 +312,53 @@ func (statsRepository StatsRepository) ListSeasonDungeons(ctx context.Context, s
 	return season, dungeons, nil
 }
 
+func (statsRepository StatsRepository) ListDungeonMistakeLeaders(ctx context.Context, seasonID string) ([]DungeonMistakeLeader, error) {
+	if statsRepository.pool == nil {
+		return nil, ErrDatabaseNotConfigured
+	}
+
+	const query = `
+		with ranked as (
+			select
+				pds.dungeon_id::text as dungeon_id,
+				pds.player_id::text as player_id,
+				pds.deaths + pds.yeets as total_mistakes,
+				row_number() over (
+					partition by pds.dungeon_id
+					order by (pds.deaths + pds.yeets) desc, pds.yeets desc, pds.player_id
+				) as rank
+			from player_dungeon_stats pds
+			where pds.season_id = $1::uuid
+				and (pds.deaths + pds.yeets) > 0
+		)
+		select dungeon_id, player_id, total_mistakes
+		from ranked
+		where rank = 1
+		order by dungeon_id
+	`
+
+	rows, err := statsRepository.pool.Query(ctx, query, seasonID)
+	if err != nil {
+		return nil, fmt.Errorf("list dungeon mistake leaders: %w", err)
+	}
+	defer rows.Close()
+
+	leaders := make([]DungeonMistakeLeader, 0)
+	for rows.Next() {
+		var leader DungeonMistakeLeader
+		if err := rows.Scan(&leader.DungeonID, &leader.PlayerID, &leader.TotalMistakes); err != nil {
+			return nil, fmt.Errorf("scan dungeon mistake leader: %w", err)
+		}
+		leaders = append(leaders, leader)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate dungeon mistake leaders: %w", err)
+	}
+
+	return leaders, nil
+}
+
 func (statsRepository StatsRepository) SetStats(ctx context.Context, playerID string, seasonID string, dungeonID string, deaths int, yeets int) (StatRow, error) {
 	if statsRepository.pool == nil {
 		return StatRow{}, ErrDatabaseNotConfigured
@@ -344,6 +391,59 @@ func (statsRepository StatsRepository) SetStats(ctx context.Context, playerID st
 	}
 
 	return statRow, nil
+}
+
+type StatUpdate struct {
+	DungeonID string
+	Deaths    int
+	Yeets     int
+}
+
+func (statsRepository StatsRepository) SetStatsBatch(ctx context.Context, playerID string, seasonID string, updates []StatUpdate) ([]StatRow, error) {
+	if statsRepository.pool == nil {
+		return nil, ErrDatabaseNotConfigured
+	}
+
+	if len(updates) == 0 {
+		return nil, fmt.Errorf("set stats batch: at least one update is required")
+	}
+
+	seenDungeonIDs := make(map[string]struct{}, len(updates))
+	for _, update := range updates {
+		if update.Deaths < 0 || update.Yeets < 0 {
+			return nil, ErrNegativeStat
+		}
+
+		if _, isDuplicate := seenDungeonIDs[update.DungeonID]; isDuplicate {
+			return nil, fmt.Errorf("set stats batch: duplicate dungeonId %s", update.DungeonID)
+		}
+		seenDungeonIDs[update.DungeonID] = struct{}{}
+
+		if err := statsRepository.ensureStatReferencesExist(ctx, playerID, seasonID, update.DungeonID); err != nil {
+			return nil, err
+		}
+	}
+
+	transaction, err := statsRepository.pool.Begin(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("begin set stats batch transaction: %w", err)
+	}
+	defer transaction.Rollback(ctx)
+
+	statRows := make([]StatRow, 0, len(updates))
+	for _, update := range updates {
+		statRow, err := upsertStatValues(ctx, transaction, playerID, seasonID, update.DungeonID, update.Deaths, update.Yeets)
+		if err != nil {
+			return nil, err
+		}
+		statRows = append(statRows, statRow)
+	}
+
+	if err := transaction.Commit(ctx); err != nil {
+		return nil, fmt.Errorf("commit set stats batch transaction: %w", err)
+	}
+
+	return statRows, nil
 }
 
 func (statsRepository StatsRepository) AdjustStat(ctx context.Context, playerID string, seasonID string, dungeonID string, field StatField, delta int) (StatRow, error) {

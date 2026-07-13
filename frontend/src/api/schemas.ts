@@ -62,6 +62,43 @@ export const PlayerStatsResponseSchema = z.object({
   dungeons: z.array(PlayerDungeonStatsSchema),
 })
 
+export const StatRowSchema = z.object({
+  playerId: z.string(),
+  seasonId: z.string(),
+  dungeonId: z.string(),
+  deaths: z.number(),
+  yeets: z.number(),
+  totalMistakes: z.number(),
+})
+
+export const SetStatsRequestSchema = z.object({
+  playerId: z.string(),
+  seasonId: z.string(),
+  dungeonId: z.string(),
+  deaths: z.number(),
+  yeets: z.number(),
+})
+
+export const SetStatsBatchDungeonUpdateSchema = z.object({
+  dungeonId: z.string(),
+  deaths: z.number().int().min(0),
+  yeets: z.number().int().min(0),
+})
+
+export const SetStatsBatchRequestSchema = z.object({
+  playerId: z.string(),
+  seasonId: z.string(),
+  stats: z.array(SetStatsBatchDungeonUpdateSchema).min(1),
+})
+
+export const StatResponseSchema = z.object({
+  stats: StatRowSchema,
+})
+
+export const StatsBatchResponseSchema = z.object({
+  stats: z.array(StatRowSchema),
+})
+
 export const SeasonsResponseSchema = z.object({
   seasons: z.array(SeasonSummarySchema),
 })
@@ -88,11 +125,18 @@ export const SeasonTopPlayerSchema = z.object({
   totalDeaths: z.number(),
 })
 
+export const DungeonMistakeLeaderSchema = z.object({
+  dungeonId: z.string(),
+  playerId: z.string(),
+  totalMistakes: z.number(),
+})
+
 export const SeasonLeadersResponseSchema = z.object({
   season: SeasonSummarySchema,
   kingOfYeets: SeasonLeaderPlayerSchema.nullable(),
   kingOfDeaths: SeasonLeaderPlayerSchema.nullable(),
   topPlayer: SeasonTopPlayerSchema.nullable(),
+  dungeonMistakeLeaders: z.array(DungeonMistakeLeaderSchema).default([]),
 })
 
 export type SeasonSummary = z.infer<typeof SeasonSummarySchema>
@@ -107,3 +151,4 @@ export type CurrentSeasonDungeonsResponse = z.infer<typeof CurrentSeasonDungeons
 export type SeasonLeaderPlayer = z.infer<typeof SeasonLeaderPlayerSchema>
 export type SeasonTopPlayer = z.infer<typeof SeasonTopPlayerSchema>
 export type SeasonLeadersResponse = z.infer<typeof SeasonLeadersResponseSchema>
+export type StatRow = z.infer<typeof StatRowSchema>
