@@ -22,13 +22,10 @@ import { DungeonBreakdownSection } from "./profile/DungeonBreakdownSection";
 import { getDungeonBannerImageFromStats } from "../utils/dungeon-image";
 import { getPlayerFlavorTitle } from "../utils/player-flavor-title";
 import { getNemesisDungeon } from "../utils/player-stats";
-
-const CHARACTERS_BY_PLAYER: Record<string, string[]> = {
-  martin: ["Zorker", "Rauw"],
-  niklas: ["Ungeork"],
-  seb: ["MostDope", "Nudelkriger"],
-  niko: ["Freecry", "LouiLoui"],
-};
+import { getCharactersForPlayer } from "../utils/player-characters";
+import {
+  type PlayerCharacter,
+} from "../data/player-characters";
 
 export function PlayerProfile() {
   const { playerId } = useParams<{ playerId: string }>();
@@ -91,10 +88,9 @@ export function PlayerProfile() {
   }, [toastMessage]);
 
   const playerMeta = useMemo(() => {
-    const key = playerStats?.player.displayName.trim().toLowerCase() ?? "";
-    const characters =
-      CHARACTERS_BY_PLAYER[key] ??
-      (playerStats?.player.displayName ? [playerStats.player.displayName] : []);
+    const characters: PlayerCharacter[] = getCharactersForPlayer(
+      playerStats?.player.displayName,
+    );
 
     const flavor = playerStats
       ? getPlayerFlavorTitle({
@@ -264,8 +260,12 @@ export function PlayerProfile() {
                   </p>
 
                   <div className="flex flex-wrap gap-md pt-sm">
-                    {playerMeta.characters.map((characterName) => (
-                      <CharacterTag key={characterName} name={characterName} />
+                    {playerMeta.characters.map((character) => (
+                      <CharacterTag
+                        key={character.name}
+                        name={character.name}
+                        wowClass={character.wowClass}
+                      />
                     ))}
                   </div>
                 </div>
