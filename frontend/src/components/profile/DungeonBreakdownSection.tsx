@@ -37,6 +37,7 @@ export function DungeonBreakdownSection({
   onDone,
   isSaving,
   onAdjust,
+  seasonId,
 }: DungeonBreakdownSectionProps) {
   return (
     <section className="overflow-hidden rounded-3xl border border-accent-secondary bg-surface-section p-2xl">
@@ -112,6 +113,7 @@ export function DungeonBreakdownSection({
                 gridTemplateColumns={DUNGEON_TABLE_GRID}
                 onAdjust={onAdjust}
                 disabled={isSaving}
+                seasonId={seasonId}
               />
             ))}
           </div>
@@ -133,4 +135,5 @@ interface DungeonBreakdownSectionProps {
     field: "deaths" | "yeets",
     delta: 1 | -1,
   ) => void;
+  seasonId?: string;
 }

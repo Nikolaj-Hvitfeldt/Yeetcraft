@@ -79,8 +79,24 @@ export const SetStatsRequestSchema = z.object({
   yeets: z.number(),
 })
 
+export const SetStatsBatchDungeonUpdateSchema = z.object({
+  dungeonId: z.string(),
+  deaths: z.number().int().min(0),
+  yeets: z.number().int().min(0),
+})
+
+export const SetStatsBatchRequestSchema = z.object({
+  playerId: z.string(),
+  seasonId: z.string(),
+  stats: z.array(SetStatsBatchDungeonUpdateSchema).min(1),
+})
+
 export const StatResponseSchema = z.object({
   stats: StatRowSchema,
+})
+
+export const StatsBatchResponseSchema = z.object({
+  stats: z.array(StatRowSchema),
 })
 
 export const SeasonsResponseSchema = z.object({

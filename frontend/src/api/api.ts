@@ -7,6 +7,8 @@ import {
   SeasonLeadersResponseSchema,
   SeasonsResponseSchema,
   SetStatsRequestSchema,
+  SetStatsBatchRequestSchema,
+  StatsBatchResponseSchema,
 } from './schemas'
 import { getAccessToken } from '../utils/token'
 
@@ -107,4 +109,30 @@ export async function fetchSetStats(request: z.infer<typeof SetStatsRequestSchem
 
   const json: unknown = await response.json()
   return StatResponseSchema.parse(json).stats
+}
+
+export async function fetchSetStatsBatch(request: z.infer<typeof SetStatsBatchRequestSchema>) {
+  SetStatsBatchRequestSchema.parse(request)
+
+  const token = getAccessToken()
+  const response = await fetch(`${API_BASE_URL}/api/stats/batch`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { 'X-API-Key': token } : {}),
+    },
+    body: JSON.stringify(request),
+  })
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      const error = await response.json().catch(() => ({ message: 'Unauthorized' }))
+      throw new Error(error.message || 'Unauthorized. Please use the shared link with a valid token.')
+    }
+    const errorText = await response.text().catch(() => response.statusText)
+    throw new Error(`API error: ${response.status} ${errorText}`)
+  }
+
+  const json: unknown = await response.json()
+  return StatsBatchResponseSchema.parse(json).stats
 }

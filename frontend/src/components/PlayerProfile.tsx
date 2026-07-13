@@ -71,7 +71,6 @@ export function PlayerProfile() {
   const {
     mutateAsync: setPlayerStats,
     isPending: isSaving,
-    invalidatePlayerProfileQueries,
   } = useSetPlayerStats()
 
   useEffect(() => {
@@ -152,22 +151,25 @@ export function PlayerProfile() {
       return
     }
 
+    setIsEditing(false)
+    setDraftDungeons(null)
+    setToastMessage(null)
+
+    const draftSnapshot = draftDungeons
+
     try {
-      for (const row of changed) {
-        await setPlayerStats({
-          playerId: playerStats.player.id,
-          seasonId: selectedSeasonId,
+      await setPlayerStats({
+        playerId: playerStats.player.id,
+        seasonId: selectedSeasonId,
+        stats: changed.map((row) => ({
           dungeonId: row.dungeon.id,
           deaths: row.deaths,
           yeets: row.yeets,
-        })
-      }
-
-      invalidatePlayerProfileQueries(playerStats.player.id, selectedSeasonId)
-      setIsEditing(false)
-      setDraftDungeons(null)
-      setToastMessage(null)
+        })),
+      })
     } catch {
+      setIsEditing(true)
+      setDraftDungeons(draftSnapshot)
       setToastMessage('Could not save stats. Try again.')
     }
   }
@@ -285,6 +287,7 @@ export function PlayerProfile() {
               }}
               isSaving={isSaving}
               onAdjust={handleAdjustDraft}
+              seasonId={selectedSeasonId ?? playerStats.season.id}
             />
           </div>
         </div>
