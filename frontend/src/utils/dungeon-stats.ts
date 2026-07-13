@@ -1,3 +1,4 @@
+import type { WowIconKey } from "../assets/wow-icons";
 import type {
   DungeonLeaderboardEntry,
   DungeonMistakeLeader,
@@ -18,7 +19,7 @@ export interface DungeonMistakeMix {
 }
 
 export interface DungeonAchievement {
-  icon: string;
+  icon: WowIconKey;
   title: string;
   description: string;
 }
@@ -214,14 +215,14 @@ export function getDungeonAchievements(
 ): DungeonAchievement[] {
   return [
     {
-      icon: "🚀",
+      icon: "yeets",
       title: "Orbital Launch",
       description: highlights.biggestYeeter
         ? `${highlights.biggestYeeter.displayName} owns the yeet narrative here.`
         : "No yeet champion recorded yet.",
     },
     {
-      icon: "🛡️",
+      icon: "gold",
       title: "Actually Focused",
       description: highlights.safestPlayer
         ? highlights.safestPlayer.value === 0
@@ -230,7 +231,7 @@ export function getDungeonAchievements(
         : "No safest player recorded yet.",
     },
     {
-      icon: "🎯",
+      icon: "deaths",
       title: "Mechanic Magnet",
       description: highlights.mostDeaths
         ? `${highlights.mostDeaths.displayName} found the floor most often.`

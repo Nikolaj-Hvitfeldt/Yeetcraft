@@ -1,5 +1,5 @@
 import type { DungeonAchievement } from '../../utils/dungeon-stats'
-import { AchievementCard } from './AchievementCard'
+import { AchievementBanner } from './AchievementBanner'
 
 export function AchievementsSection({ achievements }: AchievementsSectionProps) {
   return (
@@ -8,7 +8,7 @@ export function AchievementsSection({ achievements }: AchievementsSectionProps) 
 
       <div className="flex flex-col gap-md pt-lg">
         {achievements.map((achievement) => (
-          <AchievementCard
+          <AchievementBanner
             key={achievement.title}
             icon={achievement.icon}
             title={achievement.title}

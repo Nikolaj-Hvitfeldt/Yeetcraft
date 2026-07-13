@@ -1,4 +1,4 @@
-import achievement from './achievement.webp'
+import achievementFrame from './achievementFrame.webp'
 import bronze from './bronze.webp'
 import deaths from './deaths.webp'
 import dungeon from './dungeon.webp'
@@ -24,7 +24,7 @@ export const wowIcons = {
   leaderboard,
   season,
   nemesis,
-  achievement,
+  achievementFrame,
   edit,
   save,
   bronze,
