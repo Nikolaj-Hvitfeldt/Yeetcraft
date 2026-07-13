@@ -199,7 +199,7 @@ const UNIQUE_DUNGEON_TITLE_RULES: UniqueDungeonTitleRule[] = [
   },
   {
     title: "The Yeet Cannon",
-    tooltip: "The highest yeet share in any dungeon's mistakes.",
+    tooltip: "The highest yeet share in any dungeon",
     pickWinner: (dungeons, context, excludedDungeonIds) =>
       pickHighestScoringDungeon(
         dungeons,
@@ -211,7 +211,7 @@ const UNIQUE_DUNGEON_TITLE_RULES: UniqueDungeonTitleRule[] = [
   },
   {
     title: "The Floor Is Lava",
-    tooltip: "The highest death share in any dungeon's mistakes.",
+    tooltip: "The highest death share in any dungeon",
     pickWinner: (dungeons, context, excludedDungeonIds) =>
       pickHighestScoringDungeon(
         dungeons,

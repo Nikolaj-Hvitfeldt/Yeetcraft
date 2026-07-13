@@ -274,6 +274,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
       const soloPlayer = contributors[0];
       return {
         eligible: true,
+        holder: toHolder(soloPlayer),
         description: `Every mistake in this dungeon came from ${soloPlayer.displayName}.`,
         scoreBonus: soloPlayer.totalMistakes,
       };

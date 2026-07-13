@@ -71,7 +71,7 @@ function buildContext(
 }
 
 describe("getDungeonAchievements", () => {
-  it("picks liability and solo act for a one-player blame run", () => {
+  it("picks liability and benchwarmer when one player owns a messy run", () => {
     const achievements = getDungeonAchievements(
       buildContext(soloOffenderLeaderboard),
     );
@@ -79,12 +79,24 @@ describe("getDungeonAchievements", () => {
     expect(achievements).toHaveLength(2);
     expect(achievements.map((achievement) => achievement.title)).toEqual([
       "The Liability",
-      "Solo Act",
+      "The Benchwarmer",
     ]);
     expect(achievements[0]?.holder?.displayName).toBe("Niklas");
     expect(achievements[0]?.description).toContain("100%");
-    expect(achievements[1]?.description).toContain("Niklas");
-    expect(achievements[1]?.holder).toBeUndefined();
+    expect(achievements[1]?.holder?.displayName).toBe("Martin");
+  });
+
+  it("solo act rule includes the sole contributor as holder", () => {
+    const soloActRule = dungeonAchievementRulesForTests.find(
+      (rule) => rule.id === "solo-act",
+    );
+    expect(soloActRule).toBeDefined();
+
+    const result = soloActRule!.evaluate(buildContext(soloOffenderLeaderboard));
+
+    expect(result.eligible).toBe(true);
+    expect(result.holder?.displayName).toBe("Niklas");
+    expect(result.description).toContain("Niklas");
   });
 
   it("does not award raw yeet or death leader achievements", () => {
