@@ -6,6 +6,7 @@ import { DungeonDetail } from './components/dungeon'
 import { PlayerProfile } from './components/profile'
 import { HomePage } from './components/home'
 import { RootRedirect } from './components/routing/RootRedirect'
+import { ScrollToTop } from './components/routing/ScrollToTop'
 
 /**
  * Main application component with routing, error boundary, and theme.
@@ -14,6 +15,7 @@ export function App() {
   return (
     <ThemeProvider>
       <ErrorBoundary>
+        <ScrollToTop />
         <Routes>
           <Route element={<AppLayout />}>
             <Route path="/" element={<RootRedirect />} />

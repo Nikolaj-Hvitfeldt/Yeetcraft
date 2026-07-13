@@ -256,7 +256,7 @@ export function PlayerProfile() {
           ) : null}
 
           <HomeNavigation homePath={homePath} />
-          <BackButton to={homePath} className="self-start" />
+          <BackButton fallbackTo={homePath} className="self-start" />
 
             <header className="relative flex flex-col gap-2xl overflow-hidden rounded-3xl border border-accent-secondary bg-surface-section p-2xl shadow-2xl sm:flex-row sm:items-start sm:justify-between">
               <div className="flex min-w-0 flex-1 items-start gap-lg">
