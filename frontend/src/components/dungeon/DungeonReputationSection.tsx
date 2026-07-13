@@ -1,21 +1,24 @@
-import type { DungeonMeatGrinderSummary, DungeonReputationScores } from '../../utils/dungeon-stats'
-import { Tag } from '../ui/Tag'
+import {
+  getReputationVerdicts,
+  type DungeonMeatGrinderSummary,
+  type DungeonReputationScores,
+} from '../../utils/dungeon-stats'
+import {
+  DUNGEON_REPUTATION_METRICS,
+  getReputationScoreForMetric,
+} from '../../utils/dungeon-reputation-metrics'
 import { ReputationCard } from './ReputationCard'
-
-const DANGER_TOOLTIP =
-  "Uses this dungeon's total mistakes, deaths plus yeets, compared against the average mistakes per dungeon this season. A high score means this dungeon is above your group's normal pain level; a low score means it has been relatively safe."
-
-const YEET_FACTOR_TOOLTIP =
-  "This dungeon's yeet share compared with the season-wide yeet share."
-
-const BLAME_SHARE_TOOLTIP =
-  "How much of this dungeon's chaos comes from the top offender."
 
 export function DungeonReputationSection({
   summary,
   scores,
+  dungeonTotalMistakes,
+  dungeonTotalYeets,
 }: DungeonReputationSectionProps) {
-  const cleanPlayerLabel = summary.cleanPlayers === 1 ? 'clean player' : 'clean players'
+  const verdicts = getReputationVerdicts(scores, {
+    totalMistakes: dungeonTotalMistakes,
+    totalYeets: dungeonTotalYeets,
+  })
 
   return (
     <section className="rounded-3xl border border-accent-secondary bg-surface-section p-xl">
@@ -29,37 +32,37 @@ export function DungeonReputationSection({
           </h2>
           <p className="max-w-xl pt-md text-sm leading-5 text-text-secondary">{summary.narrative}</p>
 
-          <div className="flex flex-wrap gap-sm pt-lg">
-            <Tag>
-              {summary.cleanPlayers} {cleanPlayerLabel}
-            </Tag>
-            <Tag>{summary.yeetSharePercent}% yeet share</Tag>
-            <Tag>{summary.averageMistakesPerDungeon} avg mistakes / dungeon</Tag>
-          </div>
+          <ul className="flex max-w-xl flex-col gap-sm pt-lg">
+            {verdicts.map((verdict) => (
+              <li
+                key={verdict}
+                className="flex gap-sm text-sm leading-5 text-text-secondary"
+              >
+                <span
+                  className="mt-[7px] size-1.5 shrink-0 rounded-full bg-accent-primary"
+                  aria-hidden="true"
+                />
+                {verdict}
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div className="flex flex-col gap-lg">
-          <ReputationCard
-            title="Danger Rating"
-            description="Total mistakes here compared with the average dungeon this season."
-            score={scores.dangerRating}
-            progressPercent={scores.dangerRating}
-            infoTooltip={DANGER_TOOLTIP}
-          />
-          <ReputationCard
-            title="Yeet Factor"
-            description="This dungeon's yeet share compared with the season-wide yeet share."
-            score={scores.yeetFactor}
-            progressPercent={scores.yeetFactor}
-            infoTooltip={YEET_FACTOR_TOOLTIP}
-          />
-          <ReputationCard
-            title="Blame Share"
-            description="How much of this dungeon's chaos comes from the top offender."
-            score={scores.blameShare}
-            progressPercent={scores.blameShare}
-            infoTooltip={BLAME_SHARE_TOOLTIP}
-          />
+          {DUNGEON_REPUTATION_METRICS.map((metric) => {
+            const score = getReputationScoreForMetric(scores, metric.id)
+
+            return (
+              <ReputationCard
+                key={metric.id}
+                title={metric.title}
+                description={metric.description}
+                score={score}
+                progressPercent={score}
+                infoTooltip={metric.infoTooltip}
+              />
+            )
+          })}
         </div>
       </div>
     </section>
@@ -69,4 +72,6 @@ export function DungeonReputationSection({
 interface DungeonReputationSectionProps {
   summary: DungeonMeatGrinderSummary
   scores: DungeonReputationScores
+  dungeonTotalMistakes: number
+  dungeonTotalYeets: number
 }

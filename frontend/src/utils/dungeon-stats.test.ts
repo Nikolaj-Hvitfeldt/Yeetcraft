@@ -8,6 +8,7 @@ import {
   getDungeonReputationScores,
   getMeatGrinderSummary,
   getMistakeMix,
+  getReputationVerdicts,
   getYeetFactor,
   sortDungeonLeaderboard,
 } from './dungeon-stats'
@@ -82,6 +83,13 @@ describe('getDangerScore', () => {
     expect(getDangerScore(dungeon, 2)).toBe(75)
     expect(getDangerScore({ ...dungeon, totalMistakes: 0 }, 0)).toBe(0)
   })
+
+  it('scores 50 at season average, 100 at double average, and 0 with no mistakes', () => {
+    const atAverage = { ...dungeon, totalMistakes: 4, totalDeaths: 3, totalYeets: 1 }
+    expect(getDangerScore(atAverage, 4)).toBe(50)
+    expect(getDangerScore({ ...atAverage, totalMistakes: 8 }, 4)).toBe(100)
+    expect(getDangerScore({ ...dungeon, totalMistakes: 0, totalDeaths: 0, totalYeets: 0 }, 4)).toBe(0)
+  })
 })
 
 describe('getYeetFactor', () => {
@@ -93,12 +101,64 @@ describe('getYeetFactor', () => {
       ),
     ).toBe(0)
   })
+
+  it('scores 50 at season yeet share, 100 when doubled, and 0 with no dungeon mistakes', () => {
+    const typicalDungeon: DungeonSummary = {
+      ...dungeon,
+      totalDeaths: 2,
+      totalYeets: 2,
+      totalMistakes: 4,
+    }
+    const seasonDungeons: DungeonSummary[] = [
+      typicalDungeon,
+      {
+        ...dungeon,
+        id: 'dungeon-2',
+        totalDeaths: 2,
+        totalYeets: 2,
+        totalMistakes: 4,
+      },
+    ]
+    const yeetHeavyDungeon: DungeonSummary = {
+      ...dungeon,
+      totalDeaths: 0,
+      totalYeets: 4,
+      totalMistakes: 4,
+    }
+
+    expect(getYeetFactor(typicalDungeon, seasonDungeons)).toBe(50)
+    expect(getYeetFactor(yeetHeavyDungeon, seasonDungeons)).toBe(100)
+    expect(getYeetFactor({ ...typicalDungeon, totalMistakes: 0, totalDeaths: 0, totalYeets: 0 }, seasonDungeons)).toBe(0)
+  })
 })
 
 describe('getBlameShare', () => {
   it('returns top offender share of dungeon mistakes', () => {
     expect(getBlameShare(dungeon, leaderboard)).toBe(100)
     expect(getBlameShare({ ...dungeon, totalMistakes: 0 }, leaderboard)).toBe(0)
+  })
+
+  it('scores lower when mistakes are spread across players', () => {
+    const sharedLeaderboard: DungeonLeaderboardEntry[] = [
+      {
+        playerId: 'p1',
+        displayName: 'Niklas',
+        avatarUrl: null,
+        deaths: 1,
+        yeets: 1,
+        totalMistakes: 2,
+      },
+      {
+        playerId: 'p2',
+        displayName: 'Martin',
+        avatarUrl: null,
+        deaths: 1,
+        yeets: 1,
+        totalMistakes: 2,
+      },
+    ]
+
+    expect(getBlameShare({ ...dungeon, totalMistakes: 4 }, sharedLeaderboard)).toBe(50)
   })
 })
 
@@ -114,13 +174,51 @@ describe('getDungeonAchievements', () => {
 })
 
 describe('getMeatGrinderSummary', () => {
-  it('summarizes dungeon reputation', () => {
+  it('summarizes dungeon reputation with season context', () => {
     const summary = getMeatGrinderSummary(dungeon, leaderboard, allDungeons)
 
-    expect(summary.cleanPlayers).toBe(1)
-    expect(summary.yeetSharePercent).toBe(33)
     expect(summary.narrative).toContain('3 recorded mistakes')
-    expect(summary.narrative).toContain('1 of 2 players')
+    expect(summary.narrative).toContain('1 of 2 players contributed')
+    expect(summary.narrative).toContain('1 player stayed clean')
+    expect(summary.narrative).toContain('season average of 2 mistakes per dungeon')
+  })
+
+  it('describes a spotless dungeon', () => {
+    const summary = getMeatGrinderSummary(
+      { ...dungeon, totalDeaths: 0, totalYeets: 0, totalMistakes: 0 },
+      leaderboard,
+      allDungeons,
+    )
+
+    expect(summary.narrative).toContain('stayed spotless')
+    expect(summary.narrative).toContain('season averages 2 mistakes per dungeon')
+  })
+})
+
+describe('getReputationVerdicts', () => {
+  it('returns danger, yeet, and blame verdicts', () => {
+    const scores = getDungeonReputationScores(dungeon, allDungeons, leaderboard)
+
+    expect(getReputationVerdicts(scores, dungeon)).toEqual([
+      'Harder than most keys this season.',
+      'Unusually yeet-heavy for this season.',
+      'Almost all the chaos traces back to one player.',
+    ])
+  })
+
+  it('handles a spotless dungeon', () => {
+    const cleanDungeon = { ...dungeon, totalDeaths: 0, totalYeets: 0, totalMistakes: 0 }
+
+    expect(
+      getReputationVerdicts(
+        { dangerRating: 0, yeetFactor: 0, blameShare: 0 },
+        cleanDungeon,
+      ),
+    ).toEqual([
+      'A quiet key so far. No recorded mistakes yet.',
+      'No launches recorded here yet.',
+      'No blame to assign yet.',
+    ])
   })
 })
 

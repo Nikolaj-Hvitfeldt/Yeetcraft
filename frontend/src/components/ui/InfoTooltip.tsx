@@ -19,7 +19,7 @@ export function InfoTooltip({
 
       <span
         role="tooltip"
-        className="pointer-events-none absolute bottom-[calc(100%+8px)] right-0 z-50 w-[min(240px,calc(100vw-2rem))] rounded-md border border-border-subtle bg-surface-base px-md py-sm text-left text-xs font-normal leading-4 text-text-primary opacity-0 shadow-[0px_12px_20px_rgba(0,0,0,0.35)] transition-opacity group-hover/info:opacity-100 group-focus-within/info:opacity-100"
+        className="pointer-events-none absolute bottom-[calc(100%+8px)] right-0 z-50 w-[min(240px,calc(100vw-2rem))] whitespace-pre-line rounded-md border border-border-subtle bg-surface-base px-md py-sm text-left text-xs font-normal leading-4 text-text-primary opacity-0 shadow-[0px_12px_20px_rgba(0,0,0,0.35)] transition-opacity group-hover/info:opacity-100 group-focus-within/info:opacity-100"
       >
         {content}
       </span>

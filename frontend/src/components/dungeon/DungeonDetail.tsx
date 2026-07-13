@@ -92,9 +92,6 @@ export function DungeonDetail() {
         : {
             title: 'The Meat Grinder',
             narrative: '',
-            cleanPlayers: 0,
-            yeetSharePercent: 0,
-            averageMistakesPerDungeon: 0,
           },
     [dungeon, sortedLeaderboard, dungeons],
   )
@@ -192,7 +189,12 @@ export function DungeonDetail() {
             </aside>
           </div>
 
-          <DungeonReputationSection summary={meatGrinderSummary} scores={reputationScores} />
+          <DungeonReputationSection
+            summary={meatGrinderSummary}
+            scores={reputationScores}
+            dungeonTotalMistakes={dungeon.totalMistakes}
+            dungeonTotalYeets={dungeon.totalYeets}
+          />
         </div>
       ) : null}
     </PageBoundary>
