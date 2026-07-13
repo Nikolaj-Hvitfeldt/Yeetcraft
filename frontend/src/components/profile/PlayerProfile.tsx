@@ -39,7 +39,9 @@ export function PlayerProfile() {
     isPending: isPendingPlayerStats,
     isFetching: isFetchingPlayerStats,
     isFetched: hasFetchedPlayerStats,
+    isPlaceholderData: isShowingStalePlayerStats,
     error: playerStatsError,
+    refetch: refetchPlayerStats,
   } = usePlayerStats(playerId, selectedSeasonId, { enabled: isSeasonReady });
   const { data: seasonLeaders } = useSeasonLeaders(selectedSeasonId, {
     enabled: isSeasonReady,
@@ -193,10 +195,9 @@ export function PlayerProfile() {
       ? draftDungeons
       : (playerStats?.dungeons ?? []);
 
-  const isPageLoading =
-    !isSeasonReady ||
-    isPendingPlayerStats ||
-    (isFetchingPlayerStats && !playerStats);
+  const isPageLoading = !isSeasonReady || (isPendingPlayerStats && !playerStats);
+  const isRefreshingProfile =
+    isFetchingPlayerStats && !!playerStats && !isPendingPlayerStats;
   const notFoundMessage =
     isSeasonReady &&
     hasFetchedPlayerStats &&
@@ -209,8 +210,13 @@ export function PlayerProfile() {
   return (
     <PageShell
       isLoading={isPageLoading}
+      isRefreshing={isRefreshingProfile}
+      isShowingStaleData={isShowingStalePlayerStats && isFetchingPlayerStats}
       error={playerStatsError}
       notFoundMessage={notFoundMessage}
+      onRetry={() => {
+        void refetchPlayerStats();
+      }}
     >
       {playerStats ? (
         <div className="relative min-h-screen bg-background-app px-2xl py-2xl">

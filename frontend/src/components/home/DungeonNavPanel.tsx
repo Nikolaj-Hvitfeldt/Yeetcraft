@@ -1,11 +1,14 @@
-import type { DungeonSummary } from "../../api/types";
-import type { DungeonBannerSeasonKey } from "../../assets/dungeon-images";
-import { DungeonCard } from "./DungeonCard";
+import type { DungeonSummary } from '../../api/types'
+import type { DungeonBannerSeasonKey } from '../../assets/dungeon-images'
+import { PanelState } from '../ui/PanelState'
+import { DungeonCard } from './DungeonCard'
 
 export function DungeonNavPanel({
   dungeons,
   isLoading,
-  hasError,
+  error,
+  refreshError,
+  onRetry,
   seasonId,
   bannerSeasonKey,
 }: DungeonNavPanelProps) {
@@ -17,41 +20,38 @@ export function DungeonNavPanel({
         </h2>
       </div>
 
-      <div className="flex flex-col gap-[10px]">
-        {isLoading && <PanelMessage message="Loading dungeons..." />}
-        {hasError && !isLoading && (
-          <PanelMessage message="Could not load dungeons." />
-        )}
-        {!isLoading && !hasError && dungeons.length === 0 && (
-          <PanelMessage message="No current-season dungeons found." />
-        )}
-        {!isLoading &&
-          !hasError &&
-          dungeons.map((dungeon) => (
-            <DungeonCard
-              key={dungeon.id}
-              dungeon={dungeon}
-              seasonId={seasonId}
-              bannerSeasonKey={bannerSeasonKey}
-            />
-          ))}
-      </div>
+      <PanelState
+        isLoading={isLoading}
+        error={error}
+        onRetry={onRetry}
+        loadingMessage="Loading dungeons..."
+        refreshError={refreshError}
+        onRefreshRetry={onRetry}
+        isEmpty={!isLoading && !error && dungeons.length === 0}
+        emptyMessage="No current-season dungeons found."
+        className="flex flex-col gap-[10px]"
+      >
+        {dungeons.length > 0
+          ? dungeons.map((dungeon) => (
+              <DungeonCard
+                key={dungeon.id}
+                dungeon={dungeon}
+                seasonId={seasonId}
+                bannerSeasonKey={bannerSeasonKey}
+              />
+            ))
+          : null}
+      </PanelState>
     </aside>
-  );
-}
-
-function PanelMessage({ message }: { message: string }) {
-  return (
-    <div className="rounded-md border border-border-subtle bg-surface-base px-md py-lg text-sm text-text-secondary">
-      {message}
-    </div>
-  );
+  )
 }
 
 interface DungeonNavPanelProps {
-  dungeons: DungeonSummary[];
-  isLoading: boolean;
-  hasError: boolean;
-  seasonId?: string;
-  bannerSeasonKey?: DungeonBannerSeasonKey;
+  dungeons: DungeonSummary[]
+  isLoading: boolean
+  error?: Error | null
+  refreshError?: Error | null
+  onRetry?: () => void
+  seasonId?: string
+  bannerSeasonKey?: DungeonBannerSeasonKey
 }

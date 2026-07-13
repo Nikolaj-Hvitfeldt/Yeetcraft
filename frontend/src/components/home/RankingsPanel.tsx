@@ -1,11 +1,10 @@
-import type { SeasonSummary } from "../../api/types";
-import type { LeaderboardPlayerStats } from "../../hooks";
-import { cn } from "../../utils/cn";
-import { SkullIcon } from "../SkullIcon";
-import { LoadingSpinner } from "../LoadingSpinner";
-import { Tag } from "../ui/Tag";
-import { LeaderboardRow } from "./LeaderboardRow";
-import { SeasonPicker } from "./SeasonPicker";
+import type { SeasonSummary } from '../../api/types'
+import type { LeaderboardPlayerStats } from '../../hooks'
+import { cn } from '../../utils/cn'
+import { PanelState } from '../ui/PanelState'
+import { Tag } from '../ui/Tag'
+import { LeaderboardRow } from './LeaderboardRow'
+import { SeasonPicker } from './SeasonPicker'
 
 export function RankingsPanel({
   leaderboard,
@@ -13,11 +12,13 @@ export function RankingsPanel({
   selectedSeasonId,
   isLoading,
   error,
+  refreshError,
+  onRetry,
   onSeasonChange,
   kingOfYeetsId,
   kingOfDeathsId,
 }: RankingsPanelProps) {
-  const playerLabel = leaderboard.length === 1 ? "player" : "players";
+  const playerLabel = leaderboard.length === 1 ? 'player' : 'players'
 
   return (
     <section className="rounded-lg border border-accent-secondary bg-surface-section p-2xl shadow-2xl">
@@ -32,37 +33,36 @@ export function RankingsPanel({
         />
       </div>
 
-      <div className="mt-xl flex flex-col gap-md">
-        {isLoading ? (
-          <div className="flex justify-center py-4xl">
-            <LoadingSpinner message="Loading rankings..." />
-          </div>
-        ) : error && leaderboard.length === 0 ? (
-          <div className="rounded-md border border-border-subtle bg-surface-base px-2xl py-4xl text-center text-text-secondary">
-            <p>{error.message}</p>
-          </div>
-        ) : leaderboard.length > 0 ? (
-          leaderboard.map((player, index) => (
-            <LeaderboardRow
-              key={player.playerId}
-              player={player}
-              rank={index + 1}
-              seasonId={selectedSeasonId || undefined}
-              isKingOfYeets={player.playerId === kingOfYeetsId}
-              isKingOfDeaths={player.playerId === kingOfDeathsId}
-            />
-          ))
-        ) : (
-          <div className="rounded-md border border-border-subtle bg-surface-base px-2xl py-4xl text-center text-text-secondary">
-            <SkullIcon className="mx-auto mb-md size-12 opacity-40" />
-            <p>No mistakes recorded yet.</p>
-          </div>
-        )}
+      <div className="mt-xl">
+        <PanelState
+          className="flex flex-col gap-md"
+          isLoading={isLoading}
+          error={error}
+          onRetry={onRetry}
+          loadingMessage="Loading rankings..."
+          refreshError={refreshError}
+          onRefreshRetry={onRetry}
+          isEmpty={!isLoading && !error && leaderboard.length === 0}
+          emptyMessage="No mistakes recorded yet."
+        >
+          {leaderboard.length > 0
+            ? leaderboard.map((player, index) => (
+                <LeaderboardRow
+                  key={player.playerId}
+                  player={player}
+                  rank={index + 1}
+                  seasonId={selectedSeasonId || undefined}
+                  isKingOfYeets={player.playerId === kingOfYeetsId}
+                  isKingOfDeaths={player.playerId === kingOfDeathsId}
+                />
+              ))
+            : null}
+        </PanelState>
       </div>
 
       <div
         className={cn(
-          "flex flex-col items-center gap-sm pt-2xl text-center sm:flex-row sm:justify-center",
+          'flex flex-col items-center gap-sm pt-2xl text-center sm:flex-row sm:justify-center',
         )}
       >
         <Tag>Showing all dungeons</Tag>
@@ -72,16 +72,18 @@ export function RankingsPanel({
         <Tag>Click a player for details</Tag>
       </div>
     </section>
-  );
+  )
 }
 
 interface RankingsPanelProps {
-  leaderboard: LeaderboardPlayerStats[];
-  seasons: SeasonSummary[];
-  selectedSeasonId: string;
-  isLoading?: boolean;
-  error?: Error | null;
-  onSeasonChange: (seasonId: string) => void;
-  kingOfYeetsId: string | null;
-  kingOfDeathsId: string | null;
+  leaderboard: LeaderboardPlayerStats[]
+  seasons: SeasonSummary[]
+  selectedSeasonId: string
+  isLoading?: boolean
+  error?: Error | null
+  refreshError?: Error | null
+  onRetry?: () => void
+  onSeasonChange: (seasonId: string) => void
+  kingOfYeetsId: string | null
+  kingOfDeathsId: string | null
 }

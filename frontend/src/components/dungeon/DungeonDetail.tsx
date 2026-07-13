@@ -17,19 +17,23 @@ export function DungeonDetail() {
   const { dungeonId } = useParams<{ dungeonId: string }>()
   const { seasons, isSeasonReady, selectedSeasonId, homePath } = useSeasonId()
   const {
-    data: dungeons = [],
+    data: dungeonsData,
     isPending: isPendingDungeons,
     isFetching: isFetchingDungeons,
     isFetched: hasFetchedDungeons,
+    isPlaceholderData: isShowingStaleDungeons,
     error: dungeonsError,
+    refetch: refetchDungeons,
   } = useCurrentSeasonDungeons(selectedSeasonId, { enabled: isSeasonReady })
   const {
     data: seasonLeaders,
     isPending: isPendingLeaders,
     isFetching: isFetchingLeaders,
     error: leadersError,
+    refetch: refetchLeaders,
   } = useSeasonLeaders(selectedSeasonId, { enabled: isSeasonReady })
 
+  const dungeons = dungeonsData ?? []
   const dungeon = dungeons.find((entry) => entry.id === dungeonId)
   const season = findSelectedSeason(seasons, selectedSeasonId)
 
@@ -41,11 +45,11 @@ export function DungeonDetail() {
   }, [dungeons])
 
   const error = dungeonsError ?? leadersError
+  const hasInitialData = dungeonsData !== undefined && seasonLeaders !== undefined
   const isPageLoading =
-    !isSeasonReady ||
-    isPendingDungeons ||
-    isPendingLeaders ||
-    ((isFetchingDungeons || isFetchingLeaders) && !dungeon)
+    !isSeasonReady || ((isPendingDungeons || isPendingLeaders) && !hasInitialData)
+  const isRefreshingDetail =
+    (isFetchingDungeons || isFetchingLeaders) && hasInitialData && !isPageLoading
   const notFoundMessage =
     isSeasonReady &&
     hasFetchedDungeons &&
@@ -55,8 +59,20 @@ export function DungeonDetail() {
       ? 'Dungeon was not found.'
       : null
 
+  function handleRetry() {
+    void refetchDungeons()
+    void refetchLeaders()
+  }
+
   return (
-    <PageShell isLoading={isPageLoading} error={error} notFoundMessage={notFoundMessage}>
+    <PageShell
+      isLoading={isPageLoading}
+      isRefreshing={isRefreshingDetail}
+      isShowingStaleData={(isShowingStaleDungeons && isFetchingDungeons) || (isFetchingLeaders && !!seasonLeaders)}
+      error={error}
+      notFoundMessage={notFoundMessage}
+      onRetry={handleRetry}
+    >
       {dungeon ? (
         <div className="min-h-screen bg-background-app px-2xl py-2xl">
           <div className="mx-auto flex max-w-5xl flex-col gap-2xl">

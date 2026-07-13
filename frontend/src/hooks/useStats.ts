@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import {
   fetchCurrentSeasonDungeons,
   fetchPlayerStats,
@@ -27,6 +27,7 @@ export function useSeasonLeaders(seasonId?: string, options?: QueryEnabledOption
     enabled: (options?.enabled ?? true) && seasonId !== undefined,
     staleTime: 30_000,
     refetchOnWindowFocus: true,
+    placeholderData: keepPreviousData,
   })
 }
 
@@ -55,6 +56,7 @@ export function usePlayerStats(
     enabled: (options?.enabled ?? true) && !!playerId && !!seasonId,
     staleTime: 30_000,
     refetchOnMount: 'always',
+    placeholderData: keepPreviousData,
     retry: (failureCount, error) => {
       if (error instanceof Error && error.message.includes('500')) {
         return failureCount < 2
@@ -84,6 +86,7 @@ export function useCurrentSeasonDungeons(seasonId?: string, options?: QueryEnabl
     },
     enabled: (options?.enabled ?? true) && seasonId !== undefined,
     staleTime: 60_000,
+    placeholderData: keepPreviousData,
   })
 }
 
