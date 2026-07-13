@@ -200,9 +200,9 @@ describe('getReputationVerdicts', () => {
     const scores = getDungeonReputationScores(dungeon, allDungeons, leaderboard)
 
     expect(getReputationVerdicts(scores, dungeon)).toEqual([
-      'Harder than most keys this season.',
-      'Unusually yeet-heavy for this season.',
-      'Almost all the chaos traces back to one player.',
+      'Harder than most keys in the season.',
+      'Unusually yeet-heavy for the season.',
+      'Almost all the blame traces back to one player.',
     ])
   })
 
@@ -216,8 +216,8 @@ describe('getReputationVerdicts', () => {
       ),
     ).toEqual([
       'A quiet key so far. No recorded mistakes yet.',
-      'No launches recorded here yet.',
-      'No blame to assign yet.',
+      'No yeets recorded here yet.',
+      'No blame to assign here yet.',
     ])
   })
 })

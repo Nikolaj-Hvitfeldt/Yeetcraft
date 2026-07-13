@@ -42,7 +42,7 @@ export function DungeonHeroSection({
           </div>
         </div>
 
-        <div className="mt-xl overflow-hidden rounded-3xl border border-text-primary lg:absolute lg:right-2xl lg:top-2xl lg:mt-0 lg:h-40 lg:w-80">
+        <div className="mt-xl overflow-hidden rounded-2xl border border-accent-primary bg-accent-primary lg:absolute lg:right-2xl lg:top-2xl lg:mt-0 lg:h-40 lg:w-80">
           {bannerImageUrl ? (
             <img
               src={bannerImageUrl}

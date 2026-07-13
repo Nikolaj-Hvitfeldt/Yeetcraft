@@ -1,4 +1,9 @@
-import type { DungeonLeaderboardEntry, DungeonSummary } from "../api/types";
+import type {
+  DungeonLeaderboardEntry,
+  DungeonMistakeLeader,
+  DungeonSummary,
+} from "../api/types";
+import { getDungeonFlavorTitle } from "./dungeon-flavor-title";
 
 export interface DungeonHighlight {
   playerId: string;
@@ -27,6 +32,7 @@ export interface DungeonReputationScores {
 export interface DungeonMeatGrinderSummary {
   narrative: string;
   title: string;
+  titleTooltip: string;
 }
 
 function sortByName<T extends { displayName: string }>(entries: T[]): T[] {
@@ -338,6 +344,9 @@ export function getMeatGrinderSummary(
   dungeon: DungeonSummary,
   leaderboard: DungeonLeaderboardEntry[],
   allDungeons: DungeonSummary[],
+  options?: {
+    dungeonMistakeLeaders?: DungeonMistakeLeader[];
+  },
 ): DungeonMeatGrinderSummary {
   const contributors = leaderboard.filter(
     (entry) => entry.totalMistakes > 0,
@@ -359,8 +368,15 @@ export function getMeatGrinderSummary(
       ? `${dungeon.name} has stayed spotless. No recorded mistakes across ${leaderboard.length} ${playerLabel}. The season averages ${averageMistakesPerDungeon} mistakes per dungeon.`
       : `${dungeon.name} logged ${dungeon.totalMistakes} recorded mistakes: ${dungeon.totalDeaths} deaths and ${dungeon.totalYeets} ${yeetLabel}. ${contributors} of ${leaderboard.length} ${playerLabel} contributed; ${cleanPlayers} ${cleanLabel}. That's ${getMistakeVolumeComparison(dungeon.totalMistakes, averageMistakesPerDungeon)} the season average of ${averageMistakesPerDungeon} mistakes per dungeon.`;
 
+  const flavorTitle = getDungeonFlavorTitle({
+    dungeon,
+    allDungeons,
+    dungeonMistakeLeaders: options?.dungeonMistakeLeaders,
+  });
+
   return {
-    title: "The Meat Grinder",
+    title: flavorTitle.title,
+    titleTooltip: flavorTitle.tooltip,
     narrative,
   };
 }

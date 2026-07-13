@@ -7,6 +7,7 @@ import {
   DUNGEON_REPUTATION_METRICS,
   getReputationScoreForMetric,
 } from '../../utils/dungeon-reputation-metrics'
+import { InfoTooltip } from '../ui/InfoTooltip'
 import { ReputationCard } from './ReputationCard'
 
 export function DungeonReputationSection({
@@ -28,7 +29,15 @@ export function DungeonReputationSection({
             Dungeon reputation
           </p>
           <h2 className="pt-sm font-heading text-4xl font-bold leading-[42px] text-text-primary">
-            {summary.title}
+            <span className="relative inline">
+              {summary.title}
+              <span className="absolute left-full top-0 ml-px inline-flex -translate-y-0.5">
+                <InfoTooltip
+                  content={summary.titleTooltip}
+                  label={`About ${summary.title}`}
+                />
+              </span>
+            </span>
           </h2>
           <p className="max-w-xl pt-md text-sm leading-5 text-text-secondary">{summary.narrative}</p>
 

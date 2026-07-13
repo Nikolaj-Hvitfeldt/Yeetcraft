@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useCurrentSeasonDungeons, useDungeonLeaderboard, useSeasonId } from '../../hooks'
+import { useCurrentSeasonDungeons, useDungeonLeaderboard, useSeasonId, useSeasonLeaders } from '../../hooks'
 import { PageBoundary } from '../layout/PageBoundary'
 import { HomeNavigation } from '../home/HomeNavigation'
 import { SpotlightCard } from '../profile/SpotlightCard'
@@ -52,6 +52,10 @@ export function DungeonDetail() {
     enabled: isSeasonReady && !!dungeon,
   })
 
+  const { data: seasonLeaders } = useSeasonLeaders(selectedSeasonId, {
+    enabled: isSeasonReady,
+  })
+
   const bannerSeasonKey = selectedSeason
     ? resolveDungeonBannerSeasonKey(selectedSeason.name)
     : 'season1'
@@ -88,12 +92,15 @@ export function DungeonDetail() {
   const meatGrinderSummary = useMemo(
     () =>
       dungeon
-        ? getMeatGrinderSummary(dungeon, sortedLeaderboard, dungeons)
+        ? getMeatGrinderSummary(dungeon, sortedLeaderboard, dungeons, {
+            dungeonMistakeLeaders: seasonLeaders?.dungeonMistakeLeaders,
+          })
         : {
-            title: 'The Meat Grinder',
+            title: 'The Season Regular',
+            titleTooltip: 'Sits in the middle of the pack for the season.',
             narrative: '',
           },
-    [dungeon, sortedLeaderboard, dungeons],
+    [dungeon, sortedLeaderboard, dungeons, seasonLeaders?.dungeonMistakeLeaders],
   )
 
   const error = dungeonsError ?? leaderboardError
