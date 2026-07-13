@@ -1,9 +1,7 @@
 import { Link } from 'react-router-dom'
 import type { DungeonStats } from '../../api/types'
-import { getDungeonInitials } from '../../utils/dungeon-badge'
 import { seasonPath } from '../../utils/season'
 import { cn } from '../../utils/cn'
-import { DungeonBadge } from '../ui/DungeonBadge'
 import { StatCounter } from './StatCounter'
 
 type DungeonTableMode = 'browse' | 'edit'
@@ -13,7 +11,6 @@ const BROWSE_ROW_CLASS =
 
 export function DungeonTableRow({
   dungeon,
-  index,
   className,
   mode = 'browse',
   seasonId,
@@ -21,13 +18,11 @@ export function DungeonTableRow({
   onAdjust,
   disabled = false,
 }: DungeonTableRowProps) {
-  const initials = getDungeonInitials(dungeon.dungeon.name, dungeon.dungeon.shortName)
   const dungeonPath = seasonPath(`/dungeon/${dungeon.dungeon.id}`, seasonId)
   const rowStyle = { gridTemplateColumns }
 
   const dungeonCell = (
-    <div className="flex min-w-0 items-center gap-sm">
-      <DungeonBadge initials={initials} index={index} />
+    <div className="flex min-w-0 items-center">
       <span
         className={cn(
           'truncate text-base font-semibold leading-5 text-text-tertiary transition-colors',
@@ -100,7 +95,6 @@ export function DungeonTableRow({
 
 interface DungeonTableRowProps {
   dungeon: DungeonStats
-  index: number
   className?: string
   mode?: DungeonTableMode
   seasonId?: string

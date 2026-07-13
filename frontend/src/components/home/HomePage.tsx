@@ -7,6 +7,7 @@ import {
   useSeasonId,
 } from '../../hooks'
 import { PageShell } from '../layout/PageShell'
+import { resolveDungeonBannerSeasonKey } from '../../utils/dungeon-image'
 import { DungeonNavPanel } from './DungeonNavPanel'
 import { HomeHero } from './HomeHero'
 import { HomeNavigation } from './HomeNavigation'
@@ -35,6 +36,17 @@ export function HomePage() {
     [leaderboardEntries],
   )
 
+  const bannerSeasonKey = useMemo(() => {
+    const selectedSeason =
+      seasons.find((season) => season.id === selectedSeasonId) ??
+      seasons.find((season) => season.isCurrent) ??
+      seasons[0]
+
+    return selectedSeason
+      ? resolveDungeonBannerSeasonKey(selectedSeason.name)
+      : undefined
+  }, [seasons, selectedSeasonId])
+
   const pageError =
     leaderboardError && leaderboardEntries.length === 0 ? leaderboardError : null
 
@@ -59,6 +71,7 @@ export function HomePage() {
                 isLoading={isLoadingDungeons}
                 hasError={!!dungeonsError}
                 seasonId={selectedSeasonId}
+                bannerSeasonKey={bannerSeasonKey}
               />
             </div>
           </div>

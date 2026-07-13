@@ -1,7 +1,5 @@
-import type { DungeonStats } from "../../api/types";
-import { getDungeonInitials } from "../../utils/dungeon-badge";
-import { StatItem } from "../ui/StatItem";
-import { DungeonBadge } from "../ui/DungeonBadge";
+import type { DungeonStats } from '../../api/types'
+import { StatItem } from '../ui/StatItem'
 
 export function NemesisCard({
   dungeon,
@@ -9,26 +7,21 @@ export function NemesisCard({
   bannerImageUrl,
   className,
 }: NemesisCardProps) {
-  const initials = getDungeonInitials(
-    dungeon.dungeon.name,
-    dungeon.dungeon.shortName,
-  );
-
   return (
     <article
-      className={`overflow-visible rounded-3xl border border-accent-secondary bg-surface-section shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] ${className ?? ""}`}
+      className={`overflow-visible rounded-3xl border border-accent-secondary bg-surface-section shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] ${className ?? ''}`}
     >
       <div className="grid gap-xl p-xl lg:grid-cols-[280px_1fr]">
-        <div className="relative overflow-hidden rounded-2xl border border-accent-primary bg-accent-primary p-lg">
+        <div className="relative overflow-hidden rounded-2xl border border-accent-primary bg-accent-primary">
           {bannerImageUrl ? (
             <img
               src={bannerImageUrl}
               alt=""
-              className="absolute inset-0 size-full object-cover"
+              className="aspect-[4/3] size-full object-cover"
             />
-          ) : null}
-          <div className="absolute inset-0 bg-black/20" aria-hidden="true" />
-          <DungeonBadge initials={initials} index={0} variant="inline" />
+          ) : (
+            <div className="aspect-[4/3] w-full bg-accent-primary" aria-hidden="true" />
+          )}
         </div>
 
         <div className="flex flex-col gap-xl">
@@ -62,12 +55,12 @@ export function NemesisCard({
         </div>
       </div>
     </article>
-  );
+  )
 }
 
 interface NemesisCardProps {
-  dungeon: DungeonStats;
-  sharePercent: number;
-  bannerImageUrl?: string | null;
-  className?: string;
+  dungeon: DungeonStats
+  sharePercent: number
+  bannerImageUrl?: string | null
+  className?: string
 }

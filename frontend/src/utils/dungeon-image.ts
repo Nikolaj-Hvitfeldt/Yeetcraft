@@ -27,6 +27,10 @@ const NAME_TO_BANNER_KEY: Record<string, string> = {
   templeofsethraliss: 'templeOfSethraliss',
 }
 
+export function resolveDungeonBannerSeasonKey(seasonName: string): DungeonBannerSeasonKey {
+  return /Season\s*2/i.test(seasonName) ? 'season2' : 'season1'
+}
+
 export function getDungeonBannerImage(
   seasonKey: DungeonBannerSeasonKey,
   dungeon: Pick<DungeonSummary, 'name'>,

@@ -104,11 +104,10 @@ export function DungeonBreakdownSection({
           />
 
           <div className="divide-y divide-accent-secondary">
-            {dungeons.map((dungeon, index) => (
-              <DungeonTableRow
-                key={dungeon.dungeon.id}
-                dungeon={dungeon}
-                index={index}
+          {dungeons.map((dungeon) => (
+            <DungeonTableRow
+              key={dungeon.dungeon.id}
+              dungeon={dungeon}
                 mode={mode}
                 gridTemplateColumns={DUNGEON_TABLE_GRID}
                 onAdjust={onAdjust}
