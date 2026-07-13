@@ -1,6 +1,35 @@
 import type { ReactNode } from 'react'
+import type { WowIconKey } from '../../assets/wow-icons'
 import { SkullIcon } from '../SkullIcon'
+import { WowIcon } from '../WowIcon'
 import { STAT_COLOR_BY_KIND, type StatKind } from '../../utils/stat-colors'
+
+const WOW_ICON_BY_KIND: Partial<Record<StatKind, WowIconKey>> = {
+  deaths: 'deaths',
+  yeets: 'yeets',
+}
+
+function renderSpotlightIcon(categoryKind?: StatKind | 'default') {
+  const wowIcon =
+    categoryKind && categoryKind !== 'default'
+      ? WOW_ICON_BY_KIND[categoryKind]
+      : undefined
+
+  if (wowIcon) {
+    return (
+      <WowIcon
+        icon={wowIcon}
+        size={28}
+        objectFit={categoryKind === 'deaths' ? 'contain' : 'cover'}
+        className={
+          categoryKind === 'yeets' ? 'size-7 rounded-full' : 'size-7'
+        }
+      />
+    )
+  }
+
+  return <SkullIcon className="size-7 text-stat-deaths" />
+}
 
 export function SpotlightCard({
   category,
@@ -21,8 +50,8 @@ export function SpotlightCard({
       className={`flex h-[140px] flex-col rounded-3xl border border-border-subtle bg-surface-section p-xl ${className ?? ''}`}
     >
       <div className="flex items-center justify-between">
-        <div className="rounded-2xl bg-accent-purple p-sm">
-          {icon ?? <SkullIcon className="size-[18px] text-background-app" />}
+        <div className="shrink-0">
+          {icon ?? renderSpotlightIcon(categoryKind)}
         </div>
         <p className={`text-xs leading-4 ${categoryClassName}`}>{category}</p>
       </div>

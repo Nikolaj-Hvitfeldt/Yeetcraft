@@ -53,8 +53,12 @@ export function DungeonPicker({
       </button>
 
       {isOpen ? (
-        <div className="absolute left-0 top-[44px] z-20 w-full min-w-[220px] overflow-hidden rounded-md border border-border-subtle bg-surface-section shadow-[0px_20px_12.5px_0px_rgba(0,0,0,0.2),0px_8px_5px_0px_rgba(0,0,0,0.2)]">
-          <ul role="listbox" aria-label="Dungeon" className="max-h-56 overflow-y-auto p-xs">
+        <div className="absolute left-0 top-[44px] z-20 w-full min-w-[220px] rounded-md border border-border-subtle bg-surface-section shadow-[0px_20px_12.5px_0px_rgba(0,0,0,0.2),0px_8px_5px_0px_rgba(0,0,0,0.2)]">
+          <ul
+            role="listbox"
+            aria-label="Dungeon"
+            className="max-h-56 overflow-y-auto overscroll-contain rounded-[calc(0.375rem-1px)] p-xs pr-1"
+          >
             {dungeons.map((dungeon) => {
               const isSelected = dungeon.id === selectedDungeonId
 
