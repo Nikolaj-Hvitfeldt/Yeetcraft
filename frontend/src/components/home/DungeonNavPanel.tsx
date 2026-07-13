@@ -1,4 +1,5 @@
 import type { DungeonSummary } from "../../api/types";
+import type { DungeonBannerSeasonKey } from "../../assets/dungeon-images";
 import { DungeonCard } from "./DungeonCard";
 
 export function DungeonNavPanel({
@@ -6,6 +7,7 @@ export function DungeonNavPanel({
   isLoading,
   hasError,
   seasonId,
+  bannerSeasonKey,
 }: DungeonNavPanelProps) {
   return (
     <aside className="min-h-[586px] rounded-lg border border-accent-secondary bg-surface-section p-[17px] shadow-[0px_25px_25px_0px_rgba(0,0,0,0.2)]">
@@ -25,8 +27,13 @@ export function DungeonNavPanel({
         )}
         {!isLoading &&
           !hasError &&
-          dungeons.map((dungeon, index) => (
-            <DungeonCard key={dungeon.id} dungeon={dungeon} index={index} seasonId={seasonId} />
+          dungeons.map((dungeon) => (
+            <DungeonCard
+              key={dungeon.id}
+              dungeon={dungeon}
+              seasonId={seasonId}
+              bannerSeasonKey={bannerSeasonKey}
+            />
           ))}
       </div>
     </aside>
@@ -46,4 +53,5 @@ interface DungeonNavPanelProps {
   isLoading: boolean;
   hasError: boolean;
   seasonId?: string;
+  bannerSeasonKey?: DungeonBannerSeasonKey;
 }

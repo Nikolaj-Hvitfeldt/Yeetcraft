@@ -19,7 +19,10 @@ import { BackButton } from "./ui/BackButton";
 import { CharacterTag } from "./ui/CharacterTag";
 import { CrownBadge } from "./ui/CrownBadge";
 import { DungeonBreakdownSection } from "./profile/DungeonBreakdownSection";
-import { getDungeonBannerImageFromStats } from "../utils/dungeon-image";
+import {
+  getDungeonBannerImageFromStats,
+  resolveDungeonBannerSeasonKey,
+} from "../utils/dungeon-image";
 import { getPlayerFlavorTitle } from "../utils/player-flavor-title";
 import { getNemesisDungeon } from "../utils/player-stats";
 import { getCharactersForPlayer } from "../utils/player-characters";
@@ -307,15 +310,10 @@ export function PlayerProfile() {
               <NemesisCard
                 dungeon={nemesis.dungeon}
                 sharePercent={nemesis.sharePercent}
-                bannerImageUrl={(() => {
-                  const seasonKey = /Season\s*2/i.test(playerStats.season.name)
-                    ? "season2"
-                    : "season1";
-                  return getDungeonBannerImageFromStats(
-                    seasonKey,
-                    nemesis.dungeon,
-                  );
-                })()}
+                bannerImageUrl={getDungeonBannerImageFromStats(
+                  resolveDungeonBannerSeasonKey(playerStats.season.name),
+                  nemesis.dungeon,
+                )}
               />
             ) : null}
 
