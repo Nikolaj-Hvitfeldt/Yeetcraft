@@ -1,8 +1,11 @@
+import { InfoTooltip } from '../ui/InfoTooltip'
+
 export function ReputationCard({
   title,
   description,
   score,
   progressPercent,
+  infoTooltip,
   className,
 }: ReputationCardProps) {
   return (
@@ -11,7 +14,10 @@ export function ReputationCard({
     >
       <div className="flex items-start justify-between gap-lg">
         <div className="min-w-0">
-          <p className="text-base font-bold leading-[22px] text-text-primary">{title}</p>
+          <div className="flex items-center gap-sm">
+            <p className="text-base font-bold leading-[22px] text-text-primary">{title}</p>
+            {infoTooltip ? <InfoTooltip content={infoTooltip} label={`${title} details`} /> : null}
+          </div>
           <p className="pt-xs text-xs leading-4 text-text-secondary">{description}</p>
         </div>
         <p className="shrink-0 font-number text-2xl font-bold leading-7 text-text-primary">
@@ -33,5 +39,6 @@ interface ReputationCardProps {
   description: string
   score: number
   progressPercent: number
+  infoTooltip?: string
   className?: string
 }

@@ -1,21 +1,30 @@
+import type { ReactNode } from 'react'
 import { SkullIcon } from '../SkullIcon'
+import { STAT_COLOR_BY_KIND, type StatKind } from '../../utils/stat-colors'
 
 export function SpotlightCard({
   category,
   title,
   subtitle,
   value,
+  categoryKind,
+  icon,
   className,
 }: SpotlightCardProps) {
+  const categoryClassName =
+    categoryKind && categoryKind !== 'default'
+      ? STAT_COLOR_BY_KIND[categoryKind]
+      : 'text-text-secondary'
+
   return (
     <article
       className={`flex h-[140px] flex-col rounded-3xl border border-border-subtle bg-surface-section p-xl ${className ?? ''}`}
     >
       <div className="flex items-center justify-between">
         <div className="rounded-2xl bg-accent-purple p-sm">
-          <SkullIcon className="size-[18px] text-background-app" />
+          {icon ?? <SkullIcon className="size-[18px] text-background-app" />}
         </div>
-        <p className="text-xs leading-4 text-text-secondary">{category}</p>
+        <p className={`text-xs leading-4 ${categoryClassName}`}>{category}</p>
       </div>
       <div className="mt-lg flex items-end justify-between">
         <div>
@@ -33,5 +42,7 @@ interface SpotlightCardProps {
   title: string
   subtitle: string
   value: number | string
+  categoryKind?: StatKind | 'default'
+  icon?: ReactNode
   className?: string
 }
