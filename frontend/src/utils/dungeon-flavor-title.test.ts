@@ -76,20 +76,6 @@ describe('getDungeonFlavorTitle', () => {
     ).toBe('The Meat Grinder')
   })
 
-  it('includes a tooltip explaining the title', () => {
-    const dungeons = [
-      makeDungeon('d1', 'Nexus-Point Xenas', 2, 1, 1),
-      makeDungeon('d2', 'Ruby Life Pools', 1, 0, 2),
-    ]
-
-    expect(
-      getDungeonFlavorTitle({
-        dungeon: dungeons[0]!,
-        allDungeons: dungeons,
-      }).tooltip,
-    ).toBe('The dungeon with the most total mistakes.')
-  })
-
   it('includes a title-themed flavor description', () => {
     const dungeons = [
       makeDungeon('d1', 'Nexus-Point Xenas', 2, 1, 1),

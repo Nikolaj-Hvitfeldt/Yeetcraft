@@ -31,7 +31,6 @@ export interface DungeonReputationScores {
 export interface DungeonMeatGrinderSummary {
   description: string;
   title: string;
-  titleTooltip: string;
 }
 
 export function getAverageMistakesPerDungeon(
@@ -312,7 +311,6 @@ export function getMeatGrinderSummary(
 
   return {
     title: flavorTitle.title,
-    titleTooltip: flavorTitle.tooltip,
     description: flavorTitle.description,
   };
 }
