@@ -8,6 +8,9 @@ describe('query persistence allowlist', () => {
   it('allows approved read query roots', () => {
     expect(isPersistedQueryKey(['seasons'])).toBe(true)
     expect(isPersistedQueryKey(['season-leaders', 'season-1'])).toBe(true)
+    expect(isPersistedQueryKey(['season-dungeons', 's1'])).toBe(true)
+    expect(isPersistedQueryKey(['player-stats', 'p1', 's1'])).toBe(true)
+    expect(isPersistedQueryKey(['player-stats-by-slug', 'alpha', 's1'])).toBe(true)
     expect(isPersistedQueryKey(['dungeon-leaderboard', 's1', 'd1'])).toBe(true)
   })
 

@@ -144,14 +144,6 @@ export async function updateWrite(
   await persistCurrentWrites()
 }
 
-export async function resetWriteForManualRetry(id: string): Promise<void> {
-  await updateWrite(id, {
-    status: 'pending',
-    attempts: 0,
-    lastError: undefined,
-  })
-}
-
 export async function resetFailedWritesForManualRetry(): Promise<void> {
   await initWriteOutboxStore()
   writesCache = writesCache.map((write) =>

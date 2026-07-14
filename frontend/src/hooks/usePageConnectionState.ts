@@ -7,7 +7,6 @@ import {
   getConnectionBannerContent,
   getPageLoadingMessage,
   shouldShowOfflineNoCache,
-  type ConnectionState,
 } from '../lib/connection-state'
 
 export type PageConnectionInput = {
@@ -69,7 +68,7 @@ function useJustReconnected(isOnline: boolean, isFetchActive: boolean): boolean 
   return justReconnected
 }
 
-export function useSlowFetch(
+function useSlowFetch(
   isActive: boolean,
   thresholdMs = COLD_START_MESSAGE_DELAY_MS,
 ): boolean {
@@ -91,7 +90,6 @@ export function useSlowFetch(
 export function usePageConnectionState(
   input: PageConnectionInput,
 ): {
-  connectionState: ConnectionState
   loadingMessage: string | undefined
   showOfflineNoCache: boolean
   bannerContent: ReturnType<typeof getConnectionBannerContent>
@@ -128,7 +126,6 @@ export function usePageConnectionState(
 
   return useMemo(
     () => ({
-      connectionState,
       loadingMessage: getPageLoadingMessage(connectionState),
       showOfflineNoCache: shouldShowOfflineNoCache(connectionState),
       bannerContent: getConnectionBannerContent(connectionState),

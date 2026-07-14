@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ApiError } from '../utils/api-error'
-import { MAX_QUERY_RETRY_COUNT, shouldRetryQuery } from './query-defaults'
+import { MAX_QUERY_RETRY_COUNT, queryRetryDelay, shouldRetryQuery } from './query-defaults'
 
 describe('shouldRetryQuery', () => {
   it('retries network, timeout, and server failures up to the cap', () => {
@@ -13,10 +13,21 @@ describe('shouldRetryQuery', () => {
     expect(shouldRetryQuery(MAX_QUERY_RETRY_COUNT, serverError)).toBe(false)
   })
 
-  it('does not retry auth, forbidden, not found, or abort errors', () => {
+  it('does not retry auth, forbidden, not found, validation, or abort errors', () => {
     expect(shouldRetryQuery(0, new ApiError('auth', 'Unauthorized'))).toBe(false)
     expect(shouldRetryQuery(0, new ApiError('forbidden', 'Forbidden'))).toBe(false)
     expect(shouldRetryQuery(0, new ApiError('not_found', 'Not found'))).toBe(false)
+    expect(shouldRetryQuery(0, new ApiError('validation', 'Bad request'))).toBe(false)
     expect(shouldRetryQuery(0, new ApiError('abort', 'Aborted'))).toBe(false)
+  })
+})
+
+describe('queryRetryDelay', () => {
+  it('uses exponential backoff capped at 8 seconds', () => {
+    expect(queryRetryDelay(0)).toBe(1000)
+    expect(queryRetryDelay(1)).toBe(2000)
+    expect(queryRetryDelay(2)).toBe(4000)
+    expect(queryRetryDelay(3)).toBe(8000)
+    expect(queryRetryDelay(4)).toBe(8000)
   })
 })

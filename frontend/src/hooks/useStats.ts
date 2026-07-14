@@ -8,8 +8,6 @@ import {
   fetchSeasons,
 } from '../api/api'
 import { LeaderboardEntry } from '../api/types'
-import { READ_QUERY_STALE_TIME_MS } from '../lib/query-defaults'
-
 export interface LeaderboardPlayerStats {
   playerId: string
   playerName: string
@@ -28,8 +26,6 @@ export function useSeasonLeaders(seasonId?: string, options?: QueryEnabledOption
     queryKey: ['season-leaders', seasonId ?? 'current'],
     queryFn: () => fetchSeasonLeaders(seasonId),
     enabled: (options?.enabled ?? true) && seasonId !== undefined,
-    staleTime: READ_QUERY_STALE_TIME_MS,
-    refetchOnWindowFocus: true,
     placeholderData: keepPreviousData,
   })
 }
@@ -47,7 +43,6 @@ export function usePlayerStats(
       return fetchPlayerStats(playerId, seasonId)
     },
     enabled: (options?.enabled ?? true) && !!playerId && !!seasonId,
-    staleTime: READ_QUERY_STALE_TIME_MS,
     placeholderData: keepPreviousData,
   })
 }
@@ -65,7 +60,6 @@ export function usePlayerStatsBySlug(
       return fetchPlayerStatsBySlug(playerSlug, seasonId)
     },
     enabled: (options?.enabled ?? true) && !!playerSlug && !!seasonId,
-    staleTime: READ_QUERY_STALE_TIME_MS,
     placeholderData: keepPreviousData,
   })
 }
@@ -77,7 +71,6 @@ export function useSeasons() {
       const response = await fetchSeasons()
       return response.seasons
     },
-    staleTime: READ_QUERY_STALE_TIME_MS,
   })
 }
 
@@ -89,7 +82,6 @@ export function useCurrentSeasonDungeons(seasonId?: string, options?: QueryEnabl
       return response.dungeons
     },
     enabled: (options?.enabled ?? true) && seasonId !== undefined,
-    staleTime: READ_QUERY_STALE_TIME_MS,
     placeholderData: keepPreviousData,
   })
 }
@@ -107,7 +99,6 @@ export function useDungeonLeaderboard(
       return fetchDungeonLeaderboard(seasonId, dungeonId)
     },
     enabled: (options?.enabled ?? true) && !!seasonId && !!dungeonId,
-    staleTime: READ_QUERY_STALE_TIME_MS,
     placeholderData: keepPreviousData,
   })
 }

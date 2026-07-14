@@ -166,14 +166,6 @@ export async function retryOutboxSync(queryClient: QueryClient): Promise<void> {
   await syncOutbox(queryClient)
 }
 
-export function hasFailedOutboxWrites(): boolean {
-  return getOutboxWrites().some((write) => write.status === 'failed')
-}
-
-export function getFailedOutboxWrites(): readonly PendingWrite[] {
-  return getOutboxWrites().filter((write) => write.status === 'failed')
-}
-
 export function __resetOutboxSyncForTests(): void {
   activeSync = null
   syncGeneration = 0

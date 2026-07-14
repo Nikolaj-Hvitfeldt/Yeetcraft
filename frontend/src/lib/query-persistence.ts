@@ -5,6 +5,7 @@ import type { Query } from '@tanstack/react-query'
 /** Bump only when query keys, API shapes, or serialization change. */
 export const QUERY_CACHE_BUSTER = 'yeetcraft-query-cache-v1'
 
+/** IndexedDB persistence TTL across sessions (see READ_QUERY_* in query-defaults.ts). */
 export const QUERY_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000
 
 const PERSISTED_QUERY_KEY_ROOTS = new Set([

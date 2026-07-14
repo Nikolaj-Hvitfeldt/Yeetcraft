@@ -1,5 +1,9 @@
 import { getApiErrorKind } from '../utils/api-error'
 
+/**
+ * In-memory query freshness and retention (see also QUERY_CACHE_MAX_AGE_MS in
+ * query-persistence.ts for IndexedDB persistence across sessions).
+ */
 export const READ_QUERY_STALE_TIME_MS = 5 * 60 * 1000
 export const READ_QUERY_GC_TIME_MS = 24 * 60 * 60 * 1000
 
