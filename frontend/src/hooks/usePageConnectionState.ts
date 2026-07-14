@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useQueryRestorePending } from './query-restore-context'
+import { useReportPageConnection } from './connection-status-context'
 import {
+  COLD_START_MESSAGE_DELAY_MS,
   deriveConnectionState,
   getConnectionBannerContent,
   getPageLoadingMessage,
@@ -41,7 +43,36 @@ export function useOnlineStatus(): boolean {
   return isOnline
 }
 
-export function useSlowFetch(isActive: boolean, thresholdMs = 5000): boolean {
+function useJustReconnected(isOnline: boolean, isFetchActive: boolean): boolean {
+  const wasOfflineRef = useRef(false)
+  const [justReconnected, setJustReconnected] = useState(false)
+
+  useEffect(() => {
+    if (!isOnline) {
+      wasOfflineRef.current = true
+      setJustReconnected(false)
+      return
+    }
+
+    if (wasOfflineRef.current) {
+      wasOfflineRef.current = false
+      setJustReconnected(true)
+    }
+  }, [isOnline])
+
+  useEffect(() => {
+    if (justReconnected && !isFetchActive) {
+      setJustReconnected(false)
+    }
+  }, [justReconnected, isFetchActive])
+
+  return justReconnected
+}
+
+export function useSlowFetch(
+  isActive: boolean,
+  thresholdMs = COLD_START_MESSAGE_DELAY_MS,
+): boolean {
   const [isSlow, setIsSlow] = useState(false)
 
   useEffect(() => {
@@ -69,6 +100,7 @@ export function usePageConnectionState(
   const isRestorePending = useQueryRestorePending()
   const isFetchActive = input.isFetching || input.isPending
   const slowFetch = useSlowFetch(isFetchActive)
+  const justReconnected = useJustReconnected(isOnline, isFetchActive)
 
   const connectionState = useMemo(
     () =>
@@ -80,6 +112,7 @@ export function usePageConnectionState(
         isPending: input.isPending,
         isError: input.isError,
         slowFetch,
+        justReconnected,
       }),
     [
       isOnline,
@@ -89,6 +122,7 @@ export function usePageConnectionState(
       input.isPending,
       input.isError,
       slowFetch,
+      justReconnected,
     ],
   )
 
@@ -101,4 +135,9 @@ export function usePageConnectionState(
     }),
     [connectionState],
   )
+}
+
+export function usePageConnection(input: PageConnectionInput) {
+  useReportPageConnection(input)
+  return usePageConnectionState(input)
 }

@@ -10,12 +10,33 @@ import {
 } from './schemas'
 import { getAccessToken } from '../utils/token'
 import { fetchWithTimeout } from '../lib/fetch-with-timeout'
+import { ApiError } from '../utils/api-error'
 
 // Default to same-origin /api so Vite proxies to the backend in dev.
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 
 function buildSeasonQuery(seasonId?: string): string {
   return seasonId ? `?seasonId=${encodeURIComponent(seasonId)}` : ''
+}
+
+function toHttpApiError(status: number, message: string): ApiError {
+  if (status === 401) {
+    return new ApiError('auth', message, { status })
+  }
+
+  if (status === 403) {
+    return new ApiError('forbidden', message, { status })
+  }
+
+  if (status === 404) {
+    return new ApiError('not_found', message, { status })
+  }
+
+  if (status >= 500) {
+    return new ApiError('server', message, { status })
+  }
+
+  return new ApiError('unknown', message, { status })
 }
 
 /**
@@ -42,10 +63,17 @@ async function fetchApi<T>(endpoint: string, schema: z.ZodType<T>): Promise<T> {
         localStorage.removeItem('yeetcraft_token')
       }
       const error = await response.json().catch(() => ({ message: 'Unauthorized' }))
-      throw new Error(error.message || 'Unauthorized. Please use the shared link with a valid token.')
+      throw toHttpApiError(
+        401,
+        error.message || 'Unauthorized. Please use the shared link with a valid token.',
+      )
     }
+
     const errorText = await response.text().catch(() => response.statusText)
-    throw new Error(`API error: ${response.status} ${errorText}`)
+    throw toHttpApiError(
+      response.status,
+      `API error: ${response.status} ${errorText}`,
+    )
   }
 
   const json: unknown = await response.json()
@@ -54,7 +82,7 @@ async function fetchApi<T>(endpoint: string, schema: z.ZodType<T>): Promise<T> {
     return schema.parse(json)
   } catch (error) {
     if (error instanceof z.ZodError) {
-      throw new Error(`Invalid response from ${endpoint}: ${error.message}`)
+      throw new ApiError('validation', `Invalid response from ${endpoint}: ${error.message}`)
     }
     throw error
   }
@@ -79,10 +107,17 @@ async function fetchApiWithBody<T>(
   if (!response.ok) {
     if (response.status === 401) {
       const error = await response.json().catch(() => ({ message: 'Unauthorized' }))
-      throw new Error(error.message || 'Unauthorized. Please use the shared link with a valid token.')
+      throw toHttpApiError(
+        401,
+        error.message || 'Unauthorized. Please use the shared link with a valid token.',
+      )
     }
+
     const errorText = await response.text().catch(() => response.statusText)
-    throw new Error(`API error: ${response.status} ${errorText}`)
+    throw toHttpApiError(
+      response.status,
+      `API error: ${response.status} ${errorText}`,
+    )
   }
 
   const json: unknown = await response.json()

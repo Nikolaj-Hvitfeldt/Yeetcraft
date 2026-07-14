@@ -6,8 +6,7 @@ import {
   useSeasonId,
   useSeasonLeaders,
 } from '../../hooks'
-import { usePageConnectionState } from '../../hooks/usePageConnectionState'
-import { useReportPageConnection } from '../../hooks/connection-status-context'
+import { usePageConnection } from '../../hooks/usePageConnectionState'
 import { PageBoundary } from '../layout/PageBoundary'
 import { resolveDungeonBannerSeasonKey } from '../../utils/dungeon-image'
 import { DungeonNavPanel } from './DungeonNavPanel'
@@ -47,19 +46,12 @@ export function HomePage() {
     void refetchDungeons()
   }
 
-  useReportPageConnection({
+  const { loadingMessage, showOfflineNoCache } = usePageConnection({
     hasCachedData,
     isFetching: isFetchingHome,
     isPending: isPendingSeasons || (isSeasonReady && isPendingHome && !hasCachedData),
     isError: Boolean(homeError),
     onRetry: handleRetry,
-  })
-
-  const { loadingMessage, showOfflineNoCache } = usePageConnectionState({
-    hasCachedData,
-    isFetching: isFetchingHome,
-    isPending: isPendingSeasons || (isSeasonReady && isPendingHome && !hasCachedData),
-    isError: Boolean(homeError),
   })
 
   const leaderboardEntries = useMemo(

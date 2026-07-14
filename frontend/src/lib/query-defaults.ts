@@ -1,29 +1,26 @@
+import { getApiErrorKind } from '../utils/api-error'
+
 export const READ_QUERY_STALE_TIME_MS = 5 * 60 * 1000
 export const READ_QUERY_GC_TIME_MS = 24 * 60 * 60 * 1000
 
-const NON_RETRYABLE_PATTERNS = [
-  'Unauthorized',
-  'token',
-  '404',
-  'not found',
-  'Missing player',
-  'Missing season',
-]
+/** Max retry attempts after the initial request (2 retries = 3 total attempts). */
+export const MAX_QUERY_RETRY_COUNT = 2
 
-export function isNonRetryableQueryError(error: unknown): boolean {
-  if (!(error instanceof Error)) return false
-  const message = error.message
-  return NON_RETRYABLE_PATTERNS.some(
-    (pattern) =>
-      message.includes(pattern) ||
-      message.toLowerCase().includes(pattern.toLowerCase()),
-  )
-}
+const NON_RETRYABLE_KINDS = new Set([
+  'auth',
+  'forbidden',
+  'not_found',
+  'validation',
+  'abort',
+])
 
 export function shouldRetryQuery(failureCount: number, error: unknown): boolean {
-  if (failureCount >= 3) return false
-  if (isNonRetryableQueryError(error)) return false
-  return true
+  if (failureCount >= MAX_QUERY_RETRY_COUNT) return false
+
+  const kind = getApiErrorKind(error)
+  if (NON_RETRYABLE_KINDS.has(kind)) return false
+
+  return kind === 'network' || kind === 'timeout' || kind === 'server' || kind === 'unknown'
 }
 
 export function queryRetryDelay(attemptIndex: number): number {

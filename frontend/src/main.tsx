@@ -27,6 +27,7 @@ const queryClient = new QueryClient({
       retry: shouldRetryQuery,
       retryDelay: queryRetryDelay,
       refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
       networkMode: 'offlineFirst',
     },
   },

@@ -7,8 +7,7 @@ import {
   useSeasonId,
   useSeasonLeaders,
 } from "../../hooks";
-import { usePageConnectionState } from "../../hooks/usePageConnectionState";
-import { useReportPageConnection } from "../../hooks/connection-status-context";
+import { usePageConnection } from "../../hooks/usePageConnectionState";
 import { PageBoundary } from "../layout/PageBoundary";
 import { buildPlayerPath, type PageBackState } from "../../utils/routes";
 import { playerSlug } from "../../utils/slug";
@@ -111,19 +110,12 @@ export function PlayerProfile() {
     void refetchPlayerStats();
   }
 
-  useReportPageConnection({
+  const { loadingMessage, showOfflineNoCache } = usePageConnection({
     hasCachedData,
     isFetching: isFetchingPlayerStats,
     isPending: isPendingPlayerStats && !hasCachedData && !isPlayerNotFound,
     isError: Boolean(profileError),
     onRetry: handleRetry,
-  });
-
-  const { loadingMessage, showOfflineNoCache } = usePageConnectionState({
-    hasCachedData,
-    isFetching: isFetchingPlayerStats,
-    isPending: isPendingPlayerStats && !hasCachedData && !isPlayerNotFound,
-    isError: Boolean(profileError),
   });
 
   const isPageLoading =

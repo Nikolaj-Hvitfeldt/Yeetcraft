@@ -1,8 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useCurrentSeasonDungeons, useDungeonLeaderboard, useSeasonId, useSeasonLeaders } from '../../hooks'
-import { usePageConnectionState } from '../../hooks/usePageConnectionState'
-import { useReportPageConnection } from '../../hooks/connection-status-context'
+import { usePageConnection } from '../../hooks/usePageConnectionState'
 import { PageBoundary } from '../layout/PageBoundary'
 import { HomeNavigation } from '../home/HomeNavigation'
 import { SpotlightCard } from '../ui/SpotlightCard'
@@ -124,7 +123,7 @@ export function DungeonDetail() {
     void refetchLeaderboard()
   }
 
-  useReportPageConnection({
+  const { loadingMessage, showOfflineNoCache } = usePageConnection({
     hasCachedData,
     isFetching: isFetchingDungeons || isFetchingLeaderboard,
     isPending:
@@ -132,15 +131,6 @@ export function DungeonDetail() {
       ((isPendingDungeons || isPendingLeaderboard) && !hasCachedData),
     isError: Boolean(error),
     onRetry: handleRetry,
-  })
-
-  const { loadingMessage, showOfflineNoCache } = usePageConnectionState({
-    hasCachedData,
-    isFetching: isFetchingDungeons || isFetchingLeaderboard,
-    isPending:
-      !isSeasonReady ||
-      ((isPendingDungeons || isPendingLeaderboard) && !hasCachedData),
-    isError: Boolean(error),
   })
 
   const isPageLoading =

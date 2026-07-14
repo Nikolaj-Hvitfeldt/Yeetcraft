@@ -1,7 +1,10 @@
+export const COLD_START_MESSAGE_DELAY_MS = 5000
+
 export type ConnectionState =
   | 'restoring'
   | 'first_load'
   | 'first_load_slow'
+  | 'reconnecting'
   | 'cached_refreshing'
   | 'cached_waking'
   | 'cached_refresh_failed'
@@ -17,6 +20,7 @@ export type ConnectionStateInput = {
   isPending: boolean
   isError: boolean
   slowFetch: boolean
+  justReconnected: boolean
 }
 
 export type ConnectionBannerContent = {
@@ -42,6 +46,10 @@ export function deriveConnectionState(input: ConnectionStateInput): ConnectionSt
     return 'cached_refresh_failed'
   }
 
+  if (input.justReconnected && (input.isFetching || input.isPending)) {
+    return 'reconnecting'
+  }
+
   if (input.isFetching || input.isPending) {
     return input.slowFetch ? 'cached_waking' : 'cached_refreshing'
   }
@@ -55,13 +63,12 @@ export function getConnectionBannerContent(
   switch (state) {
     case 'restoring':
       return { message: 'Restoring saved data...', showRetry: false }
+    case 'reconnecting':
+      return { message: 'Back online — checking for updates...', showRetry: false }
     case 'cached_refreshing':
-      return {
-        message: 'Showing saved data — checking for updates...',
-        showRetry: false,
-      }
+      return { message: 'Checking for updates...', showRetry: false }
     case 'cached_waking':
-      return { message: 'Server is waking up...', showRetry: false }
+      return { message: 'Server may be waking up...', showRetry: false }
     case 'cached_refresh_failed':
       return {
         message: "Couldn't refresh — showing saved data.",

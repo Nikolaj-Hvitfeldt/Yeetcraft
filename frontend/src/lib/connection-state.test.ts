@@ -15,6 +15,7 @@ describe('deriveConnectionState', () => {
     isPending: false,
     isError: false,
     slowFetch: false,
+    justReconnected: false,
   }
 
   it('returns restoring when cache hydrate is pending', () => {
@@ -45,7 +46,7 @@ describe('deriveConnectionState', () => {
     ).toBe('first_load_slow')
   })
 
-  it('returns cached_refreshing when cached data is refreshing', () => {
+  it('returns cached_refreshing before the cold-start delay elapses', () => {
     expect(
       deriveConnectionState({
         ...base,
@@ -55,7 +56,7 @@ describe('deriveConnectionState', () => {
     ).toBe('cached_refreshing')
   })
 
-  it('returns cached_waking when cached refresh is slow', () => {
+  it('returns cached_waking only after the cold-start delay elapses', () => {
     expect(
       deriveConnectionState({
         ...base,
@@ -76,7 +77,18 @@ describe('deriveConnectionState', () => {
     ).toBe('cached_refresh_failed')
   })
 
-  it('returns idle when cached and settled', () => {
+  it('returns reconnecting after coming back online with cached data', () => {
+    expect(
+      deriveConnectionState({
+        ...base,
+        hasCachedData: true,
+        isFetching: true,
+        justReconnected: true,
+      }),
+    ).toBe('reconnecting')
+  })
+
+  it('returns idle after cached data has recovered', () => {
     expect(
       deriveConnectionState({
         ...base,
@@ -87,19 +99,18 @@ describe('deriveConnectionState', () => {
 })
 
 describe('connection banner copy', () => {
-  it('maps cached refresh states to banner messages', () => {
-    expect(getConnectionBannerContent('cached_refreshing')?.message).toContain(
-      'saved data',
+  it('uses delayed cold-start messaging', () => {
+    expect(getConnectionBannerContent('cached_refreshing')?.message).toBe(
+      'Checking for updates...',
     )
     expect(getConnectionBannerContent('cached_waking')?.message).toBe(
-      'Server is waking up...',
+      'Server may be waking up...',
     )
-    expect(getConnectionBannerContent('cached_refresh_failed')?.showRetry).toBe(
-      true,
-    )
+    expect(getConnectionBannerContent('cached_refresh_failed')?.showRetry).toBe(true)
+    expect(getConnectionBannerContent('reconnecting')?.message).toContain('Back online')
   })
 
-  it('returns no banner for idle', () => {
+  it('returns no banner for idle recovery', () => {
     expect(getConnectionBannerContent('idle')).toBeNull()
   })
 
