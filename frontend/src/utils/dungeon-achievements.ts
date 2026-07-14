@@ -1,3 +1,4 @@
+import type { AchievementLogoKey } from "../assets/achievement-logos";
 import type { WowIconKey } from "../assets/wow-icons";
 import type {
   DungeonLeaderboardEntry,
@@ -20,8 +21,10 @@ const COMMITTEE_MIN_CONTRIBUTORS = 3;
 const CARRY_JOB_MIN_MISTAKES = 4;
 const ACHIEVEMENT_COUNT = 2;
 
+export type AchievementIcon = WowIconKey | AchievementLogoKey;
+
 export interface DungeonAchievement {
-  icon: WowIconKey;
+  icon: AchievementIcon;
   title: string;
   holder?: {
     displayName: string;
@@ -54,7 +57,7 @@ interface AchievementEvaluation {
 interface AchievementRule {
   id: string;
   title: string;
-  icon: WowIconKey;
+  icon: AchievementIcon;
   priority: number;
   evaluate: (context: DungeonAchievementContext) => AchievementEvaluation;
 }
@@ -237,7 +240,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
   {
     id: "the-liability",
     title: "The Liability",
-    icon: "nemesis",
+    icon: "the-liability",
     priority: 95,
     evaluate: ({ dungeon, leaderboard, reputationScores }) => {
       if (
@@ -283,7 +286,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
   {
     id: "dungeon-menace",
     title: "Dungeon Menace",
-    icon: "gold",
+    icon: "dungeon-menace",
     priority: 88,
     evaluate: ({ dungeon, leaderboard, seasonLeaders }) => {
       const menace = seasonLeaders?.dungeonMistakeLeaders?.find(
@@ -305,7 +308,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
   {
     id: "the-usual-suspect",
     title: "The Usual Suspect",
-    icon: "season",
+    icon: "the-usual-suspect",
     priority: 85,
     evaluate: ({ dungeon, leaderboard, seasonLeaders }) => {
       const yeetLeader = getYeetLeader(leaderboard);
@@ -351,7 +354,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
   {
     id: "cliff-diver",
     title: "Cliff Diver",
-    icon: "yeets",
+    icon: "cliff-diver",
     priority: 80,
     evaluate: ({ leaderboard }) => {
       const player = pickHighestYeetRatioPlayer(leaderboard);
@@ -391,7 +394,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
   {
     id: "carry-job",
     title: "Carry Job",
-    icon: "platinum",
+    icon: "carry-job",
     priority: 75,
     evaluate: ({ dungeon, leaderboard }) => {
       if (dungeon.totalMistakes < CARRY_JOB_MIN_MISTAKES) return ineligible();
@@ -408,9 +411,9 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
     },
   },
   {
-    id: "chaos-accountant",
-    title: "Chaos Accountant",
-    icon: "total",
+    id: "balancing-act",
+    title: "Balancing Act",
+    icon: "balancing-act",
     priority: 74,
     evaluate: ({ leaderboard }) => {
       const player = pickMostBalancedPlayer(leaderboard);
@@ -460,7 +463,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
   {
     id: "yeet-cannon",
     title: "Yeet Cannon",
-    icon: "yeets",
+    icon: "yeet-cannon",
     priority: 65,
     evaluate: ({ dungeon, reputationScores, mistakeMix }) => {
       if (reputationScores.yeetFactor < YEET_FACTOR_THRESHOLD) {
@@ -477,7 +480,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
   {
     id: "committee-meeting",
     title: "Committee Meeting",
-    icon: "leaderboard",
+    icon: "committee-meeting",
     priority: 60,
     evaluate: ({ reputationScores, leaderboard }) => {
       const contributors = getContributors(leaderboard);

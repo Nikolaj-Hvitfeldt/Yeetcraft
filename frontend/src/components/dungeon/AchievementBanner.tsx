@@ -1,11 +1,14 @@
 import { useCallback, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import type { WowIconKey } from "../../assets/wow-icons";
+import {
+  achievementLogos,
+  isAchievementLogoKey,
+} from "../../assets/achievement-logos";
+import type { AchievementIcon } from "../../utils/dungeon-achievements";
 import { wowIcons } from "../../assets/wow-icons";
 import { cn } from "../../utils/cn";
 import { Avatar } from "../ui/Avatar";
 import { WowIcon } from "../WowIcon";
-
 // achievementFrameSimple.webp is 256×64px (4:1) — square wells on left and right.
 const FRAME_ASPECT_PERCENT = 25;
 const BANNER_SCALE = 0.88;
@@ -133,15 +136,23 @@ export function AchievementBanner({
           >
             <div className="relative min-h-0">
               <div className="absolute" style={{ inset: ICON_INSET }}>
-                <WowIcon
-                  icon={icon}
-                  fluid
-                  objectFit="cover"
-                  className="h-full w-full rounded-[2px] object-cover"
-                />
+                {isAchievementLogoKey(icon) ? (
+                  <img
+                    src={achievementLogos[icon]}
+                    alt=""
+                    aria-hidden
+                    className="h-full w-full rounded-[2px] object-cover"
+                  />
+                ) : (
+                  <WowIcon
+                    icon={icon}
+                    fluid
+                    objectFit="cover"
+                    className="h-full w-full rounded-[2px] object-cover"
+                  />
+                )}
               </div>
             </div>
-
             <div
               className="flex min-h-0 items-center justify-center px-[4%]"
               style={{ paddingTop: TEXT_INSET_Y, paddingBottom: TEXT_INSET_Y }}
@@ -190,8 +201,7 @@ interface AchievementHolder {
 }
 
 interface AchievementBannerProps {
-  icon: WowIconKey;
-  title: string;
+  icon: AchievementIcon;  title: string;
   holder?: AchievementHolder;
   description: string;
   className?: string;
