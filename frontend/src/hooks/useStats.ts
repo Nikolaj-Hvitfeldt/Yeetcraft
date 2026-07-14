@@ -1,6 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import {
   fetchCurrentSeasonDungeons,
+  fetchDungeonLeaderboard,
   fetchPlayerStats,
   fetchSeasonLeaders,
   fetchSeasons,
@@ -76,6 +77,24 @@ export function useCurrentSeasonDungeons(seasonId?: string, options?: QueryEnabl
     },
     enabled: (options?.enabled ?? true) && seasonId !== undefined,
     staleTime: 60_000,
+    placeholderData: keepPreviousData,
+  })
+}
+
+export function useDungeonLeaderboard(
+  seasonId: string | undefined,
+  dungeonId: string | undefined,
+  options?: QueryEnabledOptions,
+) {
+  return useQuery({
+    queryKey: ['dungeon-leaderboard', seasonId, dungeonId],
+    queryFn: () => {
+      if (!seasonId) throw new Error('Missing season id')
+      if (!dungeonId) throw new Error('Missing dungeon id')
+      return fetchDungeonLeaderboard(seasonId, dungeonId)
+    },
+    enabled: (options?.enabled ?? true) && !!seasonId && !!dungeonId,
+    staleTime: 30_000,
     placeholderData: keepPreviousData,
   })
 }

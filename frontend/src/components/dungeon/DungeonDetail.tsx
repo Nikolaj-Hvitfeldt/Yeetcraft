@@ -1,23 +1,37 @@
 import { useEffect, useMemo } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import type { DungeonSummary } from '../../api/types'
-import { useCurrentSeasonDungeons, useSeasonId, useSeasonLeaders } from '../../hooks'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useCurrentSeasonDungeons, useDungeonLeaderboard, useSeasonId, useSeasonLeaders } from '../../hooks'
 import { PageBoundary } from '../layout/PageBoundary'
-import { buildDungeonPath } from '../../utils/routes'
+import { HomeNavigation } from '../home/HomeNavigation'
+import { SpotlightCard } from '../profile/SpotlightCard'
+import { buildDungeonPath, type DungeonDetailLocationState } from '../../utils/routes'
 import { dungeonSlug, findDungeonBySlug } from '../../utils/slug'
+import {
+  getDungeonAchievements,
+  getDungeonHighlights,
+  getDungeonReputationScores,
+  getMeatGrinderSummary,
+  getMistakeMix,
+  sortDungeonLeaderboard,
+} from '../../utils/dungeon-stats'
+import {
+  getDungeonBannerImage,
+  resolveDungeonBannerSeasonKey,
+} from '../../utils/dungeon-image'
 import { BackButton } from '../ui/BackButton'
-import { AchievementCard } from './AchievementCard'
-import { ReputationCard } from './ReputationCard'
-
-function getDangerScore(dungeon: DungeonSummary, averageMistakes: number): number {
-  if (averageMistakes <= 0) return dungeon.totalMistakes > 0 ? 100 : 0
-  return Math.min(Math.round((dungeon.totalMistakes / averageMistakes) * 50), 100)
-}
+import { AchievementsSection } from './AchievementsSection'
+import { DungeonHeroSection } from './DungeonHeroSection'
+import { DungeonLeaderboardSection } from './DungeonLeaderboardSection'
+import { DungeonReputationSection } from './DungeonReputationSection'
+import { MistakeMixSection } from './MistakeMixSection'
 
 export function DungeonDetail() {
   const { dungeonSlug: dungeonSlugParam } = useParams<{ dungeonSlug: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
   const { isSeasonReady, selectedSeasonId, selectedSeason, homePath } = useSeasonId()
+  const locationState = location.state as DungeonDetailLocationState | null
+  const backTo = locationState?.backTo ?? homePath
   const {
     data: dungeonsData,
     isPending: isPendingDungeons,
@@ -27,30 +41,86 @@ export function DungeonDetail() {
     error: dungeonsError,
     refetch: refetchDungeons,
   } = useCurrentSeasonDungeons(selectedSeasonId, { enabled: isSeasonReady })
-  const {
-    data: seasonLeaders,
-    isPending: isPendingLeaders,
-    isFetching: isFetchingLeaders,
-    error: leadersError,
-    refetch: refetchLeaders,
-  } = useSeasonLeaders(selectedSeasonId, { enabled: isSeasonReady })
 
   const dungeons = dungeonsData ?? []
   const dungeon = findDungeonBySlug(dungeons, dungeonSlugParam)
 
-  const topPlayer = seasonLeaders?.topPlayer
-  const averageMistakes = useMemo(() => {
-    if (dungeons.length === 0) return 0
-    const total = dungeons.reduce((sum, entry) => sum + entry.totalMistakes, 0)
-    return total / dungeons.length
-  }, [dungeons])
+  const {
+    data: dungeonLeaderboardData,
+    isPending: isPendingLeaderboard,
+    isFetching: isFetchingLeaderboard,
+    error: leaderboardError,
+    refetch: refetchLeaderboard,
+  } = useDungeonLeaderboard(selectedSeasonId, dungeon?.id, {
+    enabled: isSeasonReady && !!dungeon,
+  })
 
-  const error = dungeonsError ?? leadersError
-  const hasInitialData = dungeonsData !== undefined && seasonLeaders !== undefined
+  const { data: seasonLeaders } = useSeasonLeaders(selectedSeasonId, {
+    enabled: isSeasonReady,
+  })
+
+  const bannerSeasonKey = selectedSeason
+    ? resolveDungeonBannerSeasonKey(selectedSeason.name)
+    : 'season1'
+  const bannerImageUrl = dungeon ? getDungeonBannerImage(bannerSeasonKey, dungeon) : null
+
+  const sortedLeaderboard = useMemo(
+    () => sortDungeonLeaderboard(dungeonLeaderboardData?.leaderboard ?? []),
+    [dungeonLeaderboardData?.leaderboard],
+  )
+
+  const highlights = useMemo(
+    () => getDungeonHighlights(sortedLeaderboard),
+    [sortedLeaderboard],
+  )
+
+  const mistakeMix = useMemo(
+    () => (dungeon ? getMistakeMix(dungeon) : { deathsPercent: 0, yeetsPercent: 0 }),
+    [dungeon],
+  )
+
+  const reputationScores = useMemo(
+    () =>
+      dungeon
+        ? getDungeonReputationScores(dungeon, dungeons, sortedLeaderboard)
+        : { dangerRating: 0, yeetFactor: 0, blameShare: 0 },
+    [dungeon, dungeons, sortedLeaderboard],
+  )
+
+  const achievements = useMemo(
+    () =>
+      dungeon
+        ? getDungeonAchievements({
+            dungeon,
+            leaderboard: sortedLeaderboard,
+            reputationScores,
+            mistakeMix,
+            seasonLeaders,
+          })
+        : [],
+    [dungeon, sortedLeaderboard, reputationScores, mistakeMix, seasonLeaders],
+  )
+
+  const meatGrinderSummary = useMemo(
+    () =>
+      dungeon
+        ? getMeatGrinderSummary(dungeon, sortedLeaderboard, dungeons, {
+            dungeonMistakeLeaders: seasonLeaders?.dungeonMistakeLeaders,
+          })
+        : {
+            title: 'The Season Regular',
+            titleTooltip: 'Sits in the middle of the pack for the season.',
+            narrative: '',
+          },
+    [dungeon, sortedLeaderboard, dungeons, seasonLeaders?.dungeonMistakeLeaders],
+  )
+
+  const error = dungeonsError ?? leaderboardError
+  const hasInitialData = dungeonsData !== undefined && (!dungeon || dungeonLeaderboardData !== undefined)
   const isPageLoading =
-    !isSeasonReady || ((isPendingDungeons || isPendingLeaders) && !hasInitialData)
+    !isSeasonReady || ((isPendingDungeons || isPendingLeaderboard) && !hasInitialData)
   const isRefreshingDetail =
-    (isFetchingDungeons || isFetchingLeaders) && hasInitialData && !isPageLoading
+    (isFetchingDungeons || isFetchingLeaderboard) && hasInitialData && !isPageLoading
   const notFoundMessage =
     isSeasonReady &&
     hasFetchedDungeons &&
@@ -67,77 +137,97 @@ export function DungeonDetail() {
     const canonicalSlug = dungeonSlug(dungeon)
     if (dungeonSlugParam === canonicalSlug) return
 
-    navigate(buildDungeonPath(selectedSeason, dungeon), { replace: true })
-  }, [dungeon, dungeonSlugParam, navigate, selectedSeason])
+    navigate(buildDungeonPath(selectedSeason, dungeon), {
+      replace: true,
+      state: location.state,
+    })
+  }, [dungeon, dungeonSlugParam, location.state, navigate, selectedSeason])
 
   function handleRetry() {
     void refetchDungeons()
-    void refetchLeaders()
+    void refetchLeaderboard()
   }
 
   return (
     <PageBoundary
       isLoading={isPageLoading}
       isRefreshing={isRefreshingDetail}
-      isShowingStaleData={(isShowingStaleDungeons && isFetchingDungeons) || (isFetchingLeaders && !!seasonLeaders)}
+      isShowingStaleData={
+        (isShowingStaleDungeons && isFetchingDungeons) ||
+        (isFetchingLeaderboard && !!dungeonLeaderboardData)
+      }
       error={error}
       notFoundMessage={notFoundMessage}
       onRetry={handleRetry}
     >
       {dungeon ? (
         <div className="flex flex-col gap-2xl">
-          <BackButton to={homePath} />
+          <HomeNavigation homePath={homePath} />
+          <BackButton
+            to={backTo}
+            toState={locationState?.returnState}
+            fallbackTo={homePath}
+            className="self-start"
+          />
 
-            <header className="rounded-3xl border border-border-subtle bg-surface-section p-2xl">
-              <p className="text-xs font-bold uppercase leading-4 tracking-[0.2em] text-accent-primary">
-                Dungeon Detail
-              </p>
-              <h1 className="pt-sm font-heading text-4xl font-bold leading-tight text-text-primary">
-                {dungeon.name}
-              </h1>
-              {selectedSeason ? (
-                <p className="pt-sm text-sm leading-5 text-text-secondary">
-                  {selectedSeason.expansion ? `${selectedSeason.expansion} ` : ''}
-                  {selectedSeason.name}
-                </p>
-              ) : null}
-            </header>
+          <DungeonHeroSection
+            dungeon={dungeon}
+            season={selectedSeason}
+            dungeons={dungeons}
+            bannerImageUrl={bannerImageUrl}
+            navigationState={locationState}
+          />
 
-            <div className="grid gap-lg lg:grid-cols-2">
-              <ReputationCard
-                title="Danger Rating"
-                description="Total mistakes here compared with the average dungeon this season."
-                score={getDangerScore(dungeon, averageMistakes)}
-                progressPercent={getDangerScore(dungeon, averageMistakes)}
-              />
-              <AchievementCard
-                icon="🚀"
-                title="Orbital Launch"
-                description={
-                  topPlayer
-                    ? `${topPlayer.displayName} owns the yeet narrative here.`
-                    : 'No yeet champion recorded yet.'
-                }
-              />
-            </div>
+          <div className="grid gap-lg md:grid-cols-3">
+            <SpotlightCard
+              category="Biggest Yeeter"
+              categoryKind="yeets"
+              title={highlights.biggestYeeter?.displayName ?? 'No yeets yet'}
+              subtitle={highlights.biggestYeeter?.subtitle ?? 'biggest yeeter'}
+              value={highlights.biggestYeeter?.value ?? 0}
+            />
+            <SpotlightCard
+              category="Most Deaths"
+              categoryKind="deaths"
+              title={highlights.mostDeaths?.displayName ?? 'No deaths yet'}
+              subtitle={highlights.mostDeaths?.subtitle ?? 'most deaths'}
+              value={highlights.mostDeaths?.value ?? 0}
+            />
+            <SpotlightCard
+              category="Safest Player"
+              categoryKind="default"
+              title={highlights.safestPlayer?.displayName ?? 'Everyone stayed clean'}
+              subtitle={highlights.safestPlayer?.subtitle ?? 'mistakes'}
+              value={highlights.safestPlayer?.value ?? 0}
+            />
+          </div>
 
-            <section className="rounded-3xl border border-border-subtle bg-surface-base p-xl">
-              <h2 className="font-heading text-2xl font-bold leading-8 text-text-primary">Season totals</h2>
-              <div className="mt-lg grid gap-md sm:grid-cols-3">
-                <div className="rounded-2xl border border-border-subtle bg-surface-section p-lg text-center">
-                  <p className="font-number text-3xl font-bold text-stat-total">{dungeon.totalMistakes}</p>
-                  <p className="pt-xs text-xs text-text-secondary">Total</p>
-                </div>
-                <div className="rounded-2xl border border-border-subtle bg-surface-section p-lg text-center">
-                  <p className="font-number text-3xl font-bold text-stat-deaths">{dungeon.totalDeaths}</p>
-                  <p className="pt-xs text-xs text-text-secondary">Deaths</p>
-                </div>
-                <div className="rounded-2xl border border-border-subtle bg-surface-section p-lg text-center">
-                  <p className="font-number text-3xl font-bold text-stat-yeets">{dungeon.totalYeets}</p>
-                  <p className="pt-xs text-xs text-text-secondary">Yeets</p>
-                </div>
-              </div>
-            </section>
+          <div className="grid gap-2xl lg:grid-cols-[minmax(0,1.6fr)_minmax(280px,1fr)]">
+            <DungeonLeaderboardSection
+              leaderboard={sortedLeaderboard}
+              season={selectedSeason}
+              playerBackTo={
+                selectedSeason
+                  ? buildDungeonPath(selectedSeason, dungeon)
+                  : undefined
+              }
+              isLoading={isPendingLeaderboard && !dungeonLeaderboardData}
+              error={leaderboardError}
+              onRetry={handleRetry}
+            />
+
+            <aside className="flex h-full min-h-0 flex-col gap-lg">
+              <MistakeMixSection mix={mistakeMix} />
+              <AchievementsSection achievements={achievements} className="mt-auto" />
+            </aside>
+          </div>
+
+          <DungeonReputationSection
+            summary={meatGrinderSummary}
+            scores={reputationScores}
+            dungeonTotalMistakes={dungeon.totalMistakes}
+            dungeonTotalYeets={dungeon.totalYeets}
+          />
         </div>
       ) : null}
     </PageBoundary>

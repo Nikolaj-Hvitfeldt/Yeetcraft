@@ -1,19 +1,38 @@
-import { Link } from "react-router-dom";
+import { useLocation, useNavigate } from 'react-router-dom'
+import { resetScrollPosition } from '../../utils/scroll'
 
 export function BackButton({
-  to = "/",
-  label = "Back to leaderboard",
+  fallbackTo = '/',
+  to,
+  toState,
+  label = 'Back',
   className,
 }: BackButtonProps) {
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  function handleBack() {
+    if (to) {
+      navigate(to, { replace: true, state: toState })
+    } else if (location.key !== 'default') {
+      navigate(-1)
+    } else {
+      navigate(fallbackTo)
+    }
+
+    resetScrollPosition()
+  }
+
   return (
-    <Link
-      to={to}
-      className={`inline-flex h-11 items-center gap-sm rounded-2xl border border-border-subtle bg-surface-section px-lg text-sm font-semibold leading-[18px] transition-colors hover:border-accent-primary hover:text-accent-primary ${className ?? ""}`}
+    <button
+      type="button"
+      onClick={handleBack}
+      className={`inline-flex h-11 appearance-none items-center justify-center gap-sm rounded-2xl border border-border-subtle bg-surface-section px-lg text-sm font-semibold leading-none transition-colors hover:border-accent-primary hover:text-accent-primary ${className ?? ''}`}
     >
       <ChevronLeftIcon className="size-4 shrink-0" />
-      {label}
-    </Link>
-  );
+      <span className="leading-none">{label}</span>
+    </button>
+  )
 }
 
 function ChevronLeftIcon({ className }: { className?: string }) {
@@ -33,11 +52,13 @@ function ChevronLeftIcon({ className }: { className?: string }) {
         strokeLinejoin="round"
       />
     </svg>
-  );
+  )
 }
 
 interface BackButtonProps {
-  to?: string;
-  label?: string;
-  className?: string;
+  fallbackTo?: string
+  to?: string
+  toState?: unknown
+  label?: string
+  className?: string
 }

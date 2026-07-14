@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import type { DungeonSummary, SeasonSummary } from '../../api/types'
 import type { DungeonBannerSeasonKey } from '../../assets/dungeon-images'
 import { cn } from '../../utils/cn'
-import { buildDungeonPath } from '../../utils/routes'
+import { buildDungeonDetailState, buildDungeonPath, buildSeasonHomePath } from '../../utils/routes'
 import { getDungeonBannerImage } from '../../utils/dungeon-image'
 
 export function DungeonCard({ dungeon, season, bannerSeasonKey }: DungeonCardProps) {
@@ -14,6 +14,7 @@ export function DungeonCard({ dungeon, season, bannerSeasonKey }: DungeonCardPro
   return (
     <Link
       to={to}
+      state={season ? buildDungeonDetailState(buildSeasonHomePath(season)) : undefined}
       className={cn(
         'group relative flex h-14 w-full items-center justify-between overflow-hidden rounded-2xl border px-md text-left transition-colors',
         bannerImageUrl

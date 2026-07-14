@@ -8,6 +8,10 @@ import './styles/index.css'
 
 captureTokenFromUrl()
 
+if ('scrollRestoration' in window.history) {
+  window.history.scrollRestoration = 'manual'
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

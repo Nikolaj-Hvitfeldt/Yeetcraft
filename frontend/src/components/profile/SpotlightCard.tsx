@@ -1,21 +1,58 @@
-import { SkullIcon } from '../SkullIcon'
+import type { ReactNode } from 'react'
+import type { WowIconKey } from '../../assets/wow-icons'
+import { WowIcon } from '../WowIcon'
+import { STAT_COLOR_BY_KIND, type StatKind } from '../../utils/stat-colors'
+
+const WOW_ICON_BY_KIND: Partial<Record<StatKind | 'default', WowIconKey>> = {
+  deaths: 'deaths',
+  yeets: 'yeets',
+  default: 'safestPlayer',
+}
+
+function renderSpotlightIcon(categoryKind?: StatKind | 'default') {
+  const wowIcon = categoryKind ? WOW_ICON_BY_KIND[categoryKind] : undefined
+
+  if (wowIcon) {
+    return (
+      <WowIcon
+        icon={wowIcon}
+        size={28}
+        objectFit={categoryKind === 'deaths' ? 'contain' : 'cover'}
+        className={
+          categoryKind === 'yeets' || categoryKind === 'default'
+            ? 'size-7 rounded-full'
+            : 'size-7'
+        }
+      />
+    )
+  }
+
+  return null
+}
 
 export function SpotlightCard({
   category,
   title,
   subtitle,
   value,
+  categoryKind,
+  icon,
   className,
 }: SpotlightCardProps) {
+  const categoryClassName =
+    categoryKind && categoryKind !== 'default'
+      ? STAT_COLOR_BY_KIND[categoryKind]
+      : 'text-text-secondary'
+
   return (
     <article
       className={`flex h-[140px] flex-col rounded-3xl border border-border-subtle bg-surface-section p-xl ${className ?? ''}`}
     >
       <div className="flex items-center justify-between">
-        <div className="rounded-2xl bg-accent-purple p-sm">
-          <SkullIcon className="size-[18px] text-background-app" />
+        <div className="shrink-0">
+          {icon ?? renderSpotlightIcon(categoryKind)}
         </div>
-        <p className="text-xs leading-4 text-text-secondary">{category}</p>
+        <p className={`text-xs leading-4 ${categoryClassName}`}>{category}</p>
       </div>
       <div className="mt-lg flex items-end justify-between">
         <div>
@@ -33,5 +70,7 @@ interface SpotlightCardProps {
   title: string
   subtitle: string
   value: number | string
+  categoryKind?: StatKind | 'default'
+  icon?: ReactNode
   className?: string
 }

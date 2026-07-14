@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import type { DungeonStats } from "../../api/types";
 import {
   deriveLeaderboard,
@@ -9,7 +9,7 @@ import {
   useSetPlayerStats,
 } from "../../hooks";
 import { PageBoundary } from "../layout/PageBoundary";
-import { buildPlayerPath } from "../../utils/routes";
+import { buildPlayerPath, type PageBackState } from "../../utils/routes";
 import { findPlayerBySlug, playerSlug } from "../../utils/slug";
 import { SeasonPicker } from "../home/SeasonPicker";
 import { HomeNavigation } from "../home/HomeNavigation";
@@ -32,8 +32,11 @@ import { type PlayerCharacter } from "../../data/player-characters";
 export function PlayerProfile() {
   const { playerSlug: playerSlugParam } = useParams<{ playerSlug: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { seasons, isSeasonReady, selectedSeasonId, selectedSeason, setSeasonId, homePath } =
     useSeasonId();
+  const profileBackTo =
+    (location.state as PageBackState | null)?.backTo ?? homePath;
 
   const { data: seasonLeaders } = useSeasonLeaders(selectedSeasonId, {
     enabled: isSeasonReady,
@@ -233,8 +236,11 @@ export function PlayerProfile() {
     const canonicalSlug = playerSlug(playerStats.player);
     if (playerSlugParam === canonicalSlug) return;
 
-    navigate(buildPlayerPath(selectedSeason, playerStats.player), { replace: true });
-  }, [navigate, playerSlugParam, playerStats, selectedSeason]);
+    navigate(buildPlayerPath(selectedSeason, playerStats.player), {
+      replace: true,
+      state: location.state,
+    });
+  }, [location.state, navigate, playerSlugParam, playerStats, selectedSeason]);
 
   return (
     <PageBoundary
@@ -256,7 +262,7 @@ export function PlayerProfile() {
           ) : null}
 
           <HomeNavigation homePath={homePath} />
-          <BackButton to={homePath} className="self-start" />
+          <BackButton to={profileBackTo} fallbackTo={homePath} className="self-start" />
 
             <header className="relative flex flex-col gap-2xl overflow-hidden rounded-3xl border border-accent-secondary bg-surface-section p-2xl shadow-2xl sm:flex-row sm:items-start sm:justify-between">
               <div className="flex min-w-0 flex-1 items-start gap-lg">
@@ -358,6 +364,11 @@ export function PlayerProfile() {
               isSaving={isSaving}
               onAdjust={handleAdjustDraft}
               season={playerStats.season}
+              dungeonBackTo={buildPlayerPath(
+                playerStats.season,
+                playerStats.player,
+              )}
+              profileBackTo={profileBackTo}
             />
         </div>
       ) : null}

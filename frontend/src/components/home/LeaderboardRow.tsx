@@ -3,7 +3,7 @@ import type { WowIconKey } from '../../assets/wow-icons'
 import type { LeaderboardPlayerStats } from '../../hooks'
 import { cn } from '../../utils/cn'
 import type { SeasonSummary } from '../../api/types'
-import { buildPlayerPath } from '../../utils/routes'
+import { buildPageBackState, buildPlayerPath, buildSeasonHomePath } from '../../utils/routes'
 import { WowIcon } from '../WowIcon'
 import { Avatar } from '../ui/Avatar'
 import { CrownBadge } from '../ui/CrownBadge'
@@ -29,6 +29,7 @@ export function LeaderboardRow({
   return (
     <Link
       to={playerPath}
+      state={season ? buildPageBackState(buildSeasonHomePath(season)) : undefined}
       className="group grid min-h-[85px] grid-cols-[52px_1fr] items-center gap-lg rounded-2xl border border-border-subtle bg-surface-base px-md py-md transition-colors hover:border-accent-primary sm:grid-cols-[56px_minmax(220px,1fr)_minmax(230px,auto)]"
     >
       <div
