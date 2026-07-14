@@ -36,6 +36,7 @@ export default {
         },
         border: {
           subtle: 'var(--color-border-subtle)',
+          emphasis: 'var(--color-border-emphasis)',
         },
         avatar: {
           bg: 'var(--color-avatar-bg)',

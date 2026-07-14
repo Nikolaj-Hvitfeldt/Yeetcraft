@@ -18,8 +18,7 @@ export function PlayerProfileHeader({
   characters,
 }: PlayerProfileHeaderProps) {
   return (
-    <header className="relative flex flex-col gap-2xl overflow-hidden rounded-3xl border border-accent-secondary bg-surface-section p-2xl shadow-2xl sm:flex-row sm:items-start sm:justify-between">
-      <div className="flex min-w-0 flex-1 items-start gap-lg">
+    <header className="relative flex flex-col gap-2xl overflow-hidden rounded-3xl border border-accent-secondary bg-surface-section p-2xl shadow-2xl sm:flex-row sm:items-start sm:justify-between">      <div className="flex min-w-0 flex-1 items-start gap-lg">
         <Avatar
           name={playerStats.player.displayName}
           imageUrl={playerStats.player.avatarUrl}
@@ -44,7 +43,6 @@ export function PlayerProfileHeader({
           <p className="pt-sm text-sm leading-5 text-text-secondary">
             {characters.length} characters tracked this season
           </p>
-
           <div className="flex flex-wrap gap-md pt-sm">
             {characters.map((character) => (
               <CharacterTag

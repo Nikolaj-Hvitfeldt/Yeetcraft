@@ -4,7 +4,7 @@ export function HomeHero({ total, deaths, yeets }: HomeHeroProps) {
   return (
     <header className="w-full pt-4xl text-center">
       <div className="flex flex-col items-center">
-        <div className="flex w-full max-w-[448px] flex-col items-center">
+        <div className="flex w-full flex-col items-center">
           <p className="whitespace-nowrap text-xs font-bold leading-4 text-accent-primary">
             Hall of Shame
           </p>

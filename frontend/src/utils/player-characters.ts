@@ -1,27 +1,31 @@
 import {
-  CHARACTERS_BY_PLAYER,
-  ROLES_BY_PLAYER,
+  PLAYERS_BY_KEY,
   type PlayerCharacter,
   type PlayerRole,
 } from '../data/player-characters'
 
-export function getCharactersForPlayer(
-  displayName: string | undefined,
-): PlayerCharacter[] {
-  if (!displayName) return []
-
-  const key = displayName.trim().toLowerCase()
-  const characters = CHARACTERS_BY_PLAYER[key]
-
-  if (characters) return characters
-
-  return [{ name: displayName }]
+function getPlayerKey(displayName: string | undefined): string | undefined {
+  if (!displayName) return undefined
+  return displayName.trim().toLowerCase()
 }
 
-export function getRolesForPlayer(
-  displayName: string | undefined,
-): PlayerRole[] {
-  if (!displayName) return []
+export function getPlayerProfile(displayName: string | undefined): {
+  characters: PlayerCharacter[]
+  roles: PlayerRole[]
+} {
+  const key = getPlayerKey(displayName)
+  if (!key) return { characters: [], roles: [] }
 
-  return ROLES_BY_PLAYER[displayName.trim().toLowerCase()] ?? []
+  const profile = PLAYERS_BY_KEY[key]
+  if (profile) {
+    return {
+      characters: profile.characters,
+      roles: profile.roles,
+    }
+  }
+
+  return {
+    characters: [{ name: displayName }],
+    roles: [],
+  }
 }

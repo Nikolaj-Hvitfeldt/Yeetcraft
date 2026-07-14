@@ -1,6 +1,14 @@
 import type { SeasonSummary } from '../api/types'
 import { findSeasonBySlug } from './slug'
 
+export function formatSeasonLabel(
+  season: SeasonSummary | undefined,
+  fallback = 'Unknown season',
+): string {
+  if (!season) return fallback
+  return season.expansion ? `${season.expansion} ${season.name}` : season.name
+}
+
 export function findSelectedSeason(
   seasons: SeasonSummary[],
   seasonKey: string | null | undefined,

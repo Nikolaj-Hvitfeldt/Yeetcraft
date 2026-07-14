@@ -1,5 +1,6 @@
 import type { SeasonSummary } from '../../api/types'
 import type { LeaderboardPlayerStats } from '../../hooks'
+import { formatSeasonLabel } from '../../utils/season'
 import { PanelState } from '../ui/PanelState'
 import { Tag } from '../ui/Tag'
 import { LeaderboardRow } from './LeaderboardRow'
@@ -18,11 +19,7 @@ export function RankingsPanel({
   kingOfDeathsId,
 }: RankingsPanelProps) {
   const selectedSeason = seasons.find((season) => season.id === selectedSeasonId)
-  const seasonLabel = selectedSeason
-    ? selectedSeason.expansion
-      ? `${selectedSeason.expansion} ${selectedSeason.name}`
-      : selectedSeason.name
-    : 'Unknown season'
+  const seasonLabel = formatSeasonLabel(selectedSeason)
   const playerLabel = leaderboard.length === 1 ? 'player' : 'players'
 
   return (

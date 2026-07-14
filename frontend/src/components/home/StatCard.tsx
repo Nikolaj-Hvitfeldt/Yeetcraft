@@ -20,7 +20,7 @@ export function StatCard({ label, value, kind }: StatCardProps) {
 
   return (
     <div className="flex w-28 flex-col items-center gap-sm">
-      <article className="yeetcraft-stat-card relative flex h-[100px] w-full flex-col items-center justify-center overflow-hidden rounded-[8px] border border-border-subtle bg-surface-base px-[10px] py-[10px]">
+      <article className="relative flex h-[100px] w-full flex-col items-center justify-center overflow-hidden rounded-[8px] border border-accent-primary bg-surface-base px-[10px] py-[10px]">
         <WowIcon
           icon={icon}
           fluid

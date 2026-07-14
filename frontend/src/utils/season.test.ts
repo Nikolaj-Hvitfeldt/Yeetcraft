@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { SeasonSummary } from '../api/types'
-import { resolveSeasonId } from './season'
+import { formatSeasonLabel, resolveSeasonId } from './season'
 import { toSlug } from './slug'
 
 const seasonOneId = '11111111-1111-4111-8111-111111111111'
@@ -10,6 +10,17 @@ const seasons: SeasonSummary[] = [
   { id: seasonOneId, name: 'Midnight Season 1', expansion: 'Midnight', isCurrent: false },
   { id: seasonTwoId, name: 'Midnight Season 2', expansion: 'Midnight', isCurrent: true },
 ]
+
+describe('formatSeasonLabel', () => {
+  it('combines expansion and season name', () => {
+    expect(formatSeasonLabel(seasons[0])).toBe('Midnight Midnight Season 1')
+  })
+
+  it('returns fallback when season is missing', () => {
+    expect(formatSeasonLabel(undefined)).toBe('Unknown season')
+    expect(formatSeasonLabel(undefined, 'Select season')).toBe('Select season')
+  })
+})
 
 describe('resolveSeasonId', () => {
   it('returns requested season when valid slug', () => {
