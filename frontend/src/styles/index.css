@@ -132,19 +132,6 @@
       drop-shadow(0 4px 10px rgba(0, 0, 0, 0.34));
   }
 
-  [data-theme='daytime'] .yeetcraft-brand-title {
-    background-image: linear-gradient(
-      180deg,
-      #fff0c8 0%,
-      #f0d078 24%,
-      #d4a84a 58%,
-      #b8892e 84%,
-      #8c6520 100%
-    );
-    filter: drop-shadow(0 2px 0 rgba(92, 69, 24, 0.5))
-      drop-shadow(0 4px 10px rgba(0, 0, 0, 0.34));
-  }
-
   [data-theme='midnight'] .yeetcraft-brand-title {
     background-image: linear-gradient(
       180deg,

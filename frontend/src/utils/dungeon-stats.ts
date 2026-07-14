@@ -189,8 +189,7 @@ export function getDungeonHighlights(leaderboard: DungeonLeaderboardEntry[]): {
           displayName: safestPlayerEntry.displayName,
           avatarUrl: safestPlayerEntry.avatarUrl,
           value: safestPlayerEntry.totalMistakes,
-          subtitle:
-            safestPlayerEntry.totalMistakes === 0 ? "mistakes" : "mistakes",
+          subtitle: "mistakes",
         }
       : null,
   };

@@ -28,7 +28,7 @@ func main() {
 		defer databasePool.Close()
 		log.Printf("connected to database")
 	} else {
-		log.Printf("database not configured, using mock data")
+		log.Printf("database not configured, API requests will return errors")
 	}
 
 	statsRepository := repository.NewStatsRepository(databasePool)

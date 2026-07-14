@@ -1,19 +1,19 @@
 # Yeetcraft
 
-Minimal full-stack app for tracking World of Warcraft dungeon mistakes (wipes, deaths, yeets) among friends.
+Full-stack app for tracking World of Warcraft dungeon mistakes (deaths, yeets) among friends across seasons.
 
 ## Tech stack
 
 | Layer    | Stack                                                                 |
 | -------- | --------------------------------------------------------------------- |
-| Backend  | Go, net/http, chi, pgx → PostgreSQL (e.g. Supabase)                  |
-| Frontend | React, TypeScript, Vite, Tailwind CSS, TanStack Query & Table, React Router |
+| Backend  | Go, chi, pgx → PostgreSQL (e.g. Supabase)                            |
+| Frontend | React, TypeScript, Vite, Tailwind CSS, TanStack Query, React Router  |
 
 ## Prerequisites
 
 - **Backend**: Go 1.22 or newer
 - **Frontend**: Node.js and npm
-- **Database** (optional for local dev): PostgreSQL; the mistakes API currently uses **mock data** until `MistakeRepository` is switched to real queries. See `backend/db/schema.sql` for an example table.
+- **Database**: PostgreSQL (required for API data). See `backend/db/schema.sql` for the schema.
 
 ## Repository layout
 
@@ -33,7 +33,7 @@ go run ./cmd/server
 
 The API listens on **8080** by default (`SERVER_HOST` / `SERVER_PORT` env overrides).
 
-Without database credentials, the server starts with **mock data**. Set `DATABASE_URL` (or `DB_*` fields) to connect to Supabase.
+Without `DATABASE_URL` (or `DB_*` fields), the server starts but API requests return database errors. Set database credentials to connect to Supabase or another PostgreSQL instance.
 
 ### Supabase connection
 
@@ -47,9 +47,7 @@ Example (replace `[project-ref]`, `[password]`, and `[region]`):
 DATABASE_URL=postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
 ```
 
-Your project API URL is `https://ocftsglltygqicwwrdrm.supabase.co` — the DB host uses the same project ref: `db.ocftsglltygqicwwrdrm.supabase.co`.
-
-RLS is enabled on all tables with **no public policies**, so only the backend (postgres role) can read/write. The React app should continue to call the Go API, not Supabase directly.
+RLS is enabled on all tables with **no public policies**, so only the backend (postgres role) can read/write. The React app calls the Go API, not Supabase directly.
 
 ### Frontend
 
@@ -63,8 +61,6 @@ Open the app at **http://localhost:3000**. Requests to `/api/*` are proxied to *
 
 ## Environment variables
 
-Set these for production or when pointing at a real database (e.g. Supabase):
-
 | Variable                                              | Purpose                                      |
 | ----------------------------------------------------- | -------------------------------------------- |
 | `SERVER_HOST`                                         | Bind address (default: `0.0.0.0`)          |
@@ -72,11 +68,33 @@ Set these for production or when pointing at a real database (e.g. Supabase):
 | `DATABASE_URL`                                        | Supabase/Postgres URI (preferred)           |
 | `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` | PostgreSQL connection (alternative)   |
 | `DB_SSL_MODE`                                         | PostgreSQL `sslmode` (default: `require`)   |
-| `API_KEY`                                             | Optional; URL-based API key auth when set   |
+| `API_KEY`                                             | Optional; protects write endpoints when set |
 
 ## API
 
-| Method | Path             | Description                                                    |
-| ------ | ---------------- | -------------------------------------------------------------- |
-| `GET`  | `/api/health`    | Health check                                                   |
-| `GET`  | `/api/mistakes`  | List mistakes (mock data until DB layer is enabled)            |
+| Method  | Path                                                              | Auth   | Description                          |
+| ------- | ----------------------------------------------------------------- | ------ | ------------------------------------ |
+| `GET`   | `/api/health`                                                     | No     | Health check                         |
+| `GET`   | `/api/seasons`                                                    | Yes*   | List seasons                         |
+| `GET`   | `/api/seasons/leaders?seasonId=`                                  | Yes*   | Season leaderboard and crown players |
+| `GET`   | `/api/seasons/current/dungeons?seasonId=`                         | Yes*   | Dungeons for a season                |
+| `GET`   | `/api/players/{playerId}/stats?seasonId=`                         | Yes*   | Player stats by dungeon              |
+| `GET`   | `/api/seasons/{seasonId}/dungeons/{dungeonId}/leaderboard`        | Yes*   | Dungeon leaderboard                  |
+| `PATCH` | `/api/stats/batch`                                                | Yes*   | Batch update player dungeon stats    |
+
+\*Auth is enforced when `API_KEY` is set. The frontend sends `X-API-Key` from the URL token or local storage.
+
+## Development
+
+```powershell
+# Frontend
+cd frontend
+npm run lint
+npm test
+npm run build
+
+# Backend
+cd backend
+go test ./...
+go build ./cmd/server
+```
