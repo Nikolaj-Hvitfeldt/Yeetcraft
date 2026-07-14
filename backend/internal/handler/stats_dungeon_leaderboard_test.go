@@ -29,6 +29,10 @@ func (stub dungeonLeaderboardRepositoryStub) GetPlayerStats(context.Context, str
 	return repository.PlayerStats{}, nil
 }
 
+func (stub dungeonLeaderboardRepositoryStub) GetPlayerStatsByDisplaySlug(context.Context, string, string) (repository.PlayerStats, error) {
+	return repository.PlayerStats{}, nil
+}
+
 func (stub dungeonLeaderboardRepositoryStub) ListSeasons(context.Context) ([]repository.SeasonSummary, error) {
 	return nil, nil
 }
@@ -39,10 +43,6 @@ func (stub dungeonLeaderboardRepositoryStub) ListSeasonDungeons(context.Context,
 
 func (stub dungeonLeaderboardRepositoryStub) ListDungeonLeaderboard(context.Context, string, string) (repository.DungeonLeaderboard, error) {
 	return stub.leaderboard, stub.err
-}
-
-func (stub dungeonLeaderboardRepositoryStub) SetStats(context.Context, string, string, string, int, int) (repository.StatRow, error) {
-	return repository.StatRow{}, nil
 }
 
 func (stub dungeonLeaderboardRepositoryStub) SetStatsBatch(context.Context, string, string, []repository.StatUpdate) ([]repository.StatRow, error) {

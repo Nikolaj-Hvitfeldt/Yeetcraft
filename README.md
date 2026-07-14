@@ -79,6 +79,7 @@ Open the app at **http://localhost:3000**. Requests to `/api/*` are proxied to *
 | `GET`   | `/api/seasons/leaders?seasonId=`                                  | Yes*   | Season leaderboard and crown players |
 | `GET`   | `/api/seasons/current/dungeons?seasonId=`                         | Yes*   | Dungeons for a season                |
 | `GET`   | `/api/players/{playerId}/stats?seasonId=`                         | Yes*   | Player stats by dungeon              |
+| `GET`   | `/api/players/by-slug/{playerSlug}/stats?seasonId=`               | Yes*   | Player stats by display-name slug    |
 | `GET`   | `/api/seasons/{seasonId}/dungeons/{dungeonId}/leaderboard`        | Yes*   | Dungeon leaderboard                  |
 | `PATCH` | `/api/stats/batch`                                                | Yes*   | Batch update player dungeon stats    |
 
