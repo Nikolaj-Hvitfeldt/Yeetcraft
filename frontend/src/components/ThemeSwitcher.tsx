@@ -1,4 +1,4 @@
-import { useEffect, useRef, type KeyboardEvent } from "react";
+import { useRef, type KeyboardEvent } from "react";
 import { useTheme } from "../hooks";
 import { cn } from "../utils/cn";
 
@@ -13,26 +13,23 @@ export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
-  useEffect(() => {
-    const activeIndex = THEMES.findIndex((entry) => entry.key === theme);
-    buttonRefs.current[activeIndex]?.focus();
-  }, [theme]);
-
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     const activeIndex = THEMES.findIndex((entry) => entry.key === theme);
     if (activeIndex === -1) return;
 
     if (event.key === "ArrowRight" || event.key === "ArrowDown") {
       event.preventDefault();
-      const nextTheme = THEMES[(activeIndex + 1) % THEMES.length];
-      setTheme(nextTheme.key);
+      const nextIndex = (activeIndex + 1) % THEMES.length;
+      setTheme(THEMES[nextIndex].key);
+      buttonRefs.current[nextIndex]?.focus();
       return;
     }
 
     if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
       event.preventDefault();
-      const nextTheme = THEMES[(activeIndex - 1 + THEMES.length) % THEMES.length];
-      setTheme(nextTheme.key);
+      const nextIndex = (activeIndex - 1 + THEMES.length) % THEMES.length;
+      setTheme(THEMES[nextIndex].key);
+      buttonRefs.current[nextIndex]?.focus();
     }
   }
 

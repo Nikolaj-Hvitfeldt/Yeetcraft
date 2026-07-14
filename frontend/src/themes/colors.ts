@@ -43,7 +43,7 @@ export const colorThemes = {
       subtle: 'rgba(180, 148, 102, 0.22)',
     },
     surface: {
-      base: '#352918',
+      base: '#2D1C0A',
       section: '#24180B',
     },
     avatar: {
