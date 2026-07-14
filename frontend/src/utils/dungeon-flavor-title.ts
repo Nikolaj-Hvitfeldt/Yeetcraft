@@ -1,5 +1,11 @@
 import type { DungeonMistakeLeader, DungeonSummary } from "../api/types";
+import {
+  getFlavorDescription,
+  type FlavorDescriptionContext,
+} from "./dungeon-flavor-description";
 import { getAverageMistakesPerDungeon } from "./dungeon-stats";
+
+export type { FlavorDescriptionContext } from "./dungeon-flavor-description";
 
 const YEET_SHARE_THRESHOLD = 0.65;
 const DEATH_SHARE_THRESHOLD = 0.65;
@@ -9,6 +15,12 @@ export type DungeonFlavorTitleInput = {
   dungeon: DungeonSummary;
   allDungeons: DungeonSummary[];
   dungeonMistakeLeaders?: DungeonMistakeLeader[];
+  descriptionContext?: FlavorDescriptionContext;
+};
+
+export type DungeonFlavorTitleResult = {
+  title: string;
+  description: string;
 };
 
 type DungeonTitleContext = {
@@ -18,7 +30,6 @@ type DungeonTitleContext = {
 
 type UniqueDungeonTitleRule = {
   title: string;
-  tooltip: string;
   pickWinner: (
     dungeons: DungeonSummary[],
     context: DungeonTitleContext,
@@ -152,7 +163,6 @@ function buildDungeonTitleContext(
 const UNIQUE_DUNGEON_TITLE_RULES: UniqueDungeonTitleRule[] = [
   {
     title: "The Meat Grinder",
-    tooltip: "The dungeon with the most total mistakes.",
     pickWinner: (dungeons, context, excludedDungeonIds) =>
       pickHighestScoringDungeon(
         dungeons,
@@ -163,7 +173,6 @@ const UNIQUE_DUNGEON_TITLE_RULES: UniqueDungeonTitleRule[] = [
   },
   {
     title: "The Launch Pad",
-    tooltip: "The dungeon with the most yeets.",
     pickWinner: (dungeons, context, excludedDungeonIds) =>
       pickHighestScoringDungeon(
         dungeons,
@@ -174,7 +183,6 @@ const UNIQUE_DUNGEON_TITLE_RULES: UniqueDungeonTitleRule[] = [
   },
   {
     title: "The Graveyard Shift",
-    tooltip: "The dungeon with the most deaths.",
     pickWinner: (dungeons, context, excludedDungeonIds) =>
       pickHighestScoringDungeon(
         dungeons,
@@ -185,8 +193,6 @@ const UNIQUE_DUNGEON_TITLE_RULES: UniqueDungeonTitleRule[] = [
   },
   {
     title: "The Scapegoat Factory",
-    tooltip:
-      "One player is responsible for the biggest share of mistakes here.",
     pickWinner: (dungeons, context, excludedDungeonIds) =>
       pickHighestScoringDungeon(
         dungeons,
@@ -199,7 +205,6 @@ const UNIQUE_DUNGEON_TITLE_RULES: UniqueDungeonTitleRule[] = [
   },
   {
     title: "The Yeet Cannon",
-    tooltip: "The highest yeet share in any dungeon",
     pickWinner: (dungeons, context, excludedDungeonIds) =>
       pickHighestScoringDungeon(
         dungeons,
@@ -211,7 +216,6 @@ const UNIQUE_DUNGEON_TITLE_RULES: UniqueDungeonTitleRule[] = [
   },
   {
     title: "The Floor Is Lava",
-    tooltip: "The highest death share in any dungeon",
     pickWinner: (dungeons, context, excludedDungeonIds) =>
       pickHighestScoringDungeon(
         dungeons,
@@ -223,7 +227,6 @@ const UNIQUE_DUNGEON_TITLE_RULES: UniqueDungeonTitleRule[] = [
   },
   {
     title: "The Committee Meeting",
-    tooltip: "Blame is spread out the most here.",
     pickWinner: (dungeons, context, excludedDungeonIds) =>
       pickLowestScoringDungeon(
         dungeons,
@@ -244,7 +247,6 @@ const UNIQUE_DUNGEON_TITLE_RULES: UniqueDungeonTitleRule[] = [
   },
   {
     title: "The Quiet Lobby",
-    tooltip: "The fewest total mistakes.",
     pickWinner: (dungeons, context, excludedDungeonIds) =>
       pickLowestScoringDungeon(
         dungeons,
@@ -292,12 +294,9 @@ export function assignUniqueDungeonTitles(
 function getFallbackDungeonTitle(
   dungeon: DungeonSummary,
   allDungeons: DungeonSummary[],
-): DungeonFlavorTitleResult {
+): string {
   if (dungeon.totalMistakes <= 0) {
-    return {
-      title: "The Clean Record",
-      tooltip: "No recorded mistakes here yet.",
-    };
+    return "The Clean Record";
   }
 
   const yeetShare = getYeetShare(dungeon);
@@ -305,73 +304,74 @@ function getFallbackDungeonTitle(
   const seasonAverageMistakes = getAverageMistakesPerDungeon(allDungeons);
 
   if (yeetShare >= YEET_SHARE_THRESHOLD) {
-    return {
-      title: "The Gravity Lounge",
-      tooltip: "Most of this dungeon's mistakes are yeets.",
-    };
+    return "The Gravity Lounge";
   }
 
   if (deathShare >= DEATH_SHARE_THRESHOLD) {
-    return {
-      title: "The Respawn Tax Office",
-      tooltip: "Most of this dungeon's mistakes are deaths.",
-    };
+    return "The Respawn Tax Office";
   }
 
   if (
     seasonAverageMistakes > 0 &&
     dungeon.totalMistakes > seasonAverageMistakes * 1.1
   ) {
-    return {
-      title: "The Punching Bag",
-      tooltip: "More mistakes than the season average.",
-    };
+    return "The Punching Bag";
   }
 
   if (
     seasonAverageMistakes > 0 &&
     dungeon.totalMistakes < seasonAverageMistakes * 0.9
   ) {
-    return {
-      title: "The Soft Touch",
-      tooltip: "Fewer mistakes than the season average.",
-    };
+    return "The Soft Touch";
   }
 
-  return {
-    title: "The Season Regular",
-    tooltip: "Sits in the middle of the pack for the season.",
-  };
+  return "The Season Regular";
 }
 
-export type DungeonFlavorTitleResult = {
-  title: string;
-  tooltip: string;
-};
+function buildDescription(
+  title: string,
+  input: DungeonFlavorTitleInput,
+): string {
+  const context =
+    input.descriptionContext ??
+    ({
+      dungeonName: input.dungeon.name,
+      totalMistakes: input.dungeon.totalMistakes,
+      totalDeaths: input.dungeon.totalDeaths,
+      totalYeets: input.dungeon.totalYeets,
+      playerCount: 0,
+      contributorCount: 0,
+      cleanPlayerCount: 0,
+      seasonAverageMistakes: Number(
+        getAverageMistakesPerDungeon(input.allDungeons).toFixed(1),
+      ),
+      yeetSharePercent:
+        input.dungeon.totalMistakes > 0
+          ? Math.round(
+              (input.dungeon.totalYeets / input.dungeon.totalMistakes) * 100,
+            )
+          : 0,
+      deathSharePercent:
+        input.dungeon.totalMistakes > 0
+          ? Math.round(
+              (input.dungeon.totalDeaths / input.dungeon.totalMistakes) * 100,
+            )
+          : 0,
+    } satisfies FlavorDescriptionContext);
 
-const UNIQUE_TITLE_TOOLTIPS = new Map(
-  UNIQUE_DUNGEON_TITLE_RULES.map((rule) => [rule.title, rule.tooltip]),
-);
-
-export function getDungeonFlavorTitleTooltip(title: string): string {
-  return (
-    UNIQUE_TITLE_TOOLTIPS.get(title) ??
-    "A reputation label for this dungeon based on season stats."
-  );
+  return getFlavorDescription(title, context);
 }
 
 export function getDungeonFlavorTitle(
   input: DungeonFlavorTitleInput,
 ): DungeonFlavorTitleResult {
   const uniqueTitles = assignUniqueDungeonTitles(input);
-  const uniqueTitle = uniqueTitles.get(input.dungeon.id);
+  const title =
+    uniqueTitles.get(input.dungeon.id) ??
+    getFallbackDungeonTitle(input.dungeon, input.allDungeons);
 
-  if (uniqueTitle) {
-    return {
-      title: uniqueTitle,
-      tooltip: getDungeonFlavorTitleTooltip(uniqueTitle),
-    };
-  }
-
-  return getFallbackDungeonTitle(input.dungeon, input.allDungeons);
+  return {
+    title,
+    description: buildDescription(title, input),
+  };
 }

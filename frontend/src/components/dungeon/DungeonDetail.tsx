@@ -109,8 +109,7 @@ export function DungeonDetail() {
           })
         : {
             title: 'The Season Regular',
-            titleTooltip: 'Sits in the middle of the pack for the season.',
-            narrative: '',
+            description: '',
           },
     [dungeon, sortedLeaderboard, dungeons, seasonLeaders?.dungeonMistakeLeaders],
   )

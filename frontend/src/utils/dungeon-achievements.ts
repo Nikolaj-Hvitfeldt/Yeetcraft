@@ -286,7 +286,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
       return {
         eligible: true,
         holder: toHolder(player),
-        description: `${player.displayName} leads season mistakes for this dungeon`,
+        description: `${player.displayName} leads mistakes for this dungeon`,
         scoreBonus: player.totalMistakes,
       };
     },

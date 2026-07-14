@@ -3,7 +3,7 @@ import type {
   DungeonMistakeLeader,
   DungeonSummary,
 } from "../api/types";
-import { getDungeonFlavorTitle } from "./dungeon-flavor-title";
+import { getDungeonFlavorTitle, type FlavorDescriptionContext } from "./dungeon-flavor-title";
 import { pickLeader, pickSafestPlayer } from "./leaderboard-selection";
 
 export type { DungeonAchievement } from "./dungeon-achievements";
@@ -29,9 +29,8 @@ export interface DungeonReputationScores {
 }
 
 export interface DungeonMeatGrinderSummary {
-  narrative: string;
+  description: string;
   title: string;
-  titleTooltip: string;
 }
 
 export function getAverageMistakesPerDungeon(
@@ -255,20 +254,40 @@ function getBlameVerdict(
   return "Mistakes are spread across the group here.";
 }
 
-function getMistakeVolumeComparison(
-  dungeonTotalMistakes: number,
-  seasonAverageMistakesPerDungeon: number,
-): string {
-  if (seasonAverageMistakesPerDungeon <= 0) {
-    return dungeonTotalMistakes > 0 ? "above" : "around";
-  }
-  if (dungeonTotalMistakes > seasonAverageMistakesPerDungeon * 1.1) {
-    return "well above";
-  }
-  if (dungeonTotalMistakes < seasonAverageMistakesPerDungeon * 0.9) {
-    return "below";
-  }
-  return "around";
+function buildFlavorDescriptionContext(
+  dungeon: DungeonSummary,
+  leaderboard: DungeonLeaderboardEntry[],
+  allDungeons: DungeonSummary[],
+): FlavorDescriptionContext {
+  const contributors = leaderboard.filter(
+    (entry) => entry.totalMistakes > 0,
+  ).length;
+  const topOffender = pickLeader(
+    leaderboard,
+    (entry) => entry.totalMistakes,
+    (entry) => entry.yeets,
+  );
+  const mix = getMistakeMix(dungeon);
+
+  return {
+    dungeonName: dungeon.name,
+    totalMistakes: dungeon.totalMistakes,
+    totalDeaths: dungeon.totalDeaths,
+    totalYeets: dungeon.totalYeets,
+    playerCount: leaderboard.length,
+    contributorCount: contributors,
+    cleanPlayerCount: leaderboard.length - contributors,
+    seasonAverageMistakes: Number(
+      getAverageMistakesPerDungeon(allDungeons).toFixed(1),
+    ),
+    topPlayerName: topOffender?.displayName,
+    blameShare:
+      topOffender && dungeon.totalMistakes > 0
+        ? Math.round((topOffender.totalMistakes / dungeon.totalMistakes) * 100)
+        : undefined,
+    yeetSharePercent: mix.yeetsPercent,
+    deathSharePercent: mix.deathsPercent,
+  };
 }
 
 export function getMeatGrinderSummary(
@@ -279,36 +298,20 @@ export function getMeatGrinderSummary(
     dungeonMistakeLeaders?: DungeonMistakeLeader[];
   },
 ): DungeonMeatGrinderSummary {
-  const contributors = leaderboard.filter(
-    (entry) => entry.totalMistakes > 0,
-  ).length;
-  const cleanPlayers = leaderboard.length - contributors;
-  const averageMistakesPerDungeon = Number(
-    getAverageMistakesPerDungeon(allDungeons).toFixed(1),
-  );
-
-  const yeetLabel = dungeon.totalYeets === 1 ? "yeet" : "yeets";
-  const playerLabel = leaderboard.length === 1 ? "player" : "players";
-  const cleanLabel =
-    cleanPlayers === 1
-      ? "player stayed clean here"
-      : "players stayed clean here";
-
-  const narrative =
-    dungeon.totalMistakes <= 0
-      ? `${dungeon.name} has stayed spotless. No recorded mistakes across ${leaderboard.length} ${playerLabel}. The season averages ${averageMistakesPerDungeon} mistakes per dungeon.`
-      : `${dungeon.name} logged ${dungeon.totalMistakes} recorded mistakes: ${dungeon.totalDeaths} deaths and ${dungeon.totalYeets} ${yeetLabel}. ${contributors} of ${leaderboard.length} ${playerLabel} contributed; ${cleanPlayers} ${cleanLabel}. That's ${getMistakeVolumeComparison(dungeon.totalMistakes, averageMistakesPerDungeon)} the season average of ${averageMistakesPerDungeon} mistakes per dungeon.`;
-
   const flavorTitle = getDungeonFlavorTitle({
     dungeon,
     allDungeons,
     dungeonMistakeLeaders: options?.dungeonMistakeLeaders,
+    descriptionContext: buildFlavorDescriptionContext(
+      dungeon,
+      leaderboard,
+      allDungeons,
+    ),
   });
 
   return {
     title: flavorTitle.title,
-    titleTooltip: flavorTitle.tooltip,
-    narrative,
+    description: flavorTitle.description,
   };
 }
 
