@@ -144,9 +144,10 @@
     background-image: linear-gradient(
       180deg,
       #b4d2ff 0%,
-      #8caae6 45%,
-      #a078d2 70%,
-      #783cb4 100%
+      #8caae6 40%,
+      #a078d2 62%,
+      #6b21a8 82%,
+      #3b0764 100%
     );
     filter:
       drop-shadow(0 8px 20px rgba(0, 0, 0, 0.6))
