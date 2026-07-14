@@ -8,6 +8,7 @@ import {
 } from '../lib/query-persistence'
 import { QueryRestoreContext } from '../hooks/query-restore-context'
 import { OnlineRefetchListener } from './OnlineRefetchListener'
+import { WriteOutboxSyncListener } from './WriteOutboxSyncListener'
 
 type QueryAppProvidersProps = {
   client: QueryClient
@@ -32,6 +33,7 @@ export function QueryAppProviders({ client, children }: QueryAppProvidersProps) 
         onError={() => setIsRestoring(false)}
       >
         <OnlineRefetchListener />
+        <WriteOutboxSyncListener />
         {children}
       </PersistQueryClientProvider>
     </QueryRestoreContext.Provider>

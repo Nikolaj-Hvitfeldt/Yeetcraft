@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   deriveLeaderboard,
   usePlayerProfileEdit,
@@ -8,6 +9,8 @@ import {
   useSeasonLeaders,
 } from "../../hooks";
 import { usePageConnection } from "../../hooks/usePageConnectionState";
+import { useSetPlayerStatsOutboxStatus } from "../../hooks/useWriteOutboxStatus";
+import { retryOutboxSync } from "../../lib/write-outbox/sync";
 import { PageBoundary } from "../layout/PageBoundary";
 import { buildPlayerPath, type PageBackState } from "../../utils/routes";
 import { playerSlug } from "../../utils/slug";
@@ -26,6 +29,7 @@ import { getNemesisDungeon } from "../../utils/player-stats";
 import { getPlayerProfile } from "../../utils/player-characters";
 
 export function PlayerProfile() {
+  const queryClient = useQueryClient();
   const { playerSlug: playerSlugParam } = useParams<{ playerSlug: string }>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -62,6 +66,15 @@ export function PlayerProfile() {
     playerSlugParam,
     selectedSeasonId,
   });
+
+  const pendingSyncStatus = useSetPlayerStatsOutboxStatus(
+    playerStats?.player.id,
+    selectedSeasonId,
+  );
+
+  function handlePendingSyncRetry() {
+    void retryOutboxSync(queryClient);
+  }
 
   const nemesis = useMemo(
     () => (playerStats ? getNemesisDungeon(playerStats.dungeons) : null),
@@ -204,6 +217,8 @@ export function PlayerProfile() {
             isSaving={isSaving}
             onAdjust={handleAdjustDraft}
             season={playerStats.season}
+            pendingSyncStatus={pendingSyncStatus}
+            onPendingSyncRetry={handlePendingSyncRetry}
             dungeonBackTo={buildPlayerPath(
               playerStats.season,
               playerStats.player,

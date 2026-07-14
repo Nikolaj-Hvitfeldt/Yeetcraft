@@ -36,6 +36,10 @@ function toHttpApiError(status: number, message: string): ApiError {
     return new ApiError('server', message, { status })
   }
 
+  if (status === 400) {
+    return new ApiError('validation', message, { status })
+  }
+
   return new ApiError('unknown', message, { status })
 }
 
@@ -106,6 +110,9 @@ async function fetchApiWithBody<T>(
 
   if (!response.ok) {
     if (response.status === 401) {
+      if (token) {
+        localStorage.removeItem('yeetcraft_token')
+      }
       const error = await response.json().catch(() => ({ message: 'Unauthorized' }))
       throw toHttpApiError(
         401,

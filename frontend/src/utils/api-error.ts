@@ -104,5 +104,10 @@ export function getUserFacingErrorMessage(error: unknown): string {
 
 export function isRetryableError(error: unknown): boolean {
   const kind = getApiErrorKind(error)
-  return kind === 'network' || kind === 'timeout' || kind === 'server' || kind === 'unknown'
+  return (
+    kind === 'network' ||
+    kind === 'timeout' ||
+    kind === 'server' ||
+    (kind === 'unknown' && !(error instanceof ApiError && error.status === 400))
+  )
 }

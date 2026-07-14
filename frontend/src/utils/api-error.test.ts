@@ -64,10 +64,11 @@ describe('getUserFacingErrorMessage', () => {
 })
 
 describe('isRetryableError', () => {
-  it('returns false for auth, forbidden, and not found errors', () => {
+  it('returns false for auth, forbidden, not found, validation, and abort errors', () => {
     expect(isRetryableError(new ApiError('auth', 'Unauthorized'))).toBe(false)
     expect(isRetryableError(new ApiError('forbidden', 'Forbidden'))).toBe(false)
     expect(isRetryableError(new ApiError('not_found', 'Not found'))).toBe(false)
+    expect(isRetryableError(new ApiError('validation', 'Bad request'))).toBe(false)
     expect(isRetryableError(new ApiError('abort', 'Aborted'))).toBe(false)
   })
 

@@ -1,10 +1,19 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { z } from 'zod'
 import { fetchSetStatsBatch } from '../api/api'
-import { SetStatsBatchRequestSchema } from '../api/schemas'
 import type { PlayerStatsResponse, StatRow } from '../api/types'
+import { invalidateSetPlayerStatsQueries } from '../lib/write-outbox/reconcile-queries'
+import {
+  removeWriteByDedupeKey,
+  upsertSetPlayerStatsWrite,
+} from '../lib/write-outbox/store'
+import { syncOutbox } from '../lib/write-outbox/sync'
+import {
+  getSetPlayerStatsDedupeKey,
+  type SetPlayerStatsBatchRequest,
+} from '../lib/write-outbox/types'
+import { isRetryableError } from '../utils/api-error'
 
-export type SetPlayerStatsBatchRequest = z.infer<typeof SetStatsBatchRequestSchema>
+export type { SetPlayerStatsBatchRequest }
 
 type PlayerStatsQueryKey = ['player-stats', string, string]
 type PlayerStatsBySlugQueryKey = ['player-stats-by-slug', string, string]
@@ -90,7 +99,16 @@ export function useSetPlayerStats() {
 
       return { previousPlayerStats, previousSlugQueries } satisfies MutationContext
     },
-    onError: (_error, request, context) => {
+    onSuccess: async (_data, request) => {
+      await removeWriteByDedupeKey(getSetPlayerStatsDedupeKey(request))
+    },
+    onError: async (error, request, context) => {
+      if (isRetryableError(error)) {
+        await upsertSetPlayerStatsWrite(request)
+        void syncOutbox(queryClient)
+        return
+      }
+
       if (context?.previousPlayerStats) {
         queryClient.setQueryData(
           ['player-stats', request.playerId, request.seasonId],
@@ -102,16 +120,13 @@ export function useSetPlayerStats() {
         queryClient.setQueryData(queryKey, data)
       }
     },
-    onSettled: (_data, _error, request) => {
-      void queryClient.invalidateQueries({ queryKey: ['player-stats', request.playerId, request.seasonId] })
-      void queryClient.invalidateQueries({ queryKey: ['player-stats-by-slug'] })
-      void queryClient.invalidateQueries({ queryKey: ['season-leaders', request.seasonId] })
-      void queryClient.invalidateQueries({ queryKey: ['season-dungeons', request.seasonId] })
+    onSettled: async (data, error, request) => {
+      if (error && isRetryableError(error)) {
+        return
+      }
 
-      for (const update of request.stats) {
-        void queryClient.invalidateQueries({
-          queryKey: ['dungeon-leaderboard', request.seasonId, update.dungeonId],
-        })
+      if (data) {
+        await invalidateSetPlayerStatsQueries(queryClient, request)
       }
     },
   })
