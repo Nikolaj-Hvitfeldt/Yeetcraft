@@ -162,24 +162,31 @@ describe('getBlameShare', () => {
 })
 
 describe('getMeatGrinderSummary', () => {
-  it('summarizes dungeon reputation with season context', () => {
+  it('returns a title-themed flavor description with key stats', () => {
     const summary = getMeatGrinderSummary(dungeon, leaderboard, allDungeons)
 
-    expect(summary.narrative).toContain('3 recorded mistakes')
-    expect(summary.narrative).toContain('1 of 2 players contributed')
-    expect(summary.narrative).toContain('1 player stayed clean')
-    expect(summary.narrative).toContain('season average of 2 mistakes per dungeon')
+    expect(summary.title).toBe('The Meat Grinder')
+    expect(summary.description.length).toBeGreaterThanOrEqual(50)
+    expect(summary.description).toContain('Nexus-Point Xenas')
+    expect(summary.description).toContain('3 mistakes')
+    expect(summary.description).toMatch(/grind|roughest/i)
   })
 
-  it('describes a spotless dungeon', () => {
+  it('describes a spotless dungeon with quiet-lobby flavor', () => {
+    const spotlessDungeon = {
+      ...dungeon,
+      totalDeaths: 0,
+      totalYeets: 0,
+      totalMistakes: 0,
+    }
     const summary = getMeatGrinderSummary(
-      { ...dungeon, totalDeaths: 0, totalYeets: 0, totalMistakes: 0 },
+      spotlessDungeon,
       leaderboard,
-      allDungeons,
+      [spotlessDungeon, allDungeons[1]!],
     )
 
-    expect(summary.narrative).toContain('stayed spotless')
-    expect(summary.narrative).toContain('season averages 2 mistakes per dungeon')
+    expect(summary.title).toBe('The Quiet Lobby')
+    expect(summary.description).toMatch(/quiet|suspiciously|ledger/i)
   })
 })
 

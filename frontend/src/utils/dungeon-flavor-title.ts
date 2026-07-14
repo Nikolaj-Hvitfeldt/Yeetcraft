@@ -1,5 +1,11 @@
 import type { DungeonMistakeLeader, DungeonSummary } from "../api/types";
+import {
+  getFlavorDescription,
+  type FlavorDescriptionContext,
+} from "./dungeon-flavor-description";
 import { getAverageMistakesPerDungeon } from "./dungeon-stats";
+
+export type { FlavorDescriptionContext } from "./dungeon-flavor-description";
 
 const YEET_SHARE_THRESHOLD = 0.65;
 const DEATH_SHARE_THRESHOLD = 0.65;
@@ -9,6 +15,13 @@ export type DungeonFlavorTitleInput = {
   dungeon: DungeonSummary;
   allDungeons: DungeonSummary[];
   dungeonMistakeLeaders?: DungeonMistakeLeader[];
+  descriptionContext?: FlavorDescriptionContext;
+};
+
+export type DungeonFlavorTitleResult = {
+  title: string;
+  tooltip: string;
+  description: string;
 };
 
 type DungeonTitleContext = {
@@ -292,7 +305,7 @@ export function assignUniqueDungeonTitles(
 function getFallbackDungeonTitle(
   dungeon: DungeonSummary,
   allDungeons: DungeonSummary[],
-): DungeonFlavorTitleResult {
+): Pick<DungeonFlavorTitleResult, "title" | "tooltip"> {
   if (dungeon.totalMistakes <= 0) {
     return {
       title: "The Clean Record",
@@ -344,10 +357,39 @@ function getFallbackDungeonTitle(
   };
 }
 
-export type DungeonFlavorTitleResult = {
-  title: string;
-  tooltip: string;
-};
+function buildDescription(
+  title: string,
+  input: DungeonFlavorTitleInput,
+): string {
+  const context =
+    input.descriptionContext ??
+    ({
+      dungeonName: input.dungeon.name,
+      totalMistakes: input.dungeon.totalMistakes,
+      totalDeaths: input.dungeon.totalDeaths,
+      totalYeets: input.dungeon.totalYeets,
+      playerCount: 0,
+      contributorCount: 0,
+      cleanPlayerCount: 0,
+      seasonAverageMistakes: Number(
+        getAverageMistakesPerDungeon(input.allDungeons).toFixed(1),
+      ),
+      yeetSharePercent:
+        input.dungeon.totalMistakes > 0
+          ? Math.round(
+              (input.dungeon.totalYeets / input.dungeon.totalMistakes) * 100,
+            )
+          : 0,
+      deathSharePercent:
+        input.dungeon.totalMistakes > 0
+          ? Math.round(
+              (input.dungeon.totalDeaths / input.dungeon.totalMistakes) * 100,
+            )
+          : 0,
+    } satisfies FlavorDescriptionContext);
+
+  return getFlavorDescription(title, context);
+}
 
 const UNIQUE_TITLE_TOOLTIPS = new Map(
   UNIQUE_DUNGEON_TITLE_RULES.map((rule) => [rule.title, rule.tooltip]),
@@ -366,12 +408,15 @@ export function getDungeonFlavorTitle(
   const uniqueTitles = assignUniqueDungeonTitles(input);
   const uniqueTitle = uniqueTitles.get(input.dungeon.id);
 
-  if (uniqueTitle) {
-    return {
-      title: uniqueTitle,
-      tooltip: getDungeonFlavorTitleTooltip(uniqueTitle),
-    };
-  }
+  const core = uniqueTitle
+    ? {
+        title: uniqueTitle,
+        tooltip: getDungeonFlavorTitleTooltip(uniqueTitle),
+      }
+    : getFallbackDungeonTitle(input.dungeon, input.allDungeons);
 
-  return getFallbackDungeonTitle(input.dungeon, input.allDungeons);
+  return {
+    ...core,
+    description: buildDescription(core.title, input),
+  };
 }

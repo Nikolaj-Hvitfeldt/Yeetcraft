@@ -39,7 +39,7 @@ export function DungeonReputationSection({
               </span>
             </span>
           </h2>
-          <p className="max-w-xl pt-md text-sm leading-5 text-text-secondary">{summary.narrative}</p>
+          <p className="max-w-xl pt-md text-sm leading-5 text-text-secondary">{summary.description}</p>
 
           <ul className="flex max-w-xl flex-col gap-sm pt-lg">
             {verdicts.map((verdict) => (

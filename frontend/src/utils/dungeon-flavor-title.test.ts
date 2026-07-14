@@ -90,6 +90,34 @@ describe('getDungeonFlavorTitle', () => {
     ).toBe('The dungeon with the most total mistakes.')
   })
 
+  it('includes a title-themed flavor description', () => {
+    const dungeons = [
+      makeDungeon('d1', 'Nexus-Point Xenas', 2, 1, 1),
+      makeDungeon('d2', 'Ruby Life Pools', 1, 0, 2),
+    ]
+
+    const result = getDungeonFlavorTitle({
+      dungeon: dungeons[0]!,
+      allDungeons: dungeons,
+      descriptionContext: {
+        dungeonName: 'Nexus-Point Xenas',
+        totalMistakes: 3,
+        totalDeaths: 2,
+        totalYeets: 1,
+        playerCount: 4,
+        contributorCount: 3,
+        cleanPlayerCount: 1,
+        seasonAverageMistakes: 2,
+        yeetSharePercent: 33,
+        deathSharePercent: 67,
+      },
+    })
+
+    expect(result.description.length).toBeGreaterThanOrEqual(50)
+    expect(result.description).toContain('Nexus-Point Xenas')
+    expect(result.description).toMatch(/grind|roughest/i)
+  })
+
   it('returns a fallback title when the dungeon does not win a niche', () => {
     const dungeons = [
       makeDungeon('d1', 'Alpha', 8, 2, 1),
