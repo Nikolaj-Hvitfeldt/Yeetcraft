@@ -20,7 +20,7 @@ export function LeaderboardRow({
     <Link
       to={playerPath}
       state={season ? buildPageBackState(buildSeasonHomePath(season)) : undefined}
-      className="group grid min-h-[85px] grid-cols-[52px_1fr] items-center gap-lg rounded-2xl border border-border-subtle bg-surface-base px-md py-md transition-colors hover:border-accent-primary sm:grid-cols-[56px_minmax(220px,1fr)_minmax(230px,auto)]"
+      className="group grid min-h-[85px] grid-cols-[52px_1fr] items-center gap-lg rounded-2xl border border-border-subtle bg-surface-base px-md py-md outline-none transition-colors hover:border-accent-primary focus:border-accent-primary focus-visible:border-accent-primary sm:grid-cols-[56px_minmax(220px,1fr)_minmax(230px,auto)]"
     >
       <RankBadge rank={rank} />
 

@@ -8,7 +8,7 @@ import { StatCounter } from './StatCounter'
 type DungeonTableMode = 'browse' | 'edit'
 
 const BROWSE_ROW_CLASS =
-  'group grid h-[57px] w-full items-center px-lg transition-colors hover:bg-surface-base/60'
+  'group relative grid h-[57px] w-full items-center px-lg outline-none transition-colors hover:bg-surface-base/60 focus-visible:z-10 focus-visible:bg-surface-base/60 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-primary'
 
 export function DungeonTableRow({
   dungeon,
@@ -29,7 +29,7 @@ export function DungeonTableRow({
       <span
         className={cn(
           'truncate text-base font-semibold leading-5 text-text-tertiary transition-colors',
-          mode === 'browse' && 'group-hover:text-accent-primary',
+          mode === 'browse' && 'group-hover:text-accent-primary group-focus-visible:text-accent-primary',
         )}
       >
         {dungeon.dungeon.name}

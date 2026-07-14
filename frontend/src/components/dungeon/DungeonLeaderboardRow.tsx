@@ -19,7 +19,7 @@ export function DungeonLeaderboardRow({
     <Link
       to={playerPath}
       state={playerBackTo ? buildPageBackState(playerBackTo) : undefined}
-      className="group grid min-h-[74px] grid-cols-[52px_minmax(0,1fr)] items-center gap-md rounded-2xl border border-border-subtle bg-surface-base px-md py-md transition-colors hover:border-accent-primary sm:grid-cols-[52px_minmax(0,1fr)_144px]"
+      className="group grid min-h-[74px] grid-cols-[52px_minmax(0,1fr)] items-center gap-md rounded-2xl border border-border-subtle bg-surface-base px-md py-md outline-none transition-colors hover:border-accent-primary focus:border-accent-primary focus-visible:border-accent-primary sm:grid-cols-[52px_minmax(0,1fr)_144px]"
     >
       <RankBadge rank={rank} />
 

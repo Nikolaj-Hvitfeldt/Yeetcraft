@@ -27,7 +27,7 @@ export function BackButton({
     <button
       type="button"
       onClick={handleBack}
-      className={`inline-flex h-11 appearance-none items-center justify-center gap-sm rounded-2xl border border-border-subtle bg-surface-section px-lg text-sm font-semibold leading-none transition-colors hover:border-accent-primary hover:text-accent-primary ${className ?? ''}`}
+      className={`inline-flex h-11 appearance-none items-center justify-center gap-sm rounded-2xl border border-border-subtle bg-surface-section px-lg text-sm font-semibold leading-none outline-none transition-colors hover:border-accent-primary hover:text-accent-primary focus:border-accent-primary focus:text-accent-primary focus-visible:border-accent-primary focus-visible:text-accent-primary ${className ?? ''}`}
     >
       <ChevronLeftIcon className="size-4 shrink-0" />
       <span className="leading-none">{label}</span>

@@ -41,7 +41,7 @@ export function ThemeSwitcher() {
       role="radiogroup"
       aria-label="Theme"
       onKeyDown={handleKeyDown}
-      className="inline-flex items-start rounded-pill border border-border-subtle bg-overlay-dark p-xs shadow-[0_20px_25px_rgba(0,0,0,0.2),0_8px_10px_rgba(0,0,0,0.2)]"
+      className="inline-flex items-start rounded-pill border border-border-subtle bg-overlay-dark p-xs shadow-[0_20px_25px_rgba(0,0,0,0.2),0_8px_10px_rgba(0,0,0,0.2)] outline-none transition-colors hover:border-accent-primary focus-within:border-accent-primary"
     >
       {THEMES.map((entry, index) => {
         const isActive = theme === entry.key;
@@ -58,7 +58,7 @@ export function ThemeSwitcher() {
             tabIndex={isActive ? 0 : -1}
             onClick={() => setTheme(entry.key)}
             className={cn(
-              "min-h-9 rounded-pill px-lg py-0 text-xs font-bold leading-4 transition-all duration-200",
+              "min-h-9 rounded-pill px-lg py-0 text-xs font-bold leading-4 transition-all duration-200 outline-none",
               isActive ? ACTIVE_THEME_CLASS : "text-text-secondary",
             )}
           >

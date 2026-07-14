@@ -1,7 +1,8 @@
 import { cn } from '../../utils/cn'
 import { STAT_COLOR_BY_KIND, type StatKind } from '../../utils/stat-colors'
 
-type StatCounterField = Exclude<StatKind, 'total'>
+const STAT_COUNTER_BUTTON_CLASS =
+  'flex h-full w-7 items-center justify-center rounded-sm border border-transparent text-text-secondary outline-none transition-colors focus:border-accent-primary focus-visible:border-accent-primary disabled:cursor-not-allowed'
 
 export function StatCounter({
   value,
@@ -26,7 +27,7 @@ export function StatCounter({
         disabled={isMinusDisabled}
         onClick={() => onDelta(-1)}
         className={cn(
-          'flex h-full w-7 items-center justify-center text-text-secondary transition-opacity disabled:cursor-not-allowed',
+          STAT_COUNTER_BUTTON_CLASS,
           isMinusDisabled ? 'opacity-40' : 'opacity-100',
         )}
       >
@@ -43,7 +44,7 @@ export function StatCounter({
         disabled={disabled}
         onClick={() => onDelta(1)}
         className={cn(
-          'flex h-full w-7 items-center justify-center text-text-secondary transition-opacity disabled:cursor-not-allowed',
+          STAT_COUNTER_BUTTON_CLASS,
           disabled ? 'opacity-40' : 'opacity-100',
         )}
       >
