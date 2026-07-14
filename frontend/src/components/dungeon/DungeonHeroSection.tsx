@@ -1,4 +1,6 @@
+import { getDungeonZoneImage } from '../../utils/dungeon-zone'
 import type { DungeonSummary, SeasonSummary } from '../../api/types'
+import { cn } from '../../utils/cn'
 import { getDungeonLore } from '../../utils/dungeon-lore'
 import { StatCard } from '../home/StatCard'
 import { DungeonPicker } from './DungeonPicker'
@@ -12,9 +14,21 @@ export function DungeonHeroSection({
   const seasonLabel = season
     ? [season.name, season.expansion].filter(Boolean).join(' · ')
     : null
+  const zoneImageUrl = getDungeonZoneImage(dungeon)
+  const hasZoneBackdrop = Boolean(zoneImageUrl)
 
   return (
-    <section className="relative overflow-hidden rounded-[32px] border border-accent-secondary bg-surface-section shadow-[0_25px_50px_-12px_rgba(0,0,0,0.3)]">
+    <section className="relative isolate overflow-hidden rounded-[32px] border border-accent-secondary bg-surface-section shadow-[0_25px_50px_-12px_rgba(0,0,0,0.3)]">
+      {zoneImageUrl ? (
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${zoneImageUrl})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-black/15" />
+        </div>
+      ) : null}
+
       <div className="relative p-2xl lg:pr-[360px]">
         <div className="max-w-3xl">
           <DungeonPicker
@@ -23,18 +37,32 @@ export function DungeonHeroSection({
             season={season}
           />
 
-          <p className="pt-lg text-xs font-bold uppercase leading-4 tracking-[0.2em] text-accent-primary">
+          <p
+            className={cn(
+              'pt-lg text-xs font-bold uppercase leading-4 tracking-[0.2em] text-accent-primary',
+              hasZoneBackdrop && 'dungeon-hero-eyebrow',
+            )}
+          >
             Dungeon details{seasonLabel ? ` · ${seasonLabel}` : ''}
           </p>
 
-          <h1 className="pt-sm font-heading text-4xl font-bold leading-tight text-text-primary sm:text-5xl lg:text-6xl">
+          <h1
+            className={cn(
+              'pt-sm font-heading text-4xl font-bold leading-tight text-text-primary sm:text-5xl lg:text-6xl',
+              hasZoneBackdrop && 'dungeon-hero-title',
+            )}
+          >
             {dungeon.name}
           </h1>
 
-          <p className="max-w-xl pt-md text-sm leading-5 text-text-secondary">
+          <p
+            className={cn(
+              'max-w-xl pt-md text-sm leading-5 text-text-secondary',
+              hasZoneBackdrop && 'dungeon-hero-lore',
+            )}
+          >
             {getDungeonLore(dungeon)}
           </p>
-
           <div className="flex max-w-[576px] flex-wrap gap-x-[84px] gap-y-lg pt-2xl">
             <StatCard label="Total" value={dungeon.totalMistakes} kind="total" />
             <StatCard label="Deaths" value={dungeon.totalDeaths} kind="deaths" />
@@ -42,16 +70,16 @@ export function DungeonHeroSection({
           </div>
         </div>
 
-        <div className="mt-xl overflow-hidden rounded-2xl border border-accent-primary bg-accent-primary lg:absolute lg:right-2xl lg:top-2xl lg:mt-0 lg:h-40 lg:w-80">
+        <div className="mt-xl h-40 w-full shrink-0 overflow-hidden rounded-2xl border border-accent-primary bg-accent-primary lg:absolute lg:right-2xl lg:top-2xl lg:mt-0 lg:w-80">
           {bannerImageUrl ? (
             <img
               src={bannerImageUrl}
               alt={`${dungeon.name} dungeon screenshot`}
-              className="aspect-[2/1] size-full object-cover lg:aspect-auto"
+              className="size-full object-cover"
             />
           ) : (
             <div
-              className="aspect-[2/1] size-full bg-gradient-to-br from-accent-primary/20 via-accent-purple/10 to-surface-base lg:aspect-auto"
+              className="size-full bg-gradient-to-br from-accent-primary/20 via-accent-purple/10 to-surface-base"
               aria-hidden="true"
             />
           )}
