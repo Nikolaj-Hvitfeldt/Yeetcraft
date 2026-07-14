@@ -233,7 +233,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
 
       return {
         eligible: true,
-        description: "No mistakes were recorded in this dungeon.",
+        description: "No mistakes were recorded in this dungeon",
       };
     },
   },
@@ -260,7 +260,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
       return {
         eligible: true,
         holder: toHolder(offender),
-        description: `${offender.displayName} accounts for ${reputationScores.blameShare}% of mistakes here.`,
+        description: `${offender.displayName} accounts for ${reputationScores.blameShare}% of mistakes here`,
         scoreBonus: reputationScores.blameShare,
       };
     },
@@ -278,7 +278,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
       return {
         eligible: true,
         holder: toHolder(soloPlayer),
-        description: `Every mistake in this dungeon came from ${soloPlayer.displayName}.`,
+        description: `Every mistake in this dungeon came from ${soloPlayer.displayName}`,
         scoreBonus: soloPlayer.totalMistakes,
       };
     },
@@ -300,7 +300,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
       return {
         eligible: true,
         holder: toHolder(player),
-        description: `${player.displayName} leads season mistakes for this dungeon.`,
+        description: `${player.displayName} leads season mistakes for this dungeon`,
         scoreBonus: player.totalMistakes,
       };
     },
@@ -310,7 +310,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
     title: "The Usual Suspect",
     icon: "the-usual-suspect",
     priority: 85,
-    evaluate: ({ dungeon, leaderboard, seasonLeaders }) => {
+    evaluate: ({ leaderboard, seasonLeaders }) => {
       const yeetLeader = getYeetLeader(leaderboard);
       const deathLeader = getDeathLeader(leaderboard);
       const suspects = [
@@ -347,7 +347,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
       return {
         eligible: true,
         holder,
-        description: `${suspect.displayName} usually tops the charts, but not in ${dungeon.name}.`,
+        description: `${suspect.displayName} usually tops the charts — not here`,
       };
     },
   },
@@ -366,7 +366,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
       return {
         eligible: true,
         holder: toHolder(player),
-        description: `${yeetPercent}% of ${player.displayName}'s mistakes here were yeets.`,
+        description: `${yeetPercent}% of ${player.displayName}'s mistakes here were yeets`,
         scoreBonus: yeetPercent,
       };
     },
@@ -386,7 +386,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
       return {
         eligible: true,
         holder: toHolder(player),
-        description: `${deathPercent}% of ${player.displayName}'s mistakes here were deaths.`,
+        description: `${deathPercent}% of ${player.displayName}'s mistakes here were deaths`,
         scoreBonus: deathPercent,
       };
     },
@@ -405,7 +405,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
       return {
         eligible: true,
         holder: toHolder(player),
-        description: `${player.displayName} carried the rest of the party.`,
+        description: `${player.displayName} carried the rest of the party`,
         scoreBonus: dungeon.totalMistakes,
       };
     },
@@ -422,7 +422,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
       return {
         eligible: true,
         holder: toHolder(player),
-        description: `${player.displayName} had ${player.deaths} deaths and ${player.yeets} yeets here.`,
+        description: `${player.displayName} had ${player.deaths} deaths and ${player.yeets} yeets here`,
         scoreBonus: player.totalMistakes,
       };
     },
@@ -439,7 +439,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
       return {
         eligible: true,
         holder: toHolder(player),
-        description: `${player.displayName} had no mistakes while others did.`,
+        description: `${player.displayName} had no mistakes while others did`,
       };
     },
   },
@@ -455,7 +455,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
 
       return {
         eligible: true,
-        description: `${dungeon.name} is rougher than most dungeons this season.`,
+        description: `Rougher than most dungeons this season`,
         scoreBonus: reputationScores.dangerRating,
       };
     },
@@ -472,7 +472,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
 
       return {
         eligible: true,
-        description: `${mistakeMix.yeetsPercent}% of mistakes here were yeets, above the season average.`,
+        description: `${mistakeMix.yeetsPercent}% of mistakes here were yeets`,
         scoreBonus: reputationScores.yeetFactor,
       };
     },
@@ -493,7 +493,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
 
       return {
         eligible: true,
-        description: `Mistakes were spread across ${contributors.length} players with no clear standout.`,
+        description: `Mistakes were spread across ${contributors.length} players with no clear standout`,
         scoreBonus: contributors.length,
       };
     },
@@ -507,7 +507,7 @@ const QUIET_LOBBY_RULE: AchievementRule = {
   priority: 1,
   evaluate: () => ({
     eligible: true,
-    description: "Not enough data to highlight a standout yet.",
+    description: "Not enough data to highlight a standout yet",
   }),
 };
 

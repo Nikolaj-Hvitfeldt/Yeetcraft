@@ -96,7 +96,9 @@ describe("getDungeonAchievements", () => {
 
     expect(result.eligible).toBe(true);
     expect(result.holder?.displayName).toBe("Niklas");
-    expect(result.description).toContain("Niklas");
+    expect(result.description).toBe(
+      "Every mistake in this dungeon came from Niklas.",
+    );
   });
 
   it("does not award raw yeet or death leader achievements", () => {
@@ -236,7 +238,9 @@ describe("getDungeonAchievements", () => {
     });
 
     expect(result.eligible).toBe(true);
-    expect(result.description).toContain("Niklas");
+    expect(result.description).toBe(
+      "Niklas leads season mistakes for this dungeon.",
+    );
   });
 
   it("the usual suspect rule fires when a season king did not top this dungeon", () => {
@@ -293,7 +297,7 @@ describe("getDungeonAchievements", () => {
 
     expect(result.eligible).toBe(true);
     expect(result.description).toBe(
-      "Niklas usually tops the charts, but not in Nexus-Point Xenas.",
+      "Niklas usually tops the charts — not here.",
     );
   });
 

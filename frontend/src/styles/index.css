@@ -161,11 +161,23 @@
   .achievement-banner-title {
     font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', 'Times New Roman', serif;
     font-weight: 700;
-    color: #fff;
+    color: #fff4d6;
+    -webkit-font-smoothing: antialiased;
     text-shadow:
-      0 1px 0 rgb(0 0 0 / 95%),
-      0 2px 4px rgb(0 0 0 / 85%),
-      0 4px 10px rgb(0 0 0 / 55%);
+      1px 1px 0 rgb(0 0 0 / 100%),
+      -1px -1px 0 rgb(0 0 0 / 85%),
+      0 2px 4px rgb(0 0 0 / 80%);
+  }
+
+  .achievement-banner-description {
+    font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', 'Times New Roman', serif;
+    font-weight: 500;
+    color: #e2c27a;
+    -webkit-font-smoothing: antialiased;
+    text-shadow:
+      1px 1px 0 rgb(0 0 0 / 100%),
+      0 1px 2px rgb(0 0 0 / 95%),
+      0 2px 4px rgb(0 0 0 / 85%);
   }
 
   .dungeon-hero-eyebrow {

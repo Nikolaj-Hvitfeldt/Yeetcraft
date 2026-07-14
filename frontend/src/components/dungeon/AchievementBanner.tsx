@@ -1,5 +1,4 @@
-import { useCallback, useId, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useId } from "react";
 import {
   achievementLogos,
   isAchievementLogoKey,
@@ -9,6 +8,7 @@ import { wowIcons } from "../../assets/wow-icons";
 import { cn } from "../../utils/cn";
 import { Avatar } from "../ui/Avatar";
 import { WowIcon } from "../WowIcon";
+
 // achievementFrameSimple.webp is 256×64px (4:1) — square wells on left and right.
 const FRAME_ASPECT_PERCENT = 25;
 const BANNER_SCALE = 0.88;
@@ -16,24 +16,35 @@ const FRAME_ICON_FR = 64;
 const FRAME_CENTER_FR = 128;
 const FRAME_AVATAR_FR = 64;
 const ICON_INSET = "23% 20% 22% 18%";
-const TEXT_INSET_Y = "16%";
-const TOOLTIP_OFFSET_X = 14;
-const TOOLTIP_OFFSET_Y = 16;
-const TOOLTIP_MAX_WIDTH = 260;
-const VIEWPORT_PADDING = 16;
+const CENTER_TEXT_INSET_X = "1%";
 
 const ICON_EDGE_BLEND =
-  "linear-gradient(to right, rgba(128,128,128,0.16) 0%, transparent 4%)," +
   "linear-gradient(to left, rgba(128,128,128,0.16) 0%, transparent 4%)," +
   "linear-gradient(to bottom, rgba(128,128,128,0.16) 0%, transparent 4%)," +
   "linear-gradient(to top, rgba(128,128,128,0.16) 0%, transparent 4%)";
+
+const ICON_RIGHT_SOFT_MASK =
+  "linear-gradient(to right, #000 0%, #000 76%, rgba(0,0,0,0.6) 88%, transparent 100%)";
+
+const ICON_RIGHT_PARCHMENT_BLEND =
+  "linear-gradient(to right, transparent 68%, rgba(196, 156, 98, 0.12) 82%, rgba(126, 78, 44, 0.28) 100%)";
 
 function AchievementIconWell({ icon }: { icon: AchievementIcon }) {
   const isCustomLogo = isAchievementLogoKey(icon);
 
   return (
     <div className="absolute overflow-hidden" style={{ inset: ICON_INSET }}>
-      <div className="relative size-full overflow-hidden">
+      <div
+        className="relative size-full overflow-hidden"
+        style={
+          isCustomLogo
+            ? {
+                WebkitMaskImage: ICON_RIGHT_SOFT_MASK,
+                maskImage: ICON_RIGHT_SOFT_MASK,
+              }
+            : undefined
+        }
+      >
         {isCustomLogo ? (
           <img
             src={achievementLogos[icon]}
@@ -50,29 +61,22 @@ function AchievementIconWell({ icon }: { icon: AchievementIcon }) {
           />
         )}
         {isCustomLogo ? (
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0"
-            style={{ background: ICON_EDGE_BLEND }}
-          />
+          <>
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0"
+              style={{ background: ICON_EDGE_BLEND }}
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0"
+              style={{ background: ICON_RIGHT_PARCHMENT_BLEND }}
+            />
+          </>
         ) : null}
       </div>
     </div>
   );
-}
-
-function getTooltipPosition(clientX: number, clientY: number) {
-  const maxLeft = window.innerWidth - TOOLTIP_MAX_WIDTH - VIEWPORT_PADDING;
-  const left = Math.min(
-    Math.max(VIEWPORT_PADDING, clientX + TOOLTIP_OFFSET_X),
-    maxLeft,
-  );
-  const top = Math.max(
-    VIEWPORT_PADDING,
-    clientY + TOOLTIP_OFFSET_Y,
-  );
-
-  return { left, top };
 }
 
 export function AchievementBanner({
@@ -83,60 +87,8 @@ export function AchievementBanner({
   className,
 }: AchievementBannerProps) {
   const titleId = useId();
+  const descriptionId = useId();
   const holderId = useId();
-  const tooltipId = useId();
-  const articleRef = useRef<HTMLElement>(null);
-  const [tooltipPosition, setTooltipPosition] = useState<{
-    left: number;
-    top: number;
-  } | null>(null);
-
-  const showTooltipAt = useCallback((clientX: number, clientY: number) => {
-    setTooltipPosition(getTooltipPosition(clientX, clientY));
-  }, []);
-
-  const hideTooltip = useCallback(() => {
-    setTooltipPosition(null);
-  }, []);
-
-  const handleMouseEnter = useCallback(
-    (event: React.MouseEvent<HTMLElement>) => {
-      showTooltipAt(event.clientX, event.clientY);
-    },
-    [showTooltipAt],
-  );
-
-  const handleMouseMove = useCallback(
-    (event: React.MouseEvent<HTMLElement>) => {
-      showTooltipAt(event.clientX, event.clientY);
-    },
-    [showTooltipAt],
-  );
-
-  const handleFocus = useCallback(() => {
-    const rect = articleRef.current?.getBoundingClientRect();
-    if (!rect) return;
-
-    showTooltipAt(rect.left + rect.width / 2, rect.top + rect.height / 2);
-  }, [showTooltipAt]);
-
-  const tooltip =
-    tooltipPosition && typeof document !== "undefined"
-      ? createPortal(
-          <span
-            id={tooltipId}
-            role="tooltip"
-            style={{
-              left: tooltipPosition.left,
-              top: tooltipPosition.top,
-            }}
-            className="pointer-events-none fixed z-[9999] w-[min(260px,calc(100vw-2rem))] whitespace-pre-line rounded-md border border-border-subtle bg-surface-base px-md py-sm text-left text-xs font-normal leading-4 text-text-primary shadow-[0px_12px_20px_rgba(0,0,0,0.35)]"
-          >
-            {description}
-          </span>,
-          document.body,
-        )
-      : null;
 
   return (
     <div
@@ -144,16 +96,9 @@ export function AchievementBanner({
       style={{ paddingBottom: `${FRAME_ASPECT_PERCENT * BANNER_SCALE}%` }}
     >
       <article
-        ref={articleRef}
-        tabIndex={0}
         aria-labelledby={holder ? `${titleId} ${holderId}` : titleId}
-        aria-describedby={tooltipPosition ? tooltipId : undefined}
-        onMouseEnter={handleMouseEnter}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={hideTooltip}
-        onFocus={handleFocus}
-        onBlur={hideTooltip}
-        className="absolute left-0 top-0 w-full origin-top-left cursor-help outline-none focus-visible:ring-1 focus-visible:ring-accent-primary"
+        aria-describedby={descriptionId}
+        className="absolute left-0 top-0 w-full origin-top-left outline-none"
         style={{
           width: `${100 / BANNER_SCALE}%`,
           transform: `scale(${BANNER_SCALE})`,
@@ -168,7 +113,7 @@ export function AchievementBanner({
           />
 
           <div
-            className="absolute inset-0 grid"
+            className="absolute inset-0 grid min-h-0 items-stretch"
             style={{
               gridTemplateColumns: `${FRAME_ICON_FR}fr ${FRAME_CENTER_FR}fr ${FRAME_AVATAR_FR}fr`,
             }}
@@ -176,16 +121,23 @@ export function AchievementBanner({
             <div className="relative min-h-0">
               <AchievementIconWell icon={icon} />
             </div>
+
             <div
-              className="flex min-h-0 items-center justify-center px-[4%]"
-              style={{ paddingTop: TEXT_INSET_Y, paddingBottom: TEXT_INSET_Y }}
+              className="relative h-full min-h-0"
+              style={{ padding: `0 ${CENTER_TEXT_INSET_X}` }}
             >
               <h3
                 id={titleId}
-                className="achievement-banner-title w-full text-center text-base font-bold leading-tight tracking-normal text-white line-clamp-1 sm:text-lg"
+                className="achievement-banner-title absolute inset-x-[1%] top-[36%] -translate-y-1/2 text-center text-[15px] font-bold leading-tight tracking-normal line-clamp-1"
               >
                 {title}
               </h3>
+              <p
+                id={descriptionId}
+                className="achievement-banner-description absolute inset-x-[1%] top-[64%] -translate-y-1/2 text-center text-xs font-medium leading-none line-clamp-1"
+              >
+                {description}
+              </p>
             </div>
 
             <div className="relative flex min-h-0 items-center justify-center">
@@ -212,8 +164,6 @@ export function AchievementBanner({
           </div>
         </div>
       </article>
-
-      {tooltip}
     </div>
   );
 }
