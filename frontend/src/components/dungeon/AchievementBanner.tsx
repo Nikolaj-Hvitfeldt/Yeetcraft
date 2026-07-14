@@ -22,6 +22,45 @@ const TOOLTIP_OFFSET_Y = 16;
 const TOOLTIP_MAX_WIDTH = 260;
 const VIEWPORT_PADDING = 16;
 
+const ICON_EDGE_BLEND =
+  "linear-gradient(to right, rgba(128,128,128,0.16) 0%, transparent 4%)," +
+  "linear-gradient(to left, rgba(128,128,128,0.16) 0%, transparent 4%)," +
+  "linear-gradient(to bottom, rgba(128,128,128,0.16) 0%, transparent 4%)," +
+  "linear-gradient(to top, rgba(128,128,128,0.16) 0%, transparent 4%)";
+
+function AchievementIconWell({ icon }: { icon: AchievementIcon }) {
+  const isCustomLogo = isAchievementLogoKey(icon);
+
+  return (
+    <div className="absolute overflow-hidden" style={{ inset: ICON_INSET }}>
+      <div className="relative size-full overflow-hidden">
+        {isCustomLogo ? (
+          <img
+            src={achievementLogos[icon]}
+            alt=""
+            aria-hidden
+            className="size-full scale-[1.14] object-cover"
+          />
+        ) : (
+          <WowIcon
+            icon={icon}
+            fluid
+            objectFit="cover"
+            className="size-full object-cover"
+          />
+        )}
+        {isCustomLogo ? (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+            style={{ background: ICON_EDGE_BLEND }}
+          />
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 function getTooltipPosition(clientX: number, clientY: number) {
   const maxLeft = window.innerWidth - TOOLTIP_MAX_WIDTH - VIEWPORT_PADDING;
   const left = Math.min(
@@ -135,23 +174,7 @@ export function AchievementBanner({
             }}
           >
             <div className="relative min-h-0">
-              <div className="absolute" style={{ inset: ICON_INSET }}>
-                {isAchievementLogoKey(icon) ? (
-                  <img
-                    src={achievementLogos[icon]}
-                    alt=""
-                    aria-hidden
-                    className="h-full w-full rounded-[2px] object-cover"
-                  />
-                ) : (
-                  <WowIcon
-                    icon={icon}
-                    fluid
-                    objectFit="cover"
-                    className="h-full w-full rounded-[2px] object-cover"
-                  />
-                )}
-              </div>
+              <AchievementIconWell icon={icon} />
             </div>
             <div
               className="flex min-h-0 items-center justify-center px-[4%]"
@@ -201,7 +224,8 @@ interface AchievementHolder {
 }
 
 interface AchievementBannerProps {
-  icon: AchievementIcon;  title: string;
+  icon: AchievementIcon;
+  title: string;
   holder?: AchievementHolder;
   description: string;
   className?: string;
