@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, createElement, type ReactNode } from 'react'
+import { themeBackgroundImages } from '../assets/background-themes'
 import { applyColorTheme, applyGlobalTheme, type ThemeName } from '../themes'
 
 export type Theme = ThemeName
@@ -15,10 +16,22 @@ function getInitialTheme(): Theme {
   return DEFAULT_THEME
 }
 
+function applyThemeBackgroundImage(theme: Theme) {
+  document.documentElement.style.setProperty(
+    '--background-theme-image',
+    `url("${themeBackgroundImages[theme]}")`,
+  )
+}
+
 function applyTheme(theme: Theme) {
   document.documentElement.setAttribute('data-theme', theme)
   applyGlobalTheme()
   applyColorTheme(theme)
+  applyThemeBackgroundImage(theme)
+}
+
+if (typeof window !== 'undefined') {
+  applyTheme(getInitialTheme())
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {

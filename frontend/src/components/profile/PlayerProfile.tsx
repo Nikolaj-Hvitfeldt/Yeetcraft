@@ -22,7 +22,7 @@ import {
 } from "../../utils/dungeon-image";
 import { getPlayerFlavorTitle } from "../../utils/player-flavor-title";
 import { getNemesisDungeon } from "../../utils/player-stats";
-import { getCharactersForPlayer } from "../../utils/player-characters";
+import { getPlayerProfile } from "../../utils/player-characters";
 
 export function PlayerProfile() {
   const { playerSlug: playerSlugParam } = useParams<{ playerSlug: string }>();
@@ -84,7 +84,7 @@ export function PlayerProfile() {
     playerStats?.player.id === seasonLeaders?.kingOfDeaths?.playerId;
 
   const playerMeta = useMemo(() => {
-    const characters = getCharactersForPlayer(playerStats?.player.displayName);
+    const characters = getPlayerProfile(playerStats?.player.displayName).characters;
 
     const flavor = playerStats
       ? getPlayerFlavorTitle({

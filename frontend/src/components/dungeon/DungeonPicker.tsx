@@ -4,6 +4,7 @@ import type { DungeonDetailLocationState } from '../../utils/routes'
 import { buildDungeonPath } from '../../utils/routes'
 import { useDismissiblePopover } from '../../hooks/useDismissiblePopover'
 import { ChevronDownIcon } from '../ui/ChevronDownIcon'
+import { LISTBOX_PANEL_SHADOW } from '../ui/listbox-styles'
 import { ListboxOption } from '../ui/ListboxOption'
 
 export function DungeonPicker({
@@ -31,7 +32,7 @@ export function DungeonPicker({
         type="button"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        className="flex h-9 w-full items-center justify-between rounded-md border border-border-subtle bg-surface-section py-0 pl-[11px] pr-[12px] text-left text-[13px] font-semibold text-text-primary shadow-[0px_20px_12.5px_0px_rgba(0,0,0,0.2),0px_8px_5px_0px_rgba(0,0,0,0.2)] outline-none transition-colors hover:border-accent-primary focus:border-accent-primary"
+        className={`flex h-9 w-full items-center justify-between rounded-md border border-border-subtle bg-surface-section py-0 pl-[11px] pr-[12px] text-left text-[13px] font-semibold text-text-primary ${LISTBOX_PANEL_SHADOW} outline-none transition-colors hover:border-accent-primary focus:border-accent-primary`}
         onClick={() => setIsOpen((current) => !current)}
       >
         <span className="truncate">{selectedDungeon?.name ?? 'Select dungeon'}</span>
@@ -39,7 +40,7 @@ export function DungeonPicker({
       </button>
 
       {isOpen ? (
-        <div className="absolute left-0 top-[44px] z-20 w-full min-w-[220px] rounded-md border border-border-subtle bg-surface-section shadow-[0px_20px_12.5px_0px_rgba(0,0,0,0.2),0px_8px_5px_0px_rgba(0,0,0,0.2)]">
+        <div className={`absolute left-0 top-[44px] z-20 w-full min-w-[220px] rounded-md border border-border-subtle bg-surface-section ${LISTBOX_PANEL_SHADOW}`}>
           <ul
             role="listbox"
             aria-label="Dungeon"

@@ -4,7 +4,7 @@ export function TableHeader({ columns, className, gridTemplateColumns }: TableHe
 
   return (
     <div
-      className={`grid h-[49px] w-full items-center bg-surface-section px-lg text-xs font-bold leading-4 ${className ?? ''}`}
+      className={`grid h-[49px] w-full items-center bg-surface-secondary px-lg text-xs font-bold leading-4 ${className ?? ''}`}
       style={{ gridTemplateColumns: resolvedGrid }}
     >
       {columns.map((column) => (

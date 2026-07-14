@@ -1,4 +1,4 @@
-import { useEffect, useRef, type KeyboardEvent } from "react";
+import { useRef, type KeyboardEvent } from "react";
 import { useTheme } from "../hooks";
 import { cn } from "../utils/cn";
 
@@ -7,16 +7,11 @@ const THEMES = [
   { key: "midnight" as const, label: "Midnight" },
 ] as const;
 
-const ACTIVE_THEME_CLASS = "bg-accent-secondary text-background-app";
+const ACTIVE_THEME_CLASS = "bg-accent-secondary text-background-default";
 
 export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
-
-  useEffect(() => {
-    const activeIndex = THEMES.findIndex((entry) => entry.key === theme);
-    buttonRefs.current[activeIndex]?.focus();
-  }, [theme]);
 
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     const activeIndex = THEMES.findIndex((entry) => entry.key === theme);
@@ -24,15 +19,17 @@ export function ThemeSwitcher() {
 
     if (event.key === "ArrowRight" || event.key === "ArrowDown") {
       event.preventDefault();
-      const nextTheme = THEMES[(activeIndex + 1) % THEMES.length];
-      setTheme(nextTheme.key);
+      const nextIndex = (activeIndex + 1) % THEMES.length;
+      setTheme(THEMES[nextIndex].key);
+      buttonRefs.current[nextIndex]?.focus();
       return;
     }
 
     if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
       event.preventDefault();
-      const nextTheme = THEMES[(activeIndex - 1 + THEMES.length) % THEMES.length];
-      setTheme(nextTheme.key);
+      const nextIndex = (activeIndex - 1 + THEMES.length) % THEMES.length;
+      setTheme(THEMES[nextIndex].key);
+      buttonRefs.current[nextIndex]?.focus();
     }
   }
 
@@ -41,7 +38,7 @@ export function ThemeSwitcher() {
       role="radiogroup"
       aria-label="Theme"
       onKeyDown={handleKeyDown}
-      className="inline-flex items-start rounded-pill border border-border-subtle bg-overlay-dark p-xs shadow-[0_20px_25px_rgba(0,0,0,0.2),0_8px_10px_rgba(0,0,0,0.2)] outline-none transition-colors hover:border-accent-primary focus-within:border-accent-primary"
+      className="inline-flex items-start rounded-pill border border-border-subtle bg-surface-secondary/95 p-xs shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur-md outline-none transition-colors hover:border-accent-primary focus-within:border-accent-primary"
     >
       {THEMES.map((entry, index) => {
         const isActive = theme === entry.key;
@@ -59,7 +56,7 @@ export function ThemeSwitcher() {
             onClick={() => setTheme(entry.key)}
             className={cn(
               "min-h-9 rounded-pill px-lg py-0 text-xs font-bold leading-4 transition-all duration-200 outline-none",
-              isActive ? ACTIVE_THEME_CLASS : "text-text-secondary",
+              isActive ? ACTIVE_THEME_CLASS : "text-text-primary",
             )}
           >
             {entry.label}
