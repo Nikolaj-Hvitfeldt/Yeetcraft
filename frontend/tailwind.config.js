@@ -14,6 +14,8 @@ export default {
         surface: {
           base: 'var(--color-surface-base)',
           section: 'var(--color-surface-section)',
+          secondary: 'var(--color-surface-secondary)',
+          action: 'var(--color-surface-action)',
         },
         text: {
           primary: 'var(--color-text-primary)',

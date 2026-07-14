@@ -38,7 +38,7 @@ export function ThemeSwitcher() {
       role="radiogroup"
       aria-label="Theme"
       onKeyDown={handleKeyDown}
-      className="inline-flex items-start rounded-pill border border-border-subtle bg-surface-section/95 p-xs shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur-md outline-none transition-colors hover:border-accent-primary focus-within:border-accent-primary"
+      className="inline-flex items-start rounded-pill border border-border-subtle bg-surface-secondary/95 p-xs shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur-md outline-none transition-colors hover:border-accent-primary focus-within:border-accent-primary"
     >
       {THEMES.map((entry, index) => {
         const isActive = theme === entry.key;

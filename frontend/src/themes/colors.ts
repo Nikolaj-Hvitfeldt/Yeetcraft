@@ -16,15 +16,15 @@ export const sharedColors = {
     dark: 'rgba(0, 0, 0, 0.3)',
   },
   border: {
-    subtle: 'rgba(140, 174, 226, 0.18)',
+    subtle: 'rgba(212, 160, 64, 0.25)',
   },
 } as const
 
 export const colorThemes = {
   daytime: {
     background: {
-      default: '#120E09',
-      app: '#100D08',
+      default: '#0F0A04',
+      app: '#0F0A04',
     },
     text: {
       primary: '#FFFFFF',
@@ -40,14 +40,16 @@ export const colorThemes = {
     },
     stat: sharedColors.stat,
     border: {
-      subtle: 'rgba(180, 148, 102, 0.22)',
+      subtle: 'rgba(212, 160, 64, 0.25)',
     },
     surface: {
       base: '#2D1C0A',
-      section: '#24180B',
+      section: '#1C1208',
+      secondary: '#1C1208',
+      action: '#1A1300',
     },
     avatar: {
-      bg: '#1A1209',
+      bg: '#1C1208',
     },
     overlay: {
       dark: 'rgba(0, 0, 0, 0.3)',
@@ -61,31 +63,33 @@ export const colorThemes = {
   },
   midnight: {
     background: {
-      default: '#070B1B',
-      app: '#070B1B',
+      default: '#0A0614',
+      app: '#0A0614',
     },
     text: {
       primary: '#FFFFFF',
-      secondary: '#93A3BD',
-      tertiary: '#EDF5FF',
-      link: '#DCEAFF',
-      accent: '#EDF5FF',
+      secondary: '#A89BBF',
+      tertiary: '#EDE9FE',
+      link: '#C4B5FD',
+      accent: '#EDE9FE',
     },
     accent: {
-      primary: '#36A3FF',
-      secondary: '#00D3F3',
+      primary: '#9333EA',
+      secondary: '#A855F7',
       purple: '#C27AFF',
     },
     stat: sharedColors.stat,
     border: {
-      subtle: 'rgba(140, 174, 226, 0.18)',
+      subtle: 'rgba(168, 85, 247, 0.22)',
     },
     surface: {
-      base: '#17213D',
-      section: '#10172D',
+      base: '#201338',
+      section: '#180E2D',
+      secondary: '#160C2B',
+      action: '#120A20',
     },
     avatar: {
-      bg: '#020618',
+      bg: '#0D0618',
     },
     overlay: {
       dark: 'rgba(0, 0, 0, 0.3)',

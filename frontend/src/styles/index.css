@@ -70,15 +70,15 @@
     background-image:
       linear-gradient(
         to bottom,
-        rgba(16, 13, 8, 0.58) 0%,
-        rgba(16, 13, 8, 0.72) 100%
+        rgba(15, 10, 4, 0.58) 0%,
+        rgba(15, 10, 4, 0.72) 100%
       ),
       var(--background-theme-image),
       linear-gradient(
         148deg,
         var(--color-background-app) 0%,
         var(--color-surface-section) 48%,
-        #070604 100%
+        #0f0a04 100%
       );
     background-size: cover;
     background-position: center top;
@@ -89,15 +89,15 @@
     background-image:
       linear-gradient(
         to bottom,
-        rgba(7, 11, 27, 0.4) 0%,
-        rgba(7, 11, 27, 0.62) 100%
+        rgba(10, 6, 20, 0.4) 0%,
+        rgba(10, 6, 20, 0.62) 100%
       ),
       var(--background-theme-image),
       linear-gradient(
         168deg,
         var(--color-background-app) 0%,
-        #0a1024 46%,
-        #070b1b 100%
+        #160c2b 46%,
+        #0a0614 100%
       );
   }
 
@@ -140,13 +140,13 @@
   [data-theme='midnight'] .yeetcraft-brand-title {
     background-image: linear-gradient(
       180deg,
-      #f4fbff 0%,
-      #c5e8ff 20%,
-      #6ec4f7 46%,
-      #9b7fd4 72%,
-      #4a3a78 100%
+      #f5f0ff 0%,
+      #c4b5fd 20%,
+      #9333ea 46%,
+      #6b21a8 72%,
+      #3b0764 100%
     );
-    filter: drop-shadow(0 2px 0 rgba(20, 40, 80, 0.55))
+    filter: drop-shadow(0 2px 0 rgba(59, 7, 100, 0.55))
       drop-shadow(0 4px 10px rgba(0, 0, 0, 0.38));
   }
 
