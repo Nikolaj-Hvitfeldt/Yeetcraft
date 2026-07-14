@@ -43,7 +43,7 @@ export function SpotlightCard({
 
   return (
     <article
-      className={`flex h-[140px] flex-col rounded-3xl border border-border-subtle bg-surface-secondary p-xl ${className ?? ''}`}
+      className={`yeetcraft-spotlight-card flex h-[140px] flex-col rounded-3xl border border-border-subtle bg-surface-secondary p-xl ${className ?? ''}`}
     >
       <div className="flex items-center justify-between">
         <div className="shrink-0">

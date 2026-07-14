@@ -116,38 +116,48 @@
 
   .yeetcraft-brand-title {
     margin: 0;
-    font-family: 'LifeCraft', 'Times New Roman', serif;
-    font-size: clamp(4.75rem, 8vw + 2.75rem, 7.75rem);
-    font-weight: 400;
-    line-height: 0.92;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
+    font-family: 'Cinzel', 'Times New Roman', serif;
+    font-size: clamp(2.25rem, 8vw + 1.25rem, 4.5rem);
+    font-weight: 700;
+    line-height: 1.056;
+    letter-spacing: 0;
+    white-space: nowrap;
+    text-align: center;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
     background-image: linear-gradient(
       180deg,
-      #fff0c8 0%,
-      #f0d078 24%,
-      #d4a84a 58%,
-      #b8892e 84%,
-      #8c6520 100%
+      #ffd700 0%,
+      #ffb400 40%,
+      #e66414 70%,
+      #b4280a 100%
     );
-    filter: drop-shadow(0 2px 0 rgba(92, 69, 24, 0.5))
-      drop-shadow(0 4px 10px rgba(0, 0, 0, 0.34));
+    filter:
+      drop-shadow(0 8px 22px rgba(0, 0, 0, 0.7))
+      drop-shadow(0 0 24px rgba(255, 140, 0, 0.7))
+      drop-shadow(0 0 52px rgba(204, 102, 0, 0.5))
+      drop-shadow(0 0 90px rgba(255, 92, 0, 0.35));
   }
 
   [data-theme='midnight'] .yeetcraft-brand-title {
     background-image: linear-gradient(
       180deg,
-      #f5f0ff 0%,
-      #c4b5fd 20%,
-      #9333ea 46%,
-      #6b21a8 72%,
-      #3b0764 100%
+      #b4d2ff 0%,
+      #8caae6 45%,
+      #a078d2 70%,
+      #783cb4 100%
     );
-    filter: drop-shadow(0 2px 0 rgba(59, 7, 100, 0.55))
-      drop-shadow(0 4px 10px rgba(0, 0, 0, 0.38));
+    filter:
+      drop-shadow(0 8px 20px rgba(0, 0, 0, 0.6))
+      drop-shadow(0 0 28px rgba(139, 92, 246, 0.7))
+      drop-shadow(0 0 52px rgba(168, 85, 247, 0.6))
+      drop-shadow(0 0 96px rgba(192, 132, 252, 0.4));
+  }
+
+  [data-theme='daytime'] .yeetcraft-stat-card,
+  [data-theme='daytime'] .yeetcraft-spotlight-card {
+    border-color: rgba(212, 160, 64, 0.45);
   }
 
   .achievement-banner-title {
