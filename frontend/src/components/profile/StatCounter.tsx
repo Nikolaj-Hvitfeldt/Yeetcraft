@@ -56,7 +56,7 @@ export function StatCounter({
 
 interface StatCounterProps {
   value: number
-  field: StatCounterField
+  field: StatKind
   onDelta: (delta: 1 | -1) => void
   disabled?: boolean
   className?: string

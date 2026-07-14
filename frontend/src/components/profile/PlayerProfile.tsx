@@ -7,6 +7,8 @@ import {
   useSeasonId,
   useSeasonLeaders,
 } from "../../hooks";
+import { usePageConnectionState } from "../../hooks/usePageConnectionState";
+import { useReportPageConnection } from "../../hooks/connection-status-context";
 import { PageBoundary } from "../layout/PageBoundary";
 import { buildPlayerPath, type PageBackState } from "../../utils/routes";
 import { playerSlug } from "../../utils/slug";
@@ -42,7 +44,6 @@ export function PlayerProfile() {
     isPending: isPendingPlayerStats,
     isFetching: isFetchingPlayerStats,
     isFetched: hasFetchedPlayerStats,
-    isPlaceholderData: isShowingStalePlayerStats,
     error: playerStatsError,
     refetch: refetchPlayerStats,
   } = usePlayerStatsBySlug(playerSlugParam, selectedSeasonId, { enabled: isSeasonReady });
@@ -103,10 +104,32 @@ export function PlayerProfile() {
   }, [leaderboardRank, nemesis, playerStats, seasonLeaders]);
 
   const isPlayerNotFound = isNotFoundApiError(playerStatsError);
+  const hasCachedData = playerStats !== undefined;
+  const profileError = isPlayerNotFound ? null : playerStatsError;
+
+  function handleRetry() {
+    void refetchPlayerStats();
+  }
+
+  useReportPageConnection({
+    hasCachedData,
+    isFetching: isFetchingPlayerStats,
+    isPending: isPendingPlayerStats && !hasCachedData && !isPlayerNotFound,
+    isError: Boolean(profileError),
+    onRetry: handleRetry,
+  });
+
+  const { loadingMessage, showOfflineNoCache } = usePageConnectionState({
+    hasCachedData,
+    isFetching: isFetchingPlayerStats,
+    isPending: isPendingPlayerStats && !hasCachedData && !isPlayerNotFound,
+    isError: Boolean(profileError),
+  });
 
   const isPageLoading =
-    !isSeasonReady ||
-    (isPendingPlayerStats && !playerStats && !isPlayerNotFound);
+    !showOfflineNoCache &&
+    (!isSeasonReady ||
+      (isPendingPlayerStats && !playerStats && !isPlayerNotFound));
   const isRefreshingProfile =
     isFetchingPlayerStats && !!playerStats && !isPendingPlayerStats;
   const notFoundMessage =
@@ -117,7 +140,7 @@ export function PlayerProfile() {
     (isPlayerNotFound || (!playerStats && !playerStatsError))
       ? "Player stats were not found."
       : null;
-  const profileError = isPlayerNotFound ? null : playerStatsError;
+  const blockingError = profileError && !hasCachedData ? profileError : null;
 
   useEffect(() => {
     if (!playerStats || !selectedSeason || !playerSlugParam) return;
@@ -135,12 +158,11 @@ export function PlayerProfile() {
     <PageBoundary
       isLoading={isPageLoading}
       isRefreshing={isRefreshingProfile}
-      isShowingStaleData={isShowingStalePlayerStats && isFetchingPlayerStats}
-      error={profileError}
+      loadingMessage={loadingMessage}
+      showOfflineNoCache={showOfflineNoCache}
+      error={blockingError}
       notFoundMessage={notFoundMessage}
-      onRetry={() => {
-        void refetchPlayerStats();
-      }}
+      onRetry={handleRetry}
     >
       {playerStats ? (
         <div className="flex flex-col gap-2xl">

@@ -26,6 +26,10 @@ export function getUserFacingErrorMessage(error: unknown): string {
     return 'We could not reach the server. Check your connection and try again.'
   }
 
+  if (message.includes('timed out') || message.includes('waking up')) {
+    return 'The server is still waking up. Try again in a moment.'
+  }
+
   if (message.includes('404') || message.toLowerCase().includes('not found')) {
     return 'We could not find what you were looking for.'
   }

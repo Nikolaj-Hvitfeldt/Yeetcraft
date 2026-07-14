@@ -129,7 +129,7 @@ export function DungeonBreakdownSection({
 }
 
 interface DungeonBreakdownSectionProps {
-  mode: DungeonBreakdownMode;
+  mode: 'browse' | 'edit';
   dungeons: DungeonStats[];
   onEnterEdit: () => void;
   onCancel: () => void;

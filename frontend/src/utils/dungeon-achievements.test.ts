@@ -239,7 +239,7 @@ describe("getDungeonAchievements", () => {
 
     expect(result.eligible).toBe(true);
     expect(result.description).toBe(
-      "Niklas leads season mistakes for this dungeon",
+      "Niklas leads mistakes for this dungeon",
     );
   });
 

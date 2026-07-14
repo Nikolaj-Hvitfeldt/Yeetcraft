@@ -6,6 +6,8 @@ import {
   useSeasonId,
   useSeasonLeaders,
 } from '../../hooks'
+import { usePageConnectionState } from '../../hooks/usePageConnectionState'
+import { useReportPageConnection } from '../../hooks/connection-status-context'
 import { PageBoundary } from '../layout/PageBoundary'
 import { resolveDungeonBannerSeasonKey } from '../../utils/dungeon-image'
 import { DungeonNavPanel } from './DungeonNavPanel'
@@ -34,6 +36,32 @@ export function HomePage() {
   } = useCurrentSeasonDungeons(selectedSeasonId, { enabled: isSeasonReady })
 
   const dungeons = dungeonsData ?? []
+  const hasCachedData =
+    seasonLeaders !== undefined || dungeonsData !== undefined || seasons.length > 0
+  const isFetchingHome = isFetchingLeaderboard || isFetchingDungeons
+  const isPendingHome = isPendingLeaderboard || isPendingDungeons
+  const homeError = leaderboardError ?? dungeonsError
+
+  function handleRetry() {
+    void refetchLeaderboard()
+    void refetchDungeons()
+  }
+
+  useReportPageConnection({
+    hasCachedData,
+    isFetching: isFetchingHome,
+    isPending: isPendingSeasons || (isSeasonReady && isPendingHome && !hasCachedData),
+    isError: Boolean(homeError),
+    onRetry: handleRetry,
+  })
+
+  const { loadingMessage, showOfflineNoCache } = usePageConnectionState({
+    hasCachedData,
+    isFetching: isFetchingHome,
+    isPending: isPendingSeasons || (isSeasonReady && isPendingHome && !hasCachedData),
+    isError: Boolean(homeError),
+  })
+
   const leaderboardEntries = useMemo(
     () => seasonLeaders?.leaderboard ?? [],
     [seasonLeaders?.leaderboard],
@@ -54,10 +82,23 @@ export function HomePage() {
     [selectedSeason],
   )
 
-  const isRefreshingHome = isFetchingLeaderboard || isFetchingDungeons
+  const isPageLoading =
+    !showOfflineNoCache &&
+    ((isPendingSeasons && seasons.length === 0) ||
+      (isSeasonReady && !hasCachedData && isPendingHome))
+
+  const isRefreshingHome = isFetchingHome && hasCachedData && !isPageLoading
+  const blockingError = homeError && !hasCachedData ? homeError : null
 
   return (
-    <PageBoundary isLoading={isPendingSeasons} isRefreshing={isSeasonReady && isRefreshingHome}>
+    <PageBoundary
+      isLoading={isPageLoading}
+      isRefreshing={isRefreshingHome}
+      loadingMessage={loadingMessage}
+      showOfflineNoCache={showOfflineNoCache}
+      error={blockingError}
+      onRetry={handleRetry}
+    >
       <HomeNavigation homePath={homePath} />
       <HomeHero {...totalStats} />
       <div className="grid w-full gap-2xl pt-2xl lg:grid-cols-[minmax(0,1fr)_280px]">
@@ -66,7 +107,7 @@ export function HomePage() {
           seasons={seasons}
           selectedSeasonId={selectedSeasonId ?? ''}
           isLoading={isPendingLeaderboard && !seasonLeaders}
-          error={leaderboardError}
+          error={leaderboardError && !seasonLeaders ? leaderboardError : null}
           refreshError={leaderboardError && seasonLeaders ? leaderboardError : null}
           onRetry={() => {
             void refetchLeaderboard()
@@ -78,7 +119,7 @@ export function HomePage() {
         <DungeonNavPanel
           dungeons={dungeons}
           isLoading={isPendingDungeons && dungeonsData === undefined}
-          error={dungeonsError}
+          error={dungeonsError && !dungeonsData ? dungeonsError : null}
           refreshError={dungeonsError && dungeonsData ? dungeonsError : null}
           onRetry={() => {
             void refetchDungeons()

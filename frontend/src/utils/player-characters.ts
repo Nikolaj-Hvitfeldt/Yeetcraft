@@ -25,7 +25,7 @@ export function getPlayerProfile(displayName: string | undefined): {
   }
 
   return {
-    characters: [{ name: displayName }],
+    characters: [{ name: displayName ?? '' }],
     roles: [],
   }
 }

@@ -8,6 +8,7 @@ import {
   fetchSeasons,
 } from '../api/api'
 import { LeaderboardEntry } from '../api/types'
+import { READ_QUERY_STALE_TIME_MS } from '../lib/query-defaults'
 
 export interface LeaderboardPlayerStats {
   playerId: string
@@ -27,7 +28,7 @@ export function useSeasonLeaders(seasonId?: string, options?: QueryEnabledOption
     queryKey: ['season-leaders', seasonId ?? 'current'],
     queryFn: () => fetchSeasonLeaders(seasonId),
     enabled: (options?.enabled ?? true) && seasonId !== undefined,
-    staleTime: 30_000,
+    staleTime: READ_QUERY_STALE_TIME_MS,
     refetchOnWindowFocus: true,
     placeholderData: keepPreviousData,
   })
@@ -46,14 +47,8 @@ export function usePlayerStats(
       return fetchPlayerStats(playerId, seasonId)
     },
     enabled: (options?.enabled ?? true) && !!playerId && !!seasonId,
-    staleTime: 30_000,
+    staleTime: READ_QUERY_STALE_TIME_MS,
     placeholderData: keepPreviousData,
-    retry: (failureCount, error) => {
-      if (error instanceof Error && error.message.includes('500')) {
-        return failureCount < 2
-      }
-      return failureCount < 1
-    },
   })
 }
 
@@ -70,14 +65,8 @@ export function usePlayerStatsBySlug(
       return fetchPlayerStatsBySlug(playerSlug, seasonId)
     },
     enabled: (options?.enabled ?? true) && !!playerSlug && !!seasonId,
-    staleTime: 30_000,
+    staleTime: READ_QUERY_STALE_TIME_MS,
     placeholderData: keepPreviousData,
-    retry: (failureCount, error) => {
-      if (error instanceof Error && error.message.includes('500')) {
-        return failureCount < 2
-      }
-      return failureCount < 1
-    },
   })
 }
 
@@ -88,7 +77,7 @@ export function useSeasons() {
       const response = await fetchSeasons()
       return response.seasons
     },
-    staleTime: 60_000,
+    staleTime: READ_QUERY_STALE_TIME_MS,
   })
 }
 
@@ -100,7 +89,7 @@ export function useCurrentSeasonDungeons(seasonId?: string, options?: QueryEnabl
       return response.dungeons
     },
     enabled: (options?.enabled ?? true) && seasonId !== undefined,
-    staleTime: 60_000,
+    staleTime: READ_QUERY_STALE_TIME_MS,
     placeholderData: keepPreviousData,
   })
 }
@@ -118,7 +107,7 @@ export function useDungeonLeaderboard(
       return fetchDungeonLeaderboard(seasonId, dungeonId)
     },
     enabled: (options?.enabled ?? true) && !!seasonId && !!dungeonId,
-    staleTime: 30_000,
+    staleTime: READ_QUERY_STALE_TIME_MS,
     placeholderData: keepPreviousData,
   })
 }

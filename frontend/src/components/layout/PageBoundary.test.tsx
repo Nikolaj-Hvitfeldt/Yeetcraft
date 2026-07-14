@@ -43,14 +43,13 @@ describe('PageBoundary', () => {
     expect(screen.getByText('Something went wrong. Please try again.')).toBeInTheDocument()
   })
 
-  it('renders children with stale-data banner', () => {
+  it('renders children while refreshing', () => {
     render(
-      <PageBoundary isShowingStaleData>
+      <PageBoundary isRefreshing>
         <div>Profile content</div>
       </PageBoundary>,
     )
 
-    expect(screen.getByText('Updating...')).toBeInTheDocument()
     expect(screen.getByText('Profile content')).toBeInTheDocument()
   })
 

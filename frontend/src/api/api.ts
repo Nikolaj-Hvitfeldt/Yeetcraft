@@ -9,6 +9,7 @@ import {
   StatsBatchResponseSchema,
 } from './schemas'
 import { getAccessToken } from '../utils/token'
+import { fetchWithTimeout } from '../lib/fetch-with-timeout'
 
 // Default to same-origin /api so Vite proxies to the backend in dev.
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
@@ -33,7 +34,7 @@ async function fetchApi<T>(endpoint: string, schema: z.ZodType<T>): Promise<T> {
     headers['X-API-Key'] = token
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, { headers })
+  const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, { headers })
 
   if (!response.ok) {
     if (response.status === 401) {
@@ -66,7 +67,7 @@ async function fetchApiWithBody<T>(
   schema: z.ZodType<T>,
 ): Promise<T> {
   const token = getAccessToken()
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
     method,
     headers: {
       'Content-Type': 'application/json',
