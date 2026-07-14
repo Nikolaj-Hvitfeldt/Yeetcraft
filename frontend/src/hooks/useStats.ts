@@ -46,7 +46,6 @@ export function usePlayerStats(
     },
     enabled: (options?.enabled ?? true) && !!playerId && !!seasonId,
     staleTime: 30_000,
-    refetchOnMount: 'always',
     placeholderData: keepPreviousData,
     retry: (failureCount, error) => {
       if (error instanceof Error && error.message.includes('500')) {

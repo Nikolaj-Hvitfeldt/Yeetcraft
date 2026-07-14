@@ -124,6 +124,14 @@ func (statsRepository StatsRepository) ListLeaderboard(ctx context.Context, seas
 		return nil, err
 	}
 
+	return statsRepository.listLeaderboardForResolvedSeason(ctx, season.ID)
+}
+
+func (statsRepository StatsRepository) listLeaderboardForResolvedSeason(ctx context.Context, resolvedSeasonID string) ([]LeaderboardEntry, error) {
+	if statsRepository.pool == nil {
+		return nil, ErrDatabaseNotConfigured
+	}
+
 	const query = `
 		select
 			players.id::text,
@@ -140,7 +148,7 @@ func (statsRepository StatsRepository) ListLeaderboard(ctx context.Context, seas
 		order by total_mistakes desc, total_yeets desc, players.display_name asc
 	`
 
-	rows, err := statsRepository.pool.Query(ctx, query, season.ID)
+	rows, err := statsRepository.pool.Query(ctx, query, resolvedSeasonID)
 	if err != nil {
 		return nil, fmt.Errorf("query leaderboard: %w", err)
 	}

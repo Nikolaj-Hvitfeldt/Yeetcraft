@@ -80,7 +80,12 @@ export function useSetPlayerStats() {
       void queryClient.invalidateQueries({ queryKey: ['player-stats', request.playerId, request.seasonId] })
       void queryClient.invalidateQueries({ queryKey: ['season-leaders', request.seasonId] })
       void queryClient.invalidateQueries({ queryKey: ['season-dungeons', request.seasonId] })
-      void queryClient.invalidateQueries({ queryKey: ['dungeon-leaderboard', request.seasonId] })
+
+      for (const update of request.stats) {
+        void queryClient.invalidateQueries({
+          queryKey: ['dungeon-leaderboard', request.seasonId, update.dungeonId],
+        })
+      }
     },
   })
 }
