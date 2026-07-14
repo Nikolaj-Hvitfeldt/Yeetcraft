@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom'
 import type { LeaderboardPlayerStats } from '../../hooks'
 import type { SeasonSummary } from '../../api/types'
+import { getRolesForPlayer } from '../../utils/player-characters'
 import { buildPageBackState, buildPlayerPath, buildSeasonHomePath } from '../../utils/routes'
 import { Avatar } from '../ui/Avatar'
 import { CrownBadge } from '../ui/CrownBadge'
 import { RankBadge } from '../ui/RankBadge'
 import { StatItem } from '../ui/StatItem'
+import { Tag } from '../ui/Tag'
 
 export function LeaderboardRow({
   player,
@@ -15,6 +17,7 @@ export function LeaderboardRow({
   isKingOfDeaths,
 }: LeaderboardRowProps) {
   const playerPath = season ? buildPlayerPath(season, { displayName: player.playerName }) : '#'
+  const roles = getRolesForPlayer(player.playerName)
 
   return (
     <Link
@@ -32,9 +35,15 @@ export function LeaderboardRow({
             {isKingOfYeets ? <CrownBadge kind="yeets" /> : null}
             {isKingOfDeaths ? <CrownBadge kind="deaths" /> : null}
           </p>
-          <p className="text-sm font-semibold leading-[18px] text-text-secondary">
-            Tracked player
-          </p>
+          {roles.length > 0 ? (
+            <div className="mt-xs flex flex-wrap gap-xs">
+              {roles.map((role) => (
+                <Tag key={role} className="px-sm py-[2px] text-[10px] leading-[14px]">
+                  {role}
+                </Tag>
+              ))}
+            </div>
+          ) : null}
         </div>
       </div>
 

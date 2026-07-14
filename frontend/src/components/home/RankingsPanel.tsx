@@ -1,6 +1,5 @@
 import type { SeasonSummary } from '../../api/types'
 import type { LeaderboardPlayerStats } from '../../hooks'
-import { cn } from '../../utils/cn'
 import { PanelState } from '../ui/PanelState'
 import { Tag } from '../ui/Tag'
 import { LeaderboardRow } from './LeaderboardRow'
@@ -18,6 +17,12 @@ export function RankingsPanel({
   kingOfYeetsId,
   kingOfDeathsId,
 }: RankingsPanelProps) {
+  const selectedSeason = seasons.find((season) => season.id === selectedSeasonId)
+  const seasonLabel = selectedSeason
+    ? selectedSeason.expansion
+      ? `${selectedSeason.expansion} ${selectedSeason.name}`
+      : selectedSeason.name
+    : 'Unknown season'
   const playerLabel = leaderboard.length === 1 ? 'player' : 'players'
 
   return (
@@ -60,15 +65,11 @@ export function RankingsPanel({
         </PanelState>
       </div>
 
-      <div
-        className={cn(
-          'flex flex-col items-center gap-sm pt-2xl text-center sm:flex-row sm:justify-center',
-        )}
-      >
-        <Tag>Showing all dungeons</Tag>
+      <div className="flex flex-col items-center gap-sm pt-2xl text-center sm:flex-row sm:justify-center">
         <Tag>
           {leaderboard.length} {playerLabel} ranked
         </Tag>
+        <Tag>{seasonLabel}</Tag>
         <Tag>Click a player for details</Tag>
       </div>
     </section>
