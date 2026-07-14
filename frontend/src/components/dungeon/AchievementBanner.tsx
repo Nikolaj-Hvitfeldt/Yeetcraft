@@ -10,6 +10,7 @@ import type {
 import { wowIcons } from "../../assets/wow-icons";
 import { cn } from "../../utils/cn";
 import { Avatar } from "../ui/Avatar";
+import { HoverTooltipPanel } from "../ui/HoverTooltipPanel";
 import { WowIcon } from "../WowIcon";
 
 // achievementFrameSimple.webp is 256×64px (4:1) — square wells on left and right.
@@ -171,17 +172,14 @@ export function AchievementBanner({
         </div>
       </article>
 
-      <div
+      <HoverTooltipPanel
         id={tooltipId}
-        role="tooltip"
-        className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 w-[min(280px,calc(100vw-2rem))] -translate-x-1/2 rounded-md border border-border-subtle bg-surface-base px-md py-sm text-left text-xs font-normal leading-4 text-text-primary opacity-0 shadow-[0px_12px_20px_rgba(0,0,0,0.35)] transition-opacity group-hover/banner:opacity-100 group-focus-within/banner:opacity-100"
-      >
-        <p className="font-heading text-sm font-bold leading-5 text-text-primary">
-          {title}
-        </p>
-        <p className="mt-1 whitespace-pre-line text-text-primary">{description}</p>
-        <p className="mt-2 text-text-secondary">{tooltip}</p>
-      </div>
+        groupName="banner"
+        width="wide"
+        title={title}
+        description={description}
+        detail={tooltip}
+      />
     </div>
   );
 }
