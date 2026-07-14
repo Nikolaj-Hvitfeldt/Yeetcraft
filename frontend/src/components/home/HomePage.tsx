@@ -34,7 +34,10 @@ export function HomePage() {
   } = useCurrentSeasonDungeons(selectedSeasonId, { enabled: isSeasonReady })
 
   const dungeons = dungeonsData ?? []
-  const leaderboardEntries = seasonLeaders?.leaderboard ?? []
+  const leaderboardEntries = useMemo(
+    () => seasonLeaders?.leaderboard ?? [],
+    [seasonLeaders?.leaderboard],
+  )
 
   const leaderboard = useMemo(
     () => deriveLeaderboard(leaderboardEntries),

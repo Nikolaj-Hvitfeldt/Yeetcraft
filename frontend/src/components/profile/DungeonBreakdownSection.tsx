@@ -3,7 +3,8 @@ import { DungeonTableRow } from "./DungeonTableRow";
 import { TableHeader } from "../ui/TableHeader";
 import { STAT_COLOR_BY_KIND } from "../../utils/stat-colors";
 
-type DungeonBreakdownMode = "browse" | "edit";
+const FOCUS_ACCENT_BORDER =
+  "outline-none transition-colors focus:border-accent-primary focus-visible:border-accent-primary";
 
 const DUNGEON_TABLE_GRID =
   "minmax(0, 3.5fr) minmax(5.5rem, 1fr) minmax(5.5rem, 1fr) minmax(5.5rem, 1fr)";
@@ -60,7 +61,7 @@ export function DungeonBreakdownSection({
             type="button"
             disabled={isSaving}
             onClick={onEnterEdit}
-            className="rounded-[20px] border border-border-subtle bg-overlay-dark px-[14px] py-[7px] text-[13px] font-semibold text-accent-primary transition-colors hover:border-accent-primary focus:border-accent-primary disabled:opacity-40"
+            className={`rounded-[20px] border border-border-subtle bg-overlay-dark px-[14px] py-[7px] text-[13px] font-semibold text-accent-primary hover:border-accent-primary disabled:opacity-40 ${FOCUS_ACCENT_BORDER}`}
           >
             Edit Stats
           </button>
@@ -75,7 +76,7 @@ export function DungeonBreakdownSection({
                 type="button"
                 disabled={isSaving}
                 onClick={onDone}
-                className="inline-flex items-center gap-[6px] rounded-[20px] bg-accent-primary px-lg py-[7px] text-[13px] font-semibold text-background-default disabled:opacity-40"
+                className="inline-flex items-center gap-[6px] rounded-[20px] border border-transparent bg-accent-primary px-lg py-[7px] text-[13px] font-semibold text-background-default outline-none transition-colors focus-visible:border-background-default disabled:opacity-40"
               >
                 <span aria-hidden="true">✓</span>
                 Done
@@ -85,7 +86,7 @@ export function DungeonBreakdownSection({
                 type="button"
                 disabled={isSaving}
                 onClick={onCancel}
-                className="inline-flex items-center rounded-[20px] border border-red-400/40 bg-red-950/30 px-xl py-sm text-xs font-bold text-red-300 disabled:opacity-40"
+                className={`inline-flex items-center rounded-[20px] border border-red-400/40 bg-red-950/30 px-xl py-sm text-xs font-bold text-red-300 hover:border-accent-primary disabled:opacity-40 ${FOCUS_ACCENT_BORDER}`}
               >
                 Cancel
               </button>

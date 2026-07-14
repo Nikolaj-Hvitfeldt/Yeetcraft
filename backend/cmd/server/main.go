@@ -28,7 +28,7 @@ func main() {
 		defer databasePool.Close()
 		log.Printf("connected to database")
 	} else {
-		log.Printf("database not configured, using mock data")
+		log.Printf("database not configured, API requests will return errors")
 	}
 
 	statsRepository := repository.NewStatsRepository(databasePool)
@@ -42,12 +42,12 @@ func main() {
 
 	router.Get("/api/health", healthHandler.Get)
 	protectedRouter := router.With(appmiddleware.APIKey(appConfig.APIKey))
+	protectedRouter.Get("/api/players/by-slug/{playerSlug}/stats", statsHandler.PlayerStatsBySlug)
 	protectedRouter.Get("/api/players/{playerId}/stats", statsHandler.PlayerStats)
 	protectedRouter.Get("/api/seasons", statsHandler.Seasons)
 	protectedRouter.Get("/api/seasons/leaders", statsHandler.SeasonLeaders)
 	protectedRouter.Get("/api/seasons/current/dungeons", statsHandler.CurrentSeasonDungeons)
 	protectedRouter.Get("/api/seasons/{seasonId}/dungeons/{dungeonId}/leaderboard", statsHandler.DungeonLeaderboard)
-	protectedRouter.Patch("/api/stats", statsHandler.SetStats)
 	protectedRouter.Patch("/api/stats/batch", statsHandler.SetStatsBatch)
 
 	serverAddress := appConfig.Server.Address()

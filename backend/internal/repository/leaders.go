@@ -44,7 +44,7 @@ func (statsRepository StatsRepository) GetSeasonLeaders(ctx context.Context, sea
 		return SeasonLeaders{}, err
 	}
 
-	leaderboard, err := statsRepository.ListLeaderboard(ctx, season.ID)
+	leaderboard, err := statsRepository.listLeaderboardForResolvedSeason(ctx, season.ID)
 	if err != nil {
 		return SeasonLeaders{}, err
 	}

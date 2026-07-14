@@ -1,19 +1,12 @@
-import achievementFrame from './achievementFrame.webp'
 import achievementFrameSimple from './achievementFrameSimple.webp'
 import achievementShield from './achievementShield.webp'
 import bronze from './bronze.webp'
 import deaths from './deaths.webp'
 import dungeon from './dungeon.webp'
-import edit from './edit.webp'
 import gold from './gold.webp'
 import info from './info.webp'
-import leaderboard from './leaderboard.webp'
-import nemesis from './nemesis.webp'
 import platinum from './platinum.webp'
-import player from './player.webp'
-import save from './save.webp'
 import safestPlayer from './safestPlayer.webp'
-import season from './season.webp'
 import silver from './silver.webp'
 import total from './total.webp'
 import yeets from './yeets.webp'
@@ -23,15 +16,8 @@ export const wowIcons = {
   yeets,
   total,
   dungeon,
-  player,
-  leaderboard,
-  season,
-  nemesis,
-  achievementFrame,
   achievementFrameSimple,
   achievementShield,
-  edit,
-  save,
   safestPlayer,
   bronze,
   silver,

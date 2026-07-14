@@ -9,9 +9,11 @@ import type {
   DungeonMistakeMix,
   DungeonReputationScores,
 } from "./dungeon-stats";
-
-const YEET_RATIO_THRESHOLD = 0.65;
-const DEATH_RATIO_THRESHOLD = 0.65;
+import {
+  DEATH_RATIO_THRESHOLD,
+  YEET_RATIO_THRESHOLD,
+} from "./stat-thresholds";
+import { pickLeader, sortByName } from "./leaderboard-selection";
 const LIABILITY_MIN_MISTAKES = 3;
 const LIABILITY_MIN_BLAME_SHARE = 50;
 const DANGER_RATING_THRESHOLD = 80;
@@ -33,6 +35,10 @@ export interface DungeonAchievement {
   description: string;
   tooltip: string;
 }
+
+export type DungeonAchievementHolderView = NonNullable<
+  DungeonAchievement["holder"]
+>;
 
 export interface DungeonAchievementContext {
   dungeon: DungeonSummary;
@@ -71,29 +77,6 @@ interface ScoredAchievement {
   achievement: DungeonAchievement;
   holderPlayerId?: string;
   hasHolder: boolean;
-}
-
-function sortByName<T extends { displayName: string }>(entries: T[]): T[] {
-  return [...entries].sort((first, second) =>
-    first.displayName.localeCompare(second.displayName),
-  );
-}
-
-function pickLeader(
-  entries: DungeonLeaderboardEntry[],
-  getValue: (entry: DungeonLeaderboardEntry) => number,
-  tieBreak: (entry: DungeonLeaderboardEntry) => number,
-): DungeonLeaderboardEntry | null {
-  if (entries.length === 0) return null;
-
-  const maxValue = Math.max(...entries.map(getValue));
-  if (maxValue === 0) return null;
-
-  return (
-    sortByName(entries.filter((entry) => getValue(entry) === maxValue)).sort(
-      (first, second) => tieBreak(second) - tieBreak(first),
-    )[0] ?? null
-  );
 }
 
 function toHolder(entry: DungeonLeaderboardEntry): AchievementHolder {

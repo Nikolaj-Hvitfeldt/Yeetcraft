@@ -16,10 +16,10 @@ export function DungeonCard({ dungeon, season, bannerSeasonKey }: DungeonCardPro
       to={to}
       state={season ? buildDungeonDetailState(buildSeasonHomePath(season)) : undefined}
       className={cn(
-        'group relative flex h-14 w-full items-center justify-between overflow-hidden rounded-2xl border px-md text-left transition-colors',
+        'group relative flex h-14 w-full items-center justify-between overflow-hidden rounded-2xl border px-md text-left outline-none transition-colors',
         bannerImageUrl
-          ? 'border-border-subtle hover:border-accent-primary'
-          : 'border-border-subtle bg-surface-base hover:border-accent-primary',
+          ? 'border-border-subtle hover:border-accent-primary focus:border-accent-primary focus-visible:border-accent-primary'
+          : 'border-border-subtle bg-surface-base hover:border-accent-primary focus:border-accent-primary focus-visible:border-accent-primary',
       )}
     >
       {bannerImageUrl ? (

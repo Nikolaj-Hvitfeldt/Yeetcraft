@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
 import type { SeasonSummary } from '../../api/types'
+import { useDismissiblePopover } from '../../hooks/useDismissiblePopover'
+import { ChevronDownIcon } from '../ui/ChevronDownIcon'
+import { ListboxOption } from '../ui/ListboxOption'
 
 function getSeasonLabel(season: SeasonSummary): string {
   return season.expansion ? `${season.expansion} ${season.name}` : season.name
@@ -11,29 +13,8 @@ export function SeasonPicker({
   onSeasonChange,
   fluid = false,
 }: SeasonPickerProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const pickerRef = useRef<HTMLDivElement>(null)
+  const { isOpen, setIsOpen, ref } = useDismissiblePopover()
   const selectedSeason = seasons.find((season) => season.id === selectedSeasonId)
-
-  useEffect(() => {
-    function handlePointerDown(event: PointerEvent) {
-      if (!pickerRef.current?.contains(event.target as Node)) {
-        setIsOpen(false)
-      }
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') setIsOpen(false)
-    }
-
-    document.addEventListener('pointerdown', handlePointerDown)
-    document.addEventListener('keydown', handleKeyDown)
-
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDown)
-      document.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [])
 
   function handleSeasonSelect(seasonId: string) {
     onSeasonChange(seasonId)
@@ -41,7 +22,7 @@ export function SeasonPicker({
   }
 
   return (
-    <div ref={pickerRef} className={`relative h-9 ${fluid ? 'w-full' : 'w-[199px]'}`}>
+    <div ref={ref} className={`relative h-9 ${fluid ? 'w-full' : 'w-[199px]'}`}>
       <button
         type="button"
         aria-haspopup="listbox"
@@ -52,56 +33,25 @@ export function SeasonPicker({
         <span className="truncate">
           {selectedSeason ? getSeasonLabel(selectedSeason) : 'Select season'}
         </span>
-        <ChevronIcon className={`ml-sm size-4 shrink-0 text-text-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDownIcon className={`ml-sm size-4 shrink-0 text-text-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
         <div className={`absolute right-0 top-[44px] z-20 overflow-hidden rounded-md border border-border-subtle bg-surface-section shadow-[0px_20px_12.5px_0px_rgba(0,0,0,0.2),0px_8px_5px_0px_rgba(0,0,0,0.2)] ${fluid ? 'w-full' : 'w-[199px]'}`}>
           <ul role="listbox" aria-label="Season" className="max-h-56 overflow-y-auto p-xs">
-            {seasons.map((season) => {
-              const isSelected = season.id === selectedSeasonId
-
-              return (
-                <li key={season.id}>
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={isSelected}
-                    className={`flex w-full items-center rounded-sm px-sm py-sm text-left text-xs font-semibold transition-colors ${
-                      isSelected
-                        ? 'bg-accent-secondary text-background-app'
-                        : 'text-text-primary hover:bg-surface-base'
-                    }`}
-                    onClick={() => handleSeasonSelect(season.id)}
-                  >
-                    {getSeasonLabel(season)}
-                  </button>
-                </li>
-              )
-            })}
+            {seasons.map((season) => (
+              <ListboxOption
+                key={season.id}
+                isSelected={season.id === selectedSeasonId}
+                onSelect={() => handleSeasonSelect(season.id)}
+              >
+                {getSeasonLabel(season)}
+              </ListboxOption>
+            ))}
           </ul>
         </div>
       )}
     </div>
-  )
-}
-
-function ChevronIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      viewBox="0 0 16 16"
-    >
-      <path
-        d="M4 6L8 10L12 6"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-    </svg>
   )
 }
 

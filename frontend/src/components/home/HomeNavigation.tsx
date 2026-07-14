@@ -16,7 +16,7 @@ export function HomeNavigation({ homePath }: HomeNavigationProps) {
     <nav className="flex w-full items-center justify-between px-xs py-sm">
       <Link
         to={homePath}
-        className="flex items-center gap-md rounded-md py-sm pr-md transition-opacity hover:opacity-90"
+        className="flex items-center gap-md rounded-md border border-transparent py-sm pr-md outline-none transition-colors focus:border-accent-primary focus-visible:border-accent-primary"
       >
         <span className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-md shadow-lg">
           <img

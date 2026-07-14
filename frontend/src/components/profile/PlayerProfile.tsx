@@ -1,25 +1,21 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import type { DungeonStats } from "../../api/types";
 import {
   deriveLeaderboard,
-  usePlayerStats,
+  usePlayerProfileEdit,
+  usePlayerStatsBySlug,
   useSeasonId,
   useSeasonLeaders,
-  useSetPlayerStats,
 } from "../../hooks";
 import { PageBoundary } from "../layout/PageBoundary";
 import { buildPlayerPath, type PageBackState } from "../../utils/routes";
-import { findPlayerBySlug, playerSlug } from "../../utils/slug";
-import { SeasonPicker } from "../home/SeasonPicker";
+import { playerSlug } from "../../utils/slug";
+import { isNotFoundApiError } from "../../utils/api-error";
 import { HomeNavigation } from "../home/HomeNavigation";
-import { StatCard } from "../home/StatCard";
 import { DungeonBreakdownSection } from "./DungeonBreakdownSection";
 import { NemesisCard } from "./NemesisCard";
-import { Avatar } from "../ui/Avatar";
+import { PlayerProfileHeader } from "./PlayerProfileHeader";
 import { BackButton } from "../ui/BackButton";
-import { CharacterTag } from "../ui/CharacterTag";
-import { CrownBadge } from "../ui/CrownBadge";
 import {
   getDungeonBannerImageFromStats,
   resolveDungeonBannerSeasonKey,
@@ -27,7 +23,6 @@ import {
 import { getPlayerFlavorTitle } from "../../utils/player-flavor-title";
 import { getNemesisDungeon } from "../../utils/player-stats";
 import { getCharactersForPlayer } from "../../utils/player-characters";
-import { type PlayerCharacter } from "../../data/player-characters";
 
 export function PlayerProfile() {
   const { playerSlug: playerSlugParam } = useParams<{ playerSlug: string }>();
@@ -42,12 +37,6 @@ export function PlayerProfile() {
     enabled: isSeasonReady,
   });
 
-  const resolvedPlayerId = useMemo(() => {
-    if (!playerSlugParam) return undefined;
-
-    return findPlayerBySlug(seasonLeaders?.leaderboard ?? [], playerSlugParam)?.playerId;
-  }, [playerSlugParam, seasonLeaders?.leaderboard]);
-
   const {
     data: playerStats,
     isPending: isPendingPlayerStats,
@@ -56,7 +45,23 @@ export function PlayerProfile() {
     isPlaceholderData: isShowingStalePlayerStats,
     error: playerStatsError,
     refetch: refetchPlayerStats,
-  } = usePlayerStats(resolvedPlayerId, selectedSeasonId, { enabled: isSeasonReady });
+  } = usePlayerStatsBySlug(playerSlugParam, selectedSeasonId, { enabled: isSeasonReady });
+
+  const {
+    breakdownMode,
+    dungeonsForBreakdown,
+    handleAdjustDraft,
+    handleCancelEdit,
+    handleDoneEdit,
+    handleEnterEdit,
+    isEditing,
+    isSaving,
+    toastMessage,
+  } = usePlayerProfileEdit({
+    playerStats,
+    playerSlugParam,
+    selectedSeasonId,
+  });
 
   const nemesis = useMemo(
     () => (playerStats ? getNemesisDungeon(playerStats.dungeons) : null),
@@ -78,30 +83,8 @@ export function PlayerProfile() {
   const isKingOfDeaths =
     playerStats?.player.id === seasonLeaders?.kingOfDeaths?.playerId;
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [draftDungeons, setDraftDungeons] = useState<DungeonStats[] | null>(
-    null,
-  );
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  const { mutateAsync: setPlayerStats, isPending: isSaving } =
-    useSetPlayerStats();
-
-  useEffect(() => {
-    setIsEditing(false);
-    setDraftDungeons(null);
-  }, [playerSlugParam, selectedSeasonId]);
-
-  useEffect(() => {
-    if (!toastMessage) return;
-    const id = window.setTimeout(() => setToastMessage(null), 4000);
-    return () => window.clearTimeout(id);
-  }, [toastMessage]);
-
   const playerMeta = useMemo(() => {
-    const characters: PlayerCharacter[] = getCharactersForPlayer(
-      playerStats?.player.displayName,
-    );
+    const characters = getCharactersForPlayer(playerStats?.player.displayName);
 
     const flavor = playerStats
       ? getPlayerFlavorTitle({
@@ -119,116 +102,22 @@ export function PlayerProfile() {
     return { characters, flavor };
   }, [leaderboardRank, nemesis, playerStats, seasonLeaders]);
 
-  function handleEnterEdit() {
-    if (!playerStats) return;
-    setDraftDungeons(structuredClone(playerStats.dungeons));
-    setIsEditing(true);
-    setToastMessage(null);
-  }
-
-  function handleCancelEdit() {
-    setIsEditing(false);
-    setDraftDungeons(null);
-    setToastMessage(null);
-  }
-
-  function handleAdjustDraft(
-    dungeonId: string,
-    field: "deaths" | "yeets",
-    delta: 1 | -1,
-  ) {
-    if (!draftDungeons) return;
-
-    setDraftDungeons((rows) =>
-      (rows ?? []).map((row) => {
-        if (row.dungeon.id !== dungeonId) return row;
-
-        const nextDeaths =
-          field === "deaths" ? Math.max(0, row.deaths + delta) : row.deaths;
-        const nextYeets =
-          field === "yeets" ? Math.max(0, row.yeets + delta) : row.yeets;
-
-        return {
-          ...row,
-          deaths: nextDeaths,
-          yeets: nextYeets,
-          totalMistakes: nextDeaths + nextYeets,
-        };
-      }),
-    );
-  }
-
-  async function handleDoneEdit() {
-    if (!playerStats || !draftDungeons || !selectedSeasonId) return;
-
-    const changed = draftDungeons.filter((draftRow) => {
-      const original = playerStats.dungeons.find(
-        (row) => row.dungeon.id === draftRow.dungeon.id,
-      );
-      if (!original) return true;
-      return (
-        original.deaths !== draftRow.deaths || original.yeets !== draftRow.yeets
-      );
-    });
-
-    if (changed.length === 0) {
-      setIsEditing(false);
-      setDraftDungeons(null);
-      return;
-    }
-
-    setIsEditing(false);
-    setDraftDungeons(null);
-    setToastMessage(null);
-
-    const draftSnapshot = draftDungeons;
-
-    try {
-      await setPlayerStats({
-        playerId: playerStats.player.id,
-        seasonId: selectedSeasonId,
-        stats: changed.map((row) => ({
-          dungeonId: row.dungeon.id,
-          deaths: row.deaths,
-          yeets: row.yeets,
-        })),
-      });
-    } catch {
-      setIsEditing(true);
-      setDraftDungeons(draftSnapshot);
-      setToastMessage("Could not save stats. Try again.");
-    }
-  }
-
-  const breakdownMode = isEditing ? "edit" : "browse";
-  const dungeonsForBreakdown =
-    breakdownMode === "edit" && draftDungeons
-      ? draftDungeons
-      : (playerStats?.dungeons ?? []);
+  const isPlayerNotFound = isNotFoundApiError(playerStatsError);
 
   const isPageLoading =
     !isSeasonReady ||
-    (isPendingPlayerStats && !playerStats) ||
-    (!!playerSlugParam &&
-      !resolvedPlayerId &&
-      !playerStats &&
-      (!seasonLeaders || isPendingPlayerStats));
+    (isPendingPlayerStats && !playerStats && !isPlayerNotFound);
   const isRefreshingProfile =
     isFetchingPlayerStats && !!playerStats && !isPendingPlayerStats;
   const notFoundMessage =
     isSeasonReady &&
-    seasonLeaders &&
     playerSlugParam &&
-    !resolvedPlayerId &&
-    !isPendingPlayerStats
+    hasFetchedPlayerStats &&
+    !isFetchingPlayerStats &&
+    (isPlayerNotFound || (!playerStats && !playerStatsError))
       ? "Player stats were not found."
-      : isSeasonReady &&
-          hasFetchedPlayerStats &&
-          !isFetchingPlayerStats &&
-          !playerStatsError &&
-          !playerStats
-        ? "Player stats were not found."
-        : null;
+      : null;
+  const profileError = isPlayerNotFound ? null : playerStatsError;
 
   useEffect(() => {
     if (!playerStats || !selectedSeason || !playerSlugParam) return;
@@ -247,7 +136,7 @@ export function PlayerProfile() {
       isLoading={isPageLoading}
       isRefreshing={isRefreshingProfile}
       isShowingStaleData={isShowingStalePlayerStats && isFetchingPlayerStats}
-      error={playerStatsError}
+      error={profileError}
       notFoundMessage={notFoundMessage}
       onRetry={() => {
         void refetchPlayerStats();
@@ -256,7 +145,10 @@ export function PlayerProfile() {
       {playerStats ? (
         <div className="flex flex-col gap-2xl">
           {toastMessage ? (
-            <div className="fixed bottom-4 right-4 z-50 animate-fade-in rounded-lg border border-red-400/40 bg-red-950/40 px-lg py-md text-sm font-semibold text-red-300 shadow-lg">
+            <div
+              role="alert"
+              className="fixed bottom-4 right-4 z-50 animate-fade-in rounded-lg border border-red-400/40 bg-red-950/40 px-lg py-md text-sm font-semibold text-red-300 shadow-lg"
+            >
               {toastMessage}
             </div>
           ) : null}
@@ -264,112 +156,46 @@ export function PlayerProfile() {
           <HomeNavigation homePath={homePath} />
           <BackButton to={profileBackTo} fallbackTo={homePath} className="self-start" />
 
-            <header className="relative flex flex-col gap-2xl overflow-hidden rounded-3xl border border-accent-secondary bg-surface-section p-2xl shadow-2xl sm:flex-row sm:items-start sm:justify-between">
-              <div className="flex min-w-0 flex-1 items-start gap-lg">
-                <Avatar
-                  name={playerStats.player.displayName}
-                  imageUrl={playerStats.player.avatarUrl}
-                  size="lg"
-                  className="drop-shadow-[0_12px_25px_rgba(0,0,0,0.35)]"
-                />
+          <PlayerProfileHeader
+            playerStats={playerStats}
+            seasons={seasons}
+            selectedSeasonId={selectedSeasonId}
+            onSeasonChange={setSeasonId}
+            isEditing={isEditing}
+            isKingOfYeets={isKingOfYeets}
+            isKingOfDeaths={isKingOfDeaths}
+            flavor={playerMeta.flavor}
+            characters={playerMeta.characters}
+          />
 
-                <div className="min-w-0 flex-1 pt-xs">
-                  <p className="text-xs font-bold leading-4 text-accent-primary">
-                    Player profile
-                  </p>
-                  <div className="flex min-w-0 flex-wrap items-center gap-md pt-xs">
-                    <h1 className="font-heading text-4xl font-bold leading-tight text-text-primary">
-                      {playerStats.player.displayName}
-                    </h1>
-                    {isKingOfYeets ? (
-                      <CrownBadge kind="yeets" showLabel />
-                    ) : null}
-                    {isKingOfDeaths ? (
-                      <CrownBadge kind="deaths" showLabel />
-                    ) : null}
-                  </div>
-
-                  <p className="pt-sm text-sm leading-5 text-stat-yeets">
-                    {playerMeta.flavor}
-                  </p>
-
-                  <p className="pt-sm text-sm leading-5 text-text-secondary">
-                    {playerMeta.characters.length} characters tracked this
-                    season
-                  </p>
-
-                  <div className="flex flex-wrap gap-md pt-sm">
-                    {playerMeta.characters.map((character) => (
-                      <CharacterTag
-                        key={character.name}
-                        name={character.name}
-                        wowClass={character.wowClass}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex w-full shrink-0 flex-col gap-md sm:w-[360px]">
-                <div
-                  className={isEditing ? "pointer-events-none opacity-60" : ""}
-                >
-                  <SeasonPicker
-                    seasons={seasons}
-                    selectedSeasonId={selectedSeasonId ?? playerStats.season.id}
-                    onSeasonChange={setSeasonId}
-                    fluid
-                  />
-                </div>
-
-                <div className="flex justify-between gap-md">
-                  <StatCard
-                    label="Total"
-                    value={playerStats.totalMistakes}
-                    kind="total"
-                  />
-                  <StatCard
-                    label="Deaths"
-                    value={playerStats.totalDeaths}
-                    kind="deaths"
-                  />
-                  <StatCard
-                    label="Yeets"
-                    value={playerStats.totalYeets}
-                    kind="yeets"
-                  />
-                </div>
-              </div>
-            </header>
-
-            {nemesis ? (
-              <NemesisCard
-                dungeon={nemesis.dungeon}
-                sharePercent={nemesis.sharePercent}
-                bannerImageUrl={getDungeonBannerImageFromStats(
-                  resolveDungeonBannerSeasonKey(playerStats.season.name),
-                  nemesis.dungeon,
-                )}
-              />
-            ) : null}
-
-            <DungeonBreakdownSection
-              mode={breakdownMode}
-              dungeons={dungeonsForBreakdown}
-              onEnterEdit={handleEnterEdit}
-              onCancel={handleCancelEdit}
-              onDone={() => {
-                void handleDoneEdit();
-              }}
-              isSaving={isSaving}
-              onAdjust={handleAdjustDraft}
-              season={playerStats.season}
-              dungeonBackTo={buildPlayerPath(
-                playerStats.season,
-                playerStats.player,
+          {nemesis ? (
+            <NemesisCard
+              dungeon={nemesis.dungeon}
+              sharePercent={nemesis.sharePercent}
+              bannerImageUrl={getDungeonBannerImageFromStats(
+                resolveDungeonBannerSeasonKey(playerStats.season.name),
+                nemesis.dungeon,
               )}
-              profileBackTo={profileBackTo}
             />
+          ) : null}
+
+          <DungeonBreakdownSection
+            mode={breakdownMode}
+            dungeons={dungeonsForBreakdown}
+            onEnterEdit={handleEnterEdit}
+            onCancel={handleCancelEdit}
+            onDone={() => {
+              void handleDoneEdit();
+            }}
+            isSaving={isSaving}
+            onAdjust={handleAdjustDraft}
+            season={playerStats.season}
+            dungeonBackTo={buildPlayerPath(
+              playerStats.season,
+              playerStats.player,
+            )}
+            profileBackTo={profileBackTo}
+          />
         </div>
       ) : null}
     </PageBoundary>

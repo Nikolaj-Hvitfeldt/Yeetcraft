@@ -1,3 +1,4 @@
+import { useEffect, useRef, type KeyboardEvent } from "react";
 import { useTheme } from "../hooks";
 import { cn } from "../utils/cn";
 
@@ -10,29 +11,58 @@ const ACTIVE_THEME_CLASS = "bg-accent-secondary text-background-app";
 
 export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
+  const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  useEffect(() => {
+    const activeIndex = THEMES.findIndex((entry) => entry.key === theme);
+    buttonRefs.current[activeIndex]?.focus();
+  }, [theme]);
+
+  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    const activeIndex = THEMES.findIndex((entry) => entry.key === theme);
+    if (activeIndex === -1) return;
+
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+      event.preventDefault();
+      const nextTheme = THEMES[(activeIndex + 1) % THEMES.length];
+      setTheme(nextTheme.key);
+      return;
+    }
+
+    if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      event.preventDefault();
+      const nextTheme = THEMES[(activeIndex - 1 + THEMES.length) % THEMES.length];
+      setTheme(nextTheme.key);
+    }
+  }
 
   return (
     <div
       role="radiogroup"
       aria-label="Theme"
-      className="inline-flex items-start rounded-pill border border-border-subtle bg-overlay-dark p-xs shadow-[0_20px_25px_rgba(0,0,0,0.2),0_8px_10px_rgba(0,0,0,0.2)]"
+      onKeyDown={handleKeyDown}
+      className="inline-flex items-start rounded-pill border border-border-subtle bg-overlay-dark p-xs shadow-[0_20px_25px_rgba(0,0,0,0.2),0_8px_10px_rgba(0,0,0,0.2)] outline-none transition-colors hover:border-accent-primary focus-within:border-accent-primary"
     >
-      {THEMES.map((t) => {
-        const isActive = theme === t.key;
+      {THEMES.map((entry, index) => {
+        const isActive = theme === entry.key;
 
         return (
           <button
-            key={t.key}
+            key={entry.key}
+            ref={(element) => {
+              buttonRefs.current[index] = element;
+            }}
             type="button"
             role="radio"
             aria-checked={isActive}
-            onClick={() => setTheme(t.key)}
+            tabIndex={isActive ? 0 : -1}
+            onClick={() => setTheme(entry.key)}
             className={cn(
-              "min-h-9 rounded-pill px-lg py-0 text-xs font-bold leading-4 transition-all duration-200",
+              "min-h-9 rounded-pill px-lg py-0 text-xs font-bold leading-4 transition-all duration-200 outline-none",
               isActive ? ACTIVE_THEME_CLASS : "text-text-secondary",
             )}
           >
-            {t.label}
+            {entry.label}
           </button>
         );
       })}

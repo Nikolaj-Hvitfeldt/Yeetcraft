@@ -1,3 +1,12 @@
+export function isNotFoundApiError(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false
+  }
+
+  const message = error.message
+  return message.includes('404') || message.toLowerCase().includes('not found')
+}
+
 export function getUserFacingErrorMessage(error: unknown): string {
   if (!error) {
     return 'Something went wrong. Please try again.'

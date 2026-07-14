@@ -7,6 +7,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"yeetcraft/backend/internal/slug"
 )
 
 var (
@@ -124,6 +126,14 @@ func (statsRepository StatsRepository) ListLeaderboard(ctx context.Context, seas
 		return nil, err
 	}
 
+	return statsRepository.listLeaderboardForResolvedSeason(ctx, season.ID)
+}
+
+func (statsRepository StatsRepository) listLeaderboardForResolvedSeason(ctx context.Context, resolvedSeasonID string) ([]LeaderboardEntry, error) {
+	if statsRepository.pool == nil {
+		return nil, ErrDatabaseNotConfigured
+	}
+
 	const query = `
 		select
 			players.id::text,
@@ -140,7 +150,7 @@ func (statsRepository StatsRepository) ListLeaderboard(ctx context.Context, seas
 		order by total_mistakes desc, total_yeets desc, players.display_name asc
 	`
 
-	rows, err := statsRepository.pool.Query(ctx, query, season.ID)
+	rows, err := statsRepository.pool.Query(ctx, query, resolvedSeasonID)
 	if err != nil {
 		return nil, fmt.Errorf("query leaderboard: %w", err)
 	}
@@ -167,6 +177,19 @@ func (statsRepository StatsRepository) ListLeaderboard(ctx context.Context, seas
 	}
 
 	return leaderboard, nil
+}
+
+func (statsRepository StatsRepository) GetPlayerStatsByDisplaySlug(ctx context.Context, playerSlug string, seasonID string) (PlayerStats, error) {
+	if statsRepository.pool == nil {
+		return PlayerStats{}, ErrDatabaseNotConfigured
+	}
+
+	playerID, err := statsRepository.resolvePlayerIDByDisplaySlug(ctx, playerSlug)
+	if err != nil {
+		return PlayerStats{}, err
+	}
+
+	return statsRepository.GetPlayerStats(ctx, playerID, seasonID)
 }
 
 func (statsRepository StatsRepository) GetPlayerStats(ctx context.Context, playerID string, seasonID string) (PlayerStats, error) {
@@ -444,34 +467,6 @@ func (statsRepository StatsRepository) ListDungeonMistakeLeaders(ctx context.Con
 	return leaders, nil
 }
 
-func (statsRepository StatsRepository) SetStats(ctx context.Context, playerID string, seasonID string, dungeonID string, deaths int, yeets int) (StatRow, error) {
-	if statsRepository.pool == nil {
-		return StatRow{}, ErrDatabaseNotConfigured
-	}
-
-	if deaths < 0 || yeets < 0 {
-		return StatRow{}, ErrNegativeStat
-	}
-
-	if err := statsRepository.ensureStatReferencesExist(ctx, playerID, seasonID, dungeonID); err != nil {
-		return StatRow{}, err
-	}
-
-	var statRow StatRow
-	if err := statsRepository.pool.QueryRow(ctx, upsertStatsQuery, playerID, seasonID, dungeonID, deaths, yeets).Scan(
-		&statRow.PlayerID,
-		&statRow.SeasonID,
-		&statRow.DungeonID,
-		&statRow.Deaths,
-		&statRow.Yeets,
-		&statRow.TotalMistakes,
-	); err != nil {
-		return StatRow{}, fmt.Errorf("set stats: %w", err)
-	}
-
-	return statRow, nil
-}
-
 type StatUpdate struct {
 	DungeonID string
 	Deaths    int
@@ -585,6 +580,42 @@ func (statsRepository StatsRepository) getSeasonDungeon(ctx context.Context, sea
 	}
 
 	return dungeon, nil
+}
+
+func (statsRepository StatsRepository) resolvePlayerIDByDisplaySlug(ctx context.Context, playerSlug string) (string, error) {
+	if playerSlug == "" {
+		return "", ErrNotFound
+	}
+
+	const query = `
+		select id::text, display_name
+		from players
+		order by display_name asc
+	`
+
+	rows, err := statsRepository.pool.Query(ctx, query)
+	if err != nil {
+		return "", fmt.Errorf("query players for slug lookup: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var playerID string
+		var displayName string
+		if err := rows.Scan(&playerID, &displayName); err != nil {
+			return "", fmt.Errorf("scan player for slug lookup: %w", err)
+		}
+
+		if slug.ToSlug(displayName) == playerSlug {
+			return playerID, nil
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return "", fmt.Errorf("iterate players for slug lookup: %w", err)
+	}
+
+	return "", ErrNotFound
 }
 
 func (statsRepository StatsRepository) getPlayer(ctx context.Context, playerID string) (PlayerSummary, error) {

@@ -11,7 +11,7 @@ export function useSeasonId() {
   const location = useLocation()
   const { data: seasons, isPending: isPendingSeasons } = useSeasons()
 
-  const seasonList = seasons ?? []
+  const seasonList = useMemo(() => seasons ?? [], [seasons])
 
   const selectedSeason = useMemo(
     () => findSeasonBySlug(seasonList, seasonSlug) ?? findSelectedSeason(seasonList, null),
