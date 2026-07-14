@@ -226,7 +226,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
   {
     id: "spotless-run",
     title: "Spotless Run",
-    icon: "platinum",
+    icon: "spotless-run",
     priority: 100,
     evaluate: ({ dungeon }) => {
       if (dungeon.totalMistakes > 0) return ineligible();
@@ -268,7 +268,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
   {
     id: "solo-act",
     title: "Solo Act",
-    icon: "player",
+    icon: "solo-act",
     priority: 90,
     evaluate: ({ leaderboard }) => {
       const contributors = getContributors(leaderboard);
@@ -374,7 +374,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
   {
     id: "floor-inspector",
     title: "Floor Inspector",
-    icon: "deaths",
+    icon: "floor-inspector",
     priority: 80,
     evaluate: ({ leaderboard }) => {
       const player = pickHighestDeathRatioPlayer(leaderboard);
@@ -430,7 +430,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
   {
     id: "the-benchwarmer",
     title: "The Benchwarmer",
-    icon: "save",
+    icon: "the-benchwarmer",
     priority: 70,
     evaluate: ({ leaderboard }) => {
       const player = pickBenchwarmer(leaderboard);
@@ -446,7 +446,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
   {
     id: "meat-grinder",
     title: "Meat Grinder",
-    icon: "deaths",
+    icon: "meat-grinder",
     priority: 65,
     evaluate: ({ dungeon, reputationScores }) => {
       if (reputationScores.dangerRating < DANGER_RATING_THRESHOLD) {
