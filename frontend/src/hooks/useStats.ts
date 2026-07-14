@@ -3,6 +3,7 @@ import {
   fetchCurrentSeasonDungeons,
   fetchDungeonLeaderboard,
   fetchPlayerStats,
+  fetchPlayerStatsBySlug,
   fetchSeasonLeaders,
   fetchSeasons,
 } from '../api/api'
@@ -45,6 +46,30 @@ export function usePlayerStats(
       return fetchPlayerStats(playerId, seasonId)
     },
     enabled: (options?.enabled ?? true) && !!playerId && !!seasonId,
+    staleTime: 30_000,
+    placeholderData: keepPreviousData,
+    retry: (failureCount, error) => {
+      if (error instanceof Error && error.message.includes('500')) {
+        return failureCount < 2
+      }
+      return failureCount < 1
+    },
+  })
+}
+
+export function usePlayerStatsBySlug(
+  playerSlug: string | undefined,
+  seasonId?: string,
+  options?: QueryEnabledOptions,
+) {
+  return useQuery({
+    queryKey: ['player-stats-by-slug', playerSlug, seasonId],
+    queryFn: () => {
+      if (!playerSlug) throw new Error('Missing player slug')
+      if (!seasonId) throw new Error('Missing season id')
+      return fetchPlayerStatsBySlug(playerSlug, seasonId)
+    },
+    enabled: (options?.enabled ?? true) && !!playerSlug && !!seasonId,
     staleTime: 30_000,
     placeholderData: keepPreviousData,
     retry: (failureCount, error) => {
@@ -99,7 +124,7 @@ export function useDungeonLeaderboard(
 }
 
 export function deriveLeaderboard(entries: LeaderboardEntry[]): LeaderboardPlayerStats[] {
-  const leaderboard = entries.map((entry) => ({
+  return entries.map((entry) => ({
     playerId: entry.playerId,
     playerName: entry.displayName,
     avatarUrl: entry.avatarUrl,
@@ -107,11 +132,6 @@ export function deriveLeaderboard(entries: LeaderboardEntry[]): LeaderboardPlaye
     deaths: entry.totalDeaths,
     yeets: entry.totalYeets,
   }))
-
-  return leaderboard.sort((firstEntry, secondEntry) => {
-    if (secondEntry.total !== firstEntry.total) return secondEntry.total - firstEntry.total
-    return secondEntry.yeets - firstEntry.yeets
-  })
 }
 
 export function calculateTotalStats(entries: LeaderboardEntry[]) {

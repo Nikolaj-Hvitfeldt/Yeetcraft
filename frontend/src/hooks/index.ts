@@ -2,6 +2,7 @@ export {
   useCurrentSeasonDungeons,
   useDungeonLeaderboard,
   usePlayerStats,
+  usePlayerStatsBySlug,
   useSeasonLeaders,
   useSeasons,
   deriveLeaderboard,

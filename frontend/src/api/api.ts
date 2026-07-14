@@ -99,6 +99,13 @@ export async function fetchPlayerStats(playerId: string, seasonId?: string) {
   )
 }
 
+export async function fetchPlayerStatsBySlug(playerSlug: string, seasonId?: string) {
+  return fetchApi(
+    `/api/players/by-slug/${encodeURIComponent(playerSlug)}/stats${buildSeasonQuery(seasonId)}`,
+    PlayerStatsResponseSchema,
+  )
+}
+
 export async function fetchSeasons() {
   return fetchApi('/api/seasons', SeasonsResponseSchema)
 }

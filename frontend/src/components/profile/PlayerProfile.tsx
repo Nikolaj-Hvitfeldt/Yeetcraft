@@ -3,13 +3,14 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   deriveLeaderboard,
   usePlayerProfileEdit,
-  usePlayerStats,
+  usePlayerStatsBySlug,
   useSeasonId,
   useSeasonLeaders,
 } from "../../hooks";
 import { PageBoundary } from "../layout/PageBoundary";
 import { buildPlayerPath, type PageBackState } from "../../utils/routes";
-import { findPlayerBySlug, playerSlug } from "../../utils/slug";
+import { playerSlug } from "../../utils/slug";
+import { isNotFoundApiError } from "../../utils/api-error";
 import { HomeNavigation } from "../home/HomeNavigation";
 import { DungeonBreakdownSection } from "./DungeonBreakdownSection";
 import { NemesisCard } from "./NemesisCard";
@@ -36,12 +37,6 @@ export function PlayerProfile() {
     enabled: isSeasonReady,
   });
 
-  const resolvedPlayerId = useMemo(() => {
-    if (!playerSlugParam) return undefined;
-
-    return findPlayerBySlug(seasonLeaders?.leaderboard ?? [], playerSlugParam)?.playerId;
-  }, [playerSlugParam, seasonLeaders?.leaderboard]);
-
   const {
     data: playerStats,
     isPending: isPendingPlayerStats,
@@ -50,7 +45,7 @@ export function PlayerProfile() {
     isPlaceholderData: isShowingStalePlayerStats,
     error: playerStatsError,
     refetch: refetchPlayerStats,
-  } = usePlayerStats(resolvedPlayerId, selectedSeasonId, { enabled: isSeasonReady });
+  } = usePlayerStatsBySlug(playerSlugParam, selectedSeasonId, { enabled: isSeasonReady });
 
   const {
     breakdownMode,
@@ -107,29 +102,22 @@ export function PlayerProfile() {
     return { characters, flavor };
   }, [leaderboardRank, nemesis, playerStats, seasonLeaders]);
 
+  const isPlayerNotFound = isNotFoundApiError(playerStatsError);
+
   const isPageLoading =
     !isSeasonReady ||
-    (isPendingPlayerStats && !playerStats) ||
-    (!!playerSlugParam &&
-      !resolvedPlayerId &&
-      !playerStats &&
-      (!seasonLeaders || isPendingPlayerStats));
+    (isPendingPlayerStats && !playerStats && !isPlayerNotFound);
   const isRefreshingProfile =
     isFetchingPlayerStats && !!playerStats && !isPendingPlayerStats;
   const notFoundMessage =
     isSeasonReady &&
-    seasonLeaders &&
     playerSlugParam &&
-    !resolvedPlayerId &&
-    !isPendingPlayerStats
+    hasFetchedPlayerStats &&
+    !isFetchingPlayerStats &&
+    (isPlayerNotFound || (!playerStats && !playerStatsError))
       ? "Player stats were not found."
-      : isSeasonReady &&
-          hasFetchedPlayerStats &&
-          !isFetchingPlayerStats &&
-          !playerStatsError &&
-          !playerStats
-        ? "Player stats were not found."
-        : null;
+      : null;
+  const profileError = isPlayerNotFound ? null : playerStatsError;
 
   useEffect(() => {
     if (!playerStats || !selectedSeason || !playerSlugParam) return;
@@ -148,7 +136,7 @@ export function PlayerProfile() {
       isLoading={isPageLoading}
       isRefreshing={isRefreshingProfile}
       isShowingStaleData={isShowingStalePlayerStats && isFetchingPlayerStats}
-      error={playerStatsError}
+      error={profileError}
       notFoundMessage={notFoundMessage}
       onRetry={() => {
         void refetchPlayerStats();

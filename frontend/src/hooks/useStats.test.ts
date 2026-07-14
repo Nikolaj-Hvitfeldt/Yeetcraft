@@ -64,8 +64,28 @@ function getSeasonKings(leaderboard: LeaderboardPlayerStats[]) {
 }
 
 describe('deriveLeaderboard', () => {
-  it('sorts by total mistakes then yeets', () => {
+  it('maps API entries without reordering', () => {
     const leaderboard = deriveLeaderboard(entries)
+
+    expect(leaderboard.map((player) => player.playerId)).toEqual(['p1', 'p2', 'p3'])
+    expect(leaderboard[0]).toEqual({
+      playerId: 'p1',
+      playerName: 'Alpha',
+      avatarUrl: null,
+      total: 10,
+      deaths: 2,
+      yeets: 8,
+    })
+  })
+
+  it('preserves server-provided order for ranking', () => {
+    const serverOrderedEntries: LeaderboardEntry[] = [
+      entries[0],
+      entries[2],
+      entries[1],
+    ]
+
+    const leaderboard = deriveLeaderboard(serverOrderedEntries)
 
     expect(leaderboard.map((player) => player.playerId)).toEqual(['p1', 'p3', 'p2'])
   })
