@@ -1,17 +1,17 @@
-import { wowIcons, type WowIconKey } from '../assets/wow-icons'
+import { icons, type IconKey } from '../assets/icons'
 import { cn } from '../utils/cn'
 
-export function WowIcon({
+export function Icon({
   icon,
   size = 24,
   alt = '',
   className,
   objectFit = 'contain',
   fluid = false,
-}: WowIconProps) {
+}: IconProps) {
   return (
     <img
-      src={wowIcons[icon]}
+      src={icons[icon]}
       alt={alt}
       width={fluid ? undefined : size}
       height={fluid ? undefined : size}
@@ -26,8 +26,8 @@ export function WowIcon({
   )
 }
 
-interface WowIconProps {
-  icon: WowIconKey
+interface IconProps {
+  icon: IconKey
   size?: number
   alt?: string
   className?: string

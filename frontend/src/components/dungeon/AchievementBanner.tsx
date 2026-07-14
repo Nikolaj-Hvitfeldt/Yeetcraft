@@ -7,11 +7,11 @@ import type {
   AchievementIcon,
   DungeonAchievementHolderView,
 } from "../../utils/dungeon-achievements";
-import { wowIcons } from "../../assets/wow-icons";
+import { icons } from "../../assets/icons";
 import { cn } from "../../utils/cn";
 import { Avatar } from "../ui/Avatar";
 import { HoverTooltipPanel } from "../ui/HoverTooltipPanel";
-import { WowIcon } from "../WowIcon";
+import { Icon } from "../Icon";
 
 // achievementFrameSimple.webp is 256×64px (4:1) — square wells on left and right.
 const FRAME_ASPECT_PERCENT = 25;
@@ -57,7 +57,7 @@ function AchievementIconWell({ icon }: { icon: AchievementIcon }) {
             className="size-full scale-[1.14] object-cover"
           />
         ) : (
-          <WowIcon
+          <Icon
             icon={icon}
             fluid
             objectFit="cover"
@@ -113,7 +113,7 @@ export function AchievementBanner({
       >
         <div className="relative overflow-hidden drop-shadow-md">
           <img
-            src={wowIcons.achievementFrameSimple}
+            src={icons.achievementFrameSimple}
             alt=""
             aria-hidden
             className="block h-auto w-full max-w-full"
@@ -160,7 +160,7 @@ export function AchievementBanner({
                   </span>
                 </>
               ) : (
-                <WowIcon
+                <Icon
                   icon="achievementShield"
                   fluid
                   objectFit="contain"

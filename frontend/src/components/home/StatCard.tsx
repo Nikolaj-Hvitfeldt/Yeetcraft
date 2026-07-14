@@ -1,6 +1,6 @@
-import { WowIcon } from '../WowIcon'
+import { Icon } from '../Icon'
 import { cn } from '../../utils/cn'
-import { STAT_COLOR_BY_KIND, STAT_WOW_ICON_BY_KIND, type StatKind } from '../../utils/stat-colors'
+import { STAT_COLOR_BY_KIND, STAT_ICON_BY_KIND, type StatKind } from '../../utils/stat-colors'
 
 const ICON_CLASS_BY_KIND: Record<StatCardKind, string> = {
   total: 'inset-0 size-full',
@@ -16,12 +16,12 @@ const OBJECT_FIT_BY_KIND: Record<StatCardKind, 'contain' | 'cover'> = {
 
 export function StatCard({ label, value, kind }: StatCardProps) {
   const colorClassName = STAT_COLOR_BY_KIND[kind]
-  const icon = STAT_WOW_ICON_BY_KIND[kind]
+  const icon = STAT_ICON_BY_KIND[kind]
 
   return (
     <div className="flex w-28 flex-col items-center gap-sm">
       <article className="relative flex h-[100px] w-full flex-col items-center justify-center overflow-hidden rounded-[8px] border border-accent-primary bg-surface-base px-[10px] py-[10px]">
-        <WowIcon
+        <Icon
           icon={icon}
           fluid
           objectFit={OBJECT_FIT_BY_KIND[kind]}

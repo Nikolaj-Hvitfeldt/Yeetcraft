@@ -11,7 +11,7 @@ import silver from './silver.webp'
 import total from './total.webp'
 import yeets from './yeets.webp'
 
-export const wowIcons = {
+export const icons = {
   deaths,
   yeets,
   total,
@@ -26,4 +26,4 @@ export const wowIcons = {
   info,
 } as const
 
-export type WowIconKey = keyof typeof wowIcons
+export type IconKey = keyof typeof icons

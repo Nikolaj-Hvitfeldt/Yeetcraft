@@ -1,18 +1,18 @@
 import type { ReactNode } from 'react'
-import { WowIcon } from '../WowIcon'
+import { Icon } from '../Icon'
 import {
-  SPOTLIGHT_WOW_ICON_BY_KIND,
+  SPOTLIGHT_ICON_BY_KIND,
   STAT_COLOR_BY_KIND,
   type StatKind,
 } from '../../utils/stat-colors'
 
 function renderSpotlightIcon(categoryKind?: StatKind | 'default') {
-  const wowIcon = categoryKind ? SPOTLIGHT_WOW_ICON_BY_KIND[categoryKind] : undefined
+  const iconKey = categoryKind ? SPOTLIGHT_ICON_BY_KIND[categoryKind] : undefined
 
-  if (wowIcon) {
+  if (iconKey) {
     return (
-      <WowIcon
-        icon={wowIcon}
+      <Icon
+        icon={iconKey}
         size={28}
         objectFit={categoryKind === 'deaths' ? 'contain' : 'cover'}
         className={
