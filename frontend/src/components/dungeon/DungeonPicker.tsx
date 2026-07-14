@@ -4,6 +4,7 @@ import type { DungeonDetailLocationState } from '../../utils/routes'
 import { buildDungeonPath } from '../../utils/routes'
 import { useDismissiblePopover } from '../../hooks/useDismissiblePopover'
 import { ChevronDownIcon } from '../ui/ChevronDownIcon'
+import { ListboxOption } from '../ui/ListboxOption'
 
 export function DungeonPicker({
   dungeons,
@@ -44,27 +45,15 @@ export function DungeonPicker({
             aria-label="Dungeon"
             className="max-h-56 overflow-y-auto overscroll-contain rounded-[calc(0.375rem-1px)] p-xs pr-1"
           >
-            {dungeons.map((dungeon) => {
-              const isSelected = dungeon.id === selectedDungeonId
-
-              return (
-                <li key={dungeon.id}>
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={isSelected}
-                    className={`flex w-full items-center rounded-sm px-sm py-sm text-left text-xs font-semibold transition-colors ${
-                      isSelected
-                        ? 'bg-accent-secondary text-background-app'
-                        : 'text-text-primary hover:bg-surface-base'
-                    }`}
-                    onClick={() => handleDungeonSelect(dungeon)}
-                  >
-                    {dungeon.name}
-                  </button>
-                </li>
-              )
-            })}
+            {dungeons.map((dungeon) => (
+              <ListboxOption
+                key={dungeon.id}
+                isSelected={dungeon.id === selectedDungeonId}
+                onSelect={() => handleDungeonSelect(dungeon)}
+              >
+                {dungeon.name}
+              </ListboxOption>
+            ))}
           </ul>
         </div>
       ) : null}
