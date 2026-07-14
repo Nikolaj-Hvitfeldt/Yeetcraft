@@ -1,14 +1,14 @@
-import type { WowClassKey } from '../../assets/wow-classes'
-import { isWowClassKey } from '../../assets/wow-classes'
-import { WowClassIcon } from '../WowClassIcon'
+import type { ClassKey } from '../../assets/classes'
+import { isClassKey } from '../../assets/classes'
+import { ClassIcon } from '../ClassIcon'
 
 export function CharacterTag({ name, wowClass, classLabel, className }: CharacterTagProps) {
   return (
     <span
       className={`inline-flex h-[26px] items-center gap-sm rounded-pill border border-border-subtle bg-surface-base px-md py-xs ${className ?? ''}`}
     >
-      {wowClass && isWowClassKey(wowClass) ? (
-        <WowClassIcon wowClass={wowClass} size={18} />
+      {wowClass && isClassKey(wowClass) ? (
+        <ClassIcon classKey={wowClass} size={18} />
       ) : (
         <span className="size-1.5 shrink-0 rounded-pill bg-accent-primary" aria-hidden="true" />
       )}
@@ -22,7 +22,7 @@ export function CharacterTag({ name, wowClass, classLabel, className }: Characte
 
 interface CharacterTagProps {
   name: string
-  wowClass?: WowClassKey
+  wowClass?: ClassKey
   className?: string
   classLabel?: string
 }

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { isWowClassKey, wowClasses } from './index'
+import { classes, isClassKey } from './index'
 import { PLAYERS_BY_KEY } from '../../data/player-characters'
 
-describe('wowClasses', () => {
+describe('classes', () => {
   it('loads all expected class keys', () => {
-    const keys = Object.keys(wowClasses).sort()
+    const keys = Object.keys(classes).sort()
     expect(keys).toContain('priest')
     expect(keys).toContain('shaman')
     expect(keys).toContain('deathknight')
@@ -15,8 +15,8 @@ describe('wowClasses', () => {
     for (const profile of Object.values(PLAYERS_BY_KEY)) {
       for (const character of profile.characters) {
         if (!character.wowClass) continue
-        expect(isWowClassKey(character.wowClass)).toBe(true)
-        expect(wowClasses[character.wowClass]).toBeTruthy()
+        expect(isClassKey(character.wowClass)).toBe(true)
+        expect(classes[character.wowClass]).toBeTruthy()
       }
     }
   })

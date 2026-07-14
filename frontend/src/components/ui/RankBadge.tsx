@@ -1,8 +1,8 @@
-import type { WowIconKey } from '../../assets/wow-icons'
+import type { IconKey } from '../../assets/icons'
 import { cn } from '../../utils/cn'
-import { WowIcon } from '../WowIcon'
+import { Icon } from '../Icon'
 
-const RANK_ICON_BY_PLACE: Record<number, WowIconKey> = {
+const RANK_ICON_BY_PLACE: Record<number, IconKey> = {
   1: 'gold',
   2: 'silver',
   3: 'bronze',
@@ -20,7 +20,7 @@ export function RankBadge({ rank }: RankBadgeProps) {
       )}
     >
       {rankIcon ? (
-        <WowIcon icon={rankIcon} size={44} objectFit="contain" className="size-11" />
+        <Icon icon={rankIcon} size={44} objectFit="contain" className="size-11" />
       ) : null}
       <span
         className={cn(

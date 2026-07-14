@@ -1,10 +1,10 @@
-import type { WowClassKey } from "../assets/wow-classes";
+import type { ClassKey } from "../assets/classes";
 
 export type PlayerRole = "DPS" | "Healer" | "Tank";
 
 export type PlayerCharacter = {
   name: string;
-  wowClass?: WowClassKey;
+  wowClass?: ClassKey;
 };
 
 export type PlayerRegistryEntry = {

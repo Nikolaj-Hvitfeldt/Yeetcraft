@@ -1,12 +1,12 @@
-import { wowClasses, type WowClassKey } from '../assets/wow-classes'
+import { classes, type ClassKey } from '../assets/classes'
 import { cn } from '../utils/cn'
 
-export function WowClassIcon({
-  wowClass,
+export function ClassIcon({
+  classKey,
   size = 18,
   className,
-}: WowClassIconProps) {
-  const iconUrl = wowClasses[wowClass]
+}: ClassIconProps) {
+  const iconUrl = classes[classKey]
 
   if (!iconUrl) {
     return null
@@ -27,8 +27,8 @@ export function WowClassIcon({
   )
 }
 
-interface WowClassIconProps {
-  wowClass: WowClassKey
+interface ClassIconProps {
+  classKey: ClassKey
   size?: number
   className?: string
 }

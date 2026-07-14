@@ -12,7 +12,7 @@ import shaman from './shaman.webp'
 import warlock from './warlock.webp'
 import warrior from './warrior.webp'
 
-export const wowClasses = {
+export const classes = {
   deathknight: deathKnight,
   demonhunter: demonHunter,
   druid,
@@ -28,8 +28,8 @@ export const wowClasses = {
   warrior,
 } as const
 
-export type WowClassKey = keyof typeof wowClasses
+export type ClassKey = keyof typeof classes
 
-export function isWowClassKey(value: string): value is WowClassKey {
-  return value in wowClasses
+export function isClassKey(value: string): value is ClassKey {
+  return value in classes
 }

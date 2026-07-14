@@ -1,5 +1,5 @@
 import { useId } from 'react'
-import { WowIcon } from '../WowIcon'
+import { Icon } from '../Icon'
 import { HoverTooltipPanel } from "./HoverTooltipPanel";
 
 const INFO_ICON_SIZE = 20;
@@ -19,7 +19,7 @@ export function InfoTooltip({
         aria-label={label}
         aria-describedby={tooltipId}
       >
-        <WowIcon icon="info" size={INFO_ICON_SIZE} className="size-[18px]" />
+        <Icon icon="info" size={INFO_ICON_SIZE} className="size-[18px]" />
       </button>
 
       <HoverTooltipPanel

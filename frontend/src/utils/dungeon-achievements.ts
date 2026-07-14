@@ -1,5 +1,5 @@
 import type { AchievementLogoKey } from "../assets/achievement-logos";
-import type { WowIconKey } from "../assets/wow-icons";
+import type { IconKey } from "../assets/icons";
 import type {
   DungeonLeaderboardEntry,
   DungeonSummary,
@@ -20,7 +20,7 @@ const COMMITTEE_MIN_CONTRIBUTORS = 3;
 const CARRY_JOB_MIN_MISTAKES = 4;
 const ACHIEVEMENT_COUNT = 2;
 
-export type AchievementIcon = WowIconKey | AchievementLogoKey;
+export type AchievementIcon = IconKey | AchievementLogoKey;
 
 export interface DungeonAchievement {
   icon: AchievementIcon;

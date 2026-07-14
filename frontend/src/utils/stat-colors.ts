@@ -1,4 +1,4 @@
-import type { WowIconKey } from '../assets/wow-icons'
+import type { IconKey } from '../assets/icons'
 
 export type StatKind = 'total' | 'deaths' | 'yeets'
 
@@ -8,14 +8,14 @@ export const STAT_COLOR_BY_KIND: Record<StatKind, string> = {
   yeets: 'text-stat-yeets',
 }
 
-export const STAT_WOW_ICON_BY_KIND: Record<StatKind, WowIconKey> = {
+export const STAT_ICON_BY_KIND: Record<StatKind, IconKey> = {
   total: 'total',
   deaths: 'deaths',
   yeets: 'yeets',
 }
 
-export const SPOTLIGHT_WOW_ICON_BY_KIND: Partial<
-  Record<StatKind | 'default', WowIconKey>
+export const SPOTLIGHT_ICON_BY_KIND: Partial<
+  Record<StatKind | 'default', IconKey>
 > = {
   deaths: 'deaths',
   yeets: 'yeets',
