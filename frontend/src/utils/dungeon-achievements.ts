@@ -31,6 +31,7 @@ export interface DungeonAchievement {
     avatarUrl: string | null;
   };
   description: string;
+  tooltip: string;
 }
 
 export interface DungeonAchievementContext {
@@ -58,6 +59,7 @@ interface AchievementRule {
   id: string;
   title: string;
   icon: AchievementIcon;
+  tooltip: string;
   priority: number;
   evaluate: (context: DungeonAchievementContext) => AchievementEvaluation;
 }
@@ -227,6 +229,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
     id: "spotless-run",
     title: "Spotless Run",
     icon: "spotless-run",
+    tooltip: "Awarded when no deaths or yeets were recorded in this dungeon.",
     priority: 100,
     evaluate: ({ dungeon }) => {
       if (dungeon.totalMistakes > 0) return ineligible();
@@ -241,6 +244,8 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
     id: "the-liability",
     title: "The Liability",
     icon: "the-liability",
+    tooltip:
+      "Given to the player who owns the biggest share of mistakes here.",
     priority: 95,
     evaluate: ({ dungeon, leaderboard, reputationScores }) => {
       if (
@@ -269,6 +274,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
     id: "solo-act",
     title: "Solo Act",
     icon: "solo-act",
+    tooltip: "Every mistake in this run came from one player.",
     priority: 90,
     evaluate: ({ leaderboard }) => {
       const contributors = getContributors(leaderboard);
@@ -287,6 +293,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
     id: "dungeon-menace",
     title: "Dungeon Menace",
     icon: "dungeon-menace",
+    tooltip: "This player leads season-wide mistakes for this key.",
     priority: 88,
     evaluate: ({ dungeon, leaderboard, seasonLeaders }) => {
       const menace = seasonLeaders?.dungeonMistakeLeaders?.find(
@@ -309,6 +316,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
     id: "the-usual-suspect",
     title: "The Usual Suspect",
     icon: "the-usual-suspect",
+    tooltip: "A season yeet or death king who did not top this dungeon.",
     priority: 85,
     evaluate: ({ leaderboard, seasonLeaders }) => {
       const yeetLeader = getYeetLeader(leaderboard);
@@ -355,6 +363,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
     id: "cliff-diver",
     title: "Cliff Diver",
     icon: "cliff-diver",
+    tooltip: "Most of this player's mistakes here were yeets.",
     priority: 80,
     evaluate: ({ leaderboard }) => {
       const player = pickHighestYeetRatioPlayer(leaderboard);
@@ -375,6 +384,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
     id: "floor-inspector",
     title: "Floor Inspector",
     icon: "floor-inspector",
+    tooltip: "Most of this player's mistakes here were deaths.",
     priority: 80,
     evaluate: ({ leaderboard }) => {
       const player = pickHighestDeathRatioPlayer(leaderboard);
@@ -395,6 +405,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
     id: "carry-job",
     title: "Carry Job",
     icon: "carry-job",
+    tooltip: "One player stayed clean while everyone else slipped up.",
     priority: 75,
     evaluate: ({ dungeon, leaderboard }) => {
       if (dungeon.totalMistakes < CARRY_JOB_MIN_MISTAKES) return ineligible();
@@ -414,6 +425,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
     id: "balancing-act",
     title: "Balancing Act",
     icon: "balancing-act",
+    tooltip: "An even split of deaths and yeets from one player.",
     priority: 74,
     evaluate: ({ leaderboard }) => {
       const player = pickMostBalancedPlayer(leaderboard);
@@ -431,6 +443,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
     id: "the-benchwarmer",
     title: "The Benchwarmer",
     icon: "the-benchwarmer",
+    tooltip: "No mistakes here while the rest of the party struggled.",
     priority: 70,
     evaluate: ({ leaderboard }) => {
       const player = pickBenchwarmer(leaderboard);
@@ -447,6 +460,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
     id: "meat-grinder",
     title: "Meat Grinder",
     icon: "meat-grinder",
+    tooltip: "This dungeon hurts more than most keys this season.",
     priority: 65,
     evaluate: ({ dungeon, reputationScores }) => {
       if (reputationScores.dangerRating < DANGER_RATING_THRESHOLD) {
@@ -464,6 +478,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
     id: "yeet-cannon",
     title: "Yeet Cannon",
     icon: "yeet-cannon",
+    tooltip: "Yeets dominate the mistake mix in this dungeon.",
     priority: 65,
     evaluate: ({ dungeon, reputationScores, mistakeMix }) => {
       if (reputationScores.yeetFactor < YEET_FACTOR_THRESHOLD) {
@@ -481,6 +496,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
     id: "committee-meeting",
     title: "Committee Meeting",
     icon: "committee-meeting",
+    tooltip: "Mistakes were spread evenly with no single standout.",
     priority: 60,
     evaluate: ({ reputationScores, leaderboard }) => {
       const contributors = getContributors(leaderboard);
@@ -504,6 +520,7 @@ const QUIET_LOBBY_RULE: AchievementRule = {
   id: "quiet-lobby",
   title: "Quiet Lobby",
   icon: "dungeon",
+  tooltip: "Shown when there is not enough data for a sharper highlight.",
   priority: 1,
   evaluate: () => ({
     eligible: true,
@@ -539,6 +556,7 @@ function evaluateRules(
           title: rule.title,
           holder: toPublicHolder(result.holder),
           description: result.description,
+          tooltip: rule.tooltip,
         },
       },
     ];
@@ -619,6 +637,7 @@ function selectTopAchievements(
         icon: QUIET_LOBBY_RULE.icon,
         title: QUIET_LOBBY_RULE.title,
         description: quietLobby.description,
+        tooltip: QUIET_LOBBY_RULE.tooltip,
       },
     });
   }

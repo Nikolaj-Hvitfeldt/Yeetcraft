@@ -20,6 +20,7 @@ export function AchievementsSection({ achievements, className }: AchievementsSec
             title={achievement.title}
             holder={achievement.holder}
             description={achievement.description}
+            tooltip={achievement.tooltip}
           />
         ))}
       </div>

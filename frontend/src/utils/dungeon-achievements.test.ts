@@ -97,7 +97,7 @@ describe("getDungeonAchievements", () => {
     expect(result.eligible).toBe(true);
     expect(result.holder?.displayName).toBe("Niklas");
     expect(result.description).toBe(
-      "Every mistake in this dungeon came from Niklas.",
+      "Every mistake in this dungeon came from Niklas",
     );
   });
 
@@ -239,7 +239,7 @@ describe("getDungeonAchievements", () => {
 
     expect(result.eligible).toBe(true);
     expect(result.description).toBe(
-      "Niklas leads season mistakes for this dungeon.",
+      "Niklas leads season mistakes for this dungeon",
     );
   });
 
@@ -297,7 +297,7 @@ describe("getDungeonAchievements", () => {
 
     expect(result.eligible).toBe(true);
     expect(result.description).toBe(
-      "Niklas usually tops the charts — not here.",
+      "Niklas usually tops the charts — not here",
     );
   });
 
@@ -344,6 +344,6 @@ describe("getDungeonAchievements", () => {
 
     expect(result.eligible).toBe(true);
     expect(result.holder?.displayName).toBe("Martin");
-    expect(result.description).toBe("Martin carried the rest of the party.");
+    expect(result.description).toBe("Martin carried the rest of the party");
   });
 });

@@ -84,21 +84,24 @@ export function AchievementBanner({
   title,
   holder,
   description,
+  tooltip,
   className,
 }: AchievementBannerProps) {
   const titleId = useId();
   const descriptionId = useId();
+  const tooltipId = useId();
   const holderId = useId();
 
   return (
     <div
-      className={cn("relative w-full max-w-full", className)}
+      className={cn("group/banner relative w-full max-w-full", className)}
       style={{ paddingBottom: `${FRAME_ASPECT_PERCENT * BANNER_SCALE}%` }}
     >
       <article
+        tabIndex={0}
         aria-labelledby={holder ? `${titleId} ${holderId}` : titleId}
-        aria-describedby={descriptionId}
-        className="absolute left-0 top-0 w-full origin-top-left outline-none"
+        aria-describedby={`${descriptionId} ${tooltipId}`}
+        className="absolute left-0 top-0 w-full origin-top-left cursor-help outline-none focus-visible:ring-1 focus-visible:ring-accent-primary"
         style={{
           width: `${100 / BANNER_SCALE}%`,
           transform: `scale(${BANNER_SCALE})`,
@@ -164,6 +167,18 @@ export function AchievementBanner({
           </div>
         </div>
       </article>
+
+      <div
+        id={tooltipId}
+        role="tooltip"
+        className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 w-[min(280px,calc(100vw-2rem))] -translate-x-1/2 rounded-md border border-border-subtle bg-surface-base px-md py-sm text-left text-xs font-normal leading-4 text-text-primary opacity-0 shadow-[0px_12px_20px_rgba(0,0,0,0.35)] transition-opacity group-hover/banner:opacity-100 group-focus-within/banner:opacity-100"
+      >
+        <p className="font-heading text-sm font-bold leading-5 text-text-primary">
+          {title}
+        </p>
+        <p className="mt-1 whitespace-pre-line text-text-primary">{description}</p>
+        <p className="mt-2 text-text-secondary">{tooltip}</p>
+      </div>
     </div>
   );
 }
@@ -178,5 +193,6 @@ interface AchievementBannerProps {
   title: string;
   holder?: AchievementHolder;
   description: string;
+  tooltip: string;
   className?: string;
 }
