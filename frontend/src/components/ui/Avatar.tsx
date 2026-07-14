@@ -14,7 +14,7 @@ export function Avatar({ name, imageUrl, size = 'sm', className }: AvatarProps) 
     return (
       <img
         src={imageUrl}
-        alt=""
+        alt={name ? `${name} avatar` : ''}
         className={`shrink-0 object-cover ${sizeClassName} ${className ?? ''}`}
       />
     )

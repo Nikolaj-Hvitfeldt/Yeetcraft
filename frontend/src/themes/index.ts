@@ -1,5 +1,5 @@
 export { applyColorTheme, applyGlobalTheme } from './apply-theme'
-export { colorThemes, sharedColors, type ThemeName } from './colors'
+export { type ThemeName } from './colors'
 export { fonts } from './fonts'
 export { radius } from './radius'
 export { space } from './space'

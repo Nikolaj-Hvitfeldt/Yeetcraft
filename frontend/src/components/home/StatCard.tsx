@@ -1,13 +1,6 @@
-import type { WowIconKey } from '../../assets/wow-icons'
 import { WowIcon } from '../WowIcon'
 import { cn } from '../../utils/cn'
-import { STAT_COLOR_BY_KIND, type StatKind } from '../../utils/stat-colors'
-
-const ICON_BY_KIND: Record<StatCardKind, WowIconKey> = {
-  total: 'total',
-  deaths: 'deaths',
-  yeets: 'yeets',
-}
+import { STAT_COLOR_BY_KIND, STAT_WOW_ICON_BY_KIND, type StatKind } from '../../utils/stat-colors'
 
 const ICON_CLASS_BY_KIND: Record<StatCardKind, string> = {
   total: 'inset-0 size-full',
@@ -23,7 +16,7 @@ const OBJECT_FIT_BY_KIND: Record<StatCardKind, 'contain' | 'cover'> = {
 
 export function StatCard({ label, value, kind }: StatCardProps) {
   const colorClassName = STAT_COLOR_BY_KIND[kind]
-  const icon = ICON_BY_KIND[kind]
+  const icon = STAT_WOW_ICON_BY_KIND[kind]
 
   return (
     <div className="flex w-28 flex-col items-center gap-sm">

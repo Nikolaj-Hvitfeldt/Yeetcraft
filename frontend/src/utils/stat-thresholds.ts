@@ -1,0 +1,2 @@
+export const YEET_RATIO_THRESHOLD = 0.65;
+export const DEATH_RATIO_THRESHOLD = 0.65;

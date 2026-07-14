@@ -3,7 +3,10 @@ import {
   achievementLogos,
   isAchievementLogoKey,
 } from "../../assets/achievement-logos";
-import type { AchievementIcon } from "../../utils/dungeon-achievements";
+import type {
+  AchievementIcon,
+  DungeonAchievementHolderView,
+} from "../../utils/dungeon-achievements";
 import { wowIcons } from "../../assets/wow-icons";
 import { cn } from "../../utils/cn";
 import { Avatar } from "../ui/Avatar";
@@ -183,15 +186,10 @@ export function AchievementBanner({
   );
 }
 
-interface AchievementHolder {
-  displayName: string;
-  avatarUrl: string | null;
-}
-
 interface AchievementBannerProps {
   icon: AchievementIcon;
   title: string;
-  holder?: AchievementHolder;
+  holder?: DungeonAchievementHolderView;
   description: string;
   tooltip: string;
   className?: string;

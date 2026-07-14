@@ -1,10 +1,12 @@
 import type { DungeonStats, SeasonLeadersResponse } from "../api/types";
 import { countDungeonsWithMistakes, getNemesisDungeon, type NemesisDungeon } from "./player-stats";
+import {
+  DEATH_RATIO_THRESHOLD,
+  YEET_RATIO_THRESHOLD,
+} from "./stat-thresholds";
 
 const NEMESIS_SHARE_MEDIUM_THRESHOLD = 35;
 const NEMESIS_SHARE_LOW_THRESHOLD = 30;
-const YEET_RATIO_THRESHOLD = 0.65;
-const DEATH_RATIO_THRESHOLD = 0.65;
 const BALANCED_RATIO_MIN = 0.35;
 const BALANCED_RATIO_MAX = 0.65;
 const CHRONIC_TOURIST_MIN_DUNGEONS = 6;

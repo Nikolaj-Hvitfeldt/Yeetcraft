@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { DungeonSummary, SeasonSummary } from '../../api/types'
 import type { DungeonDetailLocationState } from '../../utils/routes'
 import { buildDungeonPath } from '../../utils/routes'
+import { useDismissiblePopover } from '../../hooks/useDismissiblePopover'
+import { ChevronDownIcon } from '../ui/ChevronDownIcon'
 
 export function DungeonPicker({
   dungeons,
@@ -10,30 +11,9 @@ export function DungeonPicker({
   season,
   navigationState,
 }: DungeonPickerProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const pickerRef = useRef<HTMLDivElement>(null)
+  const { isOpen, setIsOpen, ref } = useDismissiblePopover()
   const navigate = useNavigate()
   const selectedDungeon = dungeons.find((dungeon) => dungeon.id === selectedDungeonId)
-
-  useEffect(() => {
-    function handlePointerDown(event: PointerEvent) {
-      if (!pickerRef.current?.contains(event.target as Node)) {
-        setIsOpen(false)
-      }
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') setIsOpen(false)
-    }
-
-    document.addEventListener('pointerdown', handlePointerDown)
-    document.addEventListener('keydown', handleKeyDown)
-
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDown)
-      document.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [])
 
   function handleDungeonSelect(dungeon: DungeonSummary) {
     if (!season) return
@@ -45,7 +25,7 @@ export function DungeonPicker({
   }
 
   return (
-    <div ref={pickerRef} className="relative h-9 min-w-[183px] max-w-[240px]">
+    <div ref={ref} className="relative h-9 min-w-[183px] max-w-[240px]">
       <button
         type="button"
         aria-haspopup="listbox"
@@ -54,7 +34,7 @@ export function DungeonPicker({
         onClick={() => setIsOpen((current) => !current)}
       >
         <span className="truncate">{selectedDungeon?.name ?? 'Select dungeon'}</span>
-        <ChevronIcon className={`ml-sm size-4 shrink-0 text-text-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDownIcon className={`ml-sm size-4 shrink-0 text-text-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen ? (
@@ -89,20 +69,6 @@ export function DungeonPicker({
         </div>
       ) : null}
     </div>
-  )
-}
-
-function ChevronIcon({ className }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 16 16">
-      <path
-        d="M4 6L8 10L12 6"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-    </svg>
   )
 }
 

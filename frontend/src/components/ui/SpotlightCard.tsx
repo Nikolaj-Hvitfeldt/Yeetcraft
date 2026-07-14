@@ -1,16 +1,13 @@
 import type { ReactNode } from 'react'
-import type { WowIconKey } from '../../assets/wow-icons'
 import { WowIcon } from '../WowIcon'
-import { STAT_COLOR_BY_KIND, type StatKind } from '../../utils/stat-colors'
-
-const WOW_ICON_BY_KIND: Partial<Record<StatKind | 'default', WowIconKey>> = {
-  deaths: 'deaths',
-  yeets: 'yeets',
-  default: 'safestPlayer',
-}
+import {
+  SPOTLIGHT_WOW_ICON_BY_KIND,
+  STAT_COLOR_BY_KIND,
+  type StatKind,
+} from '../../utils/stat-colors'
 
 function renderSpotlightIcon(categoryKind?: StatKind | 'default') {
-  const wowIcon = categoryKind ? WOW_ICON_BY_KIND[categoryKind] : undefined
+  const wowIcon = categoryKind ? SPOTLIGHT_WOW_ICON_BY_KIND[categoryKind] : undefined
 
   if (wowIcon) {
     return (

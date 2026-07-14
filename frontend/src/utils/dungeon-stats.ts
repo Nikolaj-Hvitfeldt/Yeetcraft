@@ -4,6 +4,7 @@ import type {
   DungeonSummary,
 } from "../api/types";
 import { getDungeonFlavorTitle } from "./dungeon-flavor-title";
+import { pickLeader, pickSafestPlayer } from "./leaderboard-selection";
 
 export type { DungeonAchievement } from "./dungeon-achievements";
 export { getDungeonAchievements } from "./dungeon-achievements";
@@ -31,46 +32,6 @@ export interface DungeonMeatGrinderSummary {
   narrative: string;
   title: string;
   titleTooltip: string;
-}
-
-function sortByName<T extends { displayName: string }>(entries: T[]): T[] {
-  return [...entries].sort((first, second) =>
-    first.displayName.localeCompare(second.displayName),
-  );
-}
-
-function pickLeader(
-  entries: DungeonLeaderboardEntry[],
-  getValue: (entry: DungeonLeaderboardEntry) => number,
-  tieBreak: (entry: DungeonLeaderboardEntry) => number,
-): DungeonLeaderboardEntry | null {
-  if (entries.length === 0) return null;
-
-  const maxValue = Math.max(...entries.map(getValue));
-  if (maxValue === 0) return null;
-
-  return (
-    sortByName(entries.filter((entry) => getValue(entry) === maxValue)).sort(
-      (first, second) => tieBreak(second) - tieBreak(first),
-    )[0] ?? null
-  );
-}
-
-function pickSafestPlayer(
-  entries: DungeonLeaderboardEntry[],
-): DungeonLeaderboardEntry | null {
-  if (entries.length === 0) return null;
-
-  const minMistakes = Math.min(...entries.map((entry) => entry.totalMistakes));
-
-  return (
-    sortByName(
-      entries.filter((entry) => entry.totalMistakes === minMistakes),
-    ).sort((first, second) => {
-      if (first.deaths !== second.deaths) return first.deaths - second.deaths;
-      return first.displayName.localeCompare(second.displayName);
-    })[0] ?? null
-  );
 }
 
 export function getAverageMistakesPerDungeon(

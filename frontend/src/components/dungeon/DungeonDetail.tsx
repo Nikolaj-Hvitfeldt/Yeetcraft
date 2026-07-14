@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useCurrentSeasonDungeons, useDungeonLeaderboard, useSeasonId, useSeasonLeaders } from '../../hooks'
 import { PageBoundary } from '../layout/PageBoundary'
 import { HomeNavigation } from '../home/HomeNavigation'
-import { SpotlightCard } from '../profile/SpotlightCard'
+import { SpotlightCard } from '../ui/SpotlightCard'
 import { buildDungeonPath, type DungeonDetailLocationState } from '../../utils/routes'
 import { dungeonSlug, findDungeonBySlug } from '../../utils/slug'
 import {

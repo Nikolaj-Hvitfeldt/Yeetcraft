@@ -256,7 +256,10 @@ export function PlayerProfile() {
       {playerStats ? (
         <div className="flex flex-col gap-2xl">
           {toastMessage ? (
-            <div className="fixed bottom-4 right-4 z-50 animate-fade-in rounded-lg border border-red-400/40 bg-red-950/40 px-lg py-md text-sm font-semibold text-red-300 shadow-lg">
+            <div
+              role="alert"
+              className="fixed bottom-4 right-4 z-50 animate-fade-in rounded-lg border border-red-400/40 bg-red-950/40 px-lg py-md text-sm font-semibold text-red-300 shadow-lg"
+            >
               {toastMessage}
             </div>
           ) : null}
