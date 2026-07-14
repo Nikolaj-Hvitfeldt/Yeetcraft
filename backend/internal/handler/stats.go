@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -20,10 +21,10 @@ type StatsRepository interface {
 	ListLeaderboard(ctx context.Context, seasonID string) ([]repository.LeaderboardEntry, error)
 	GetSeasonLeaders(ctx context.Context, seasonID string) (repository.SeasonLeaders, error)
 	GetPlayerStats(ctx context.Context, playerID string, seasonID string) (repository.PlayerStats, error)
+	GetPlayerStatsByDisplaySlug(ctx context.Context, playerSlug string, seasonID string) (repository.PlayerStats, error)
 	ListSeasons(ctx context.Context) ([]repository.SeasonSummary, error)
 	ListSeasonDungeons(ctx context.Context, seasonID string) (repository.SeasonSummary, []repository.DungeonSummary, error)
 	ListDungeonLeaderboard(ctx context.Context, seasonID string, dungeonID string) (repository.DungeonLeaderboard, error)
-	SetStats(ctx context.Context, playerID string, seasonID string, dungeonID string, deaths int, yeets int) (repository.StatRow, error)
 	SetStatsBatch(ctx context.Context, playerID string, seasonID string, updates []repository.StatUpdate) ([]repository.StatRow, error)
 }
 
@@ -40,20 +41,8 @@ type CurrentSeasonDungeonsResponse struct {
 	Dungeons []repository.DungeonSummary `json:"dungeons"`
 }
 
-type StatResponse struct {
-	Stats repository.StatRow `json:"stats"`
-}
-
 type StatsBatchResponse struct {
 	Stats []repository.StatRow `json:"stats"`
-}
-
-type SetStatsRequest struct {
-	PlayerID  string `json:"playerId"`
-	SeasonID  string `json:"seasonId"`
-	DungeonID string `json:"dungeonId"`
-	Deaths    int    `json:"deaths"`
-	Yeets     int    `json:"yeets"`
 }
 
 type SetStatsBatchDungeonUpdate struct {
@@ -112,6 +101,28 @@ func (statsHandler StatsHandler) PlayerStats(responseWriter http.ResponseWriter,
 	WriteJSON(responseWriter, http.StatusOK, playerStats)
 }
 
+func (statsHandler StatsHandler) PlayerStatsBySlug(responseWriter http.ResponseWriter, request *http.Request) {
+	playerSlug := strings.TrimSpace(chi.URLParam(request, "playerSlug"))
+	if playerSlug == "" {
+		WriteError(responseWriter, http.StatusBadRequest, "Bad Request", "playerSlug is required.")
+		return
+	}
+
+	seasonID := request.URL.Query().Get("seasonId")
+	if seasonID != "" && !isValidUUID(seasonID) {
+		WriteError(responseWriter, http.StatusBadRequest, "Bad Request", "seasonId must be a valid UUID.")
+		return
+	}
+
+	playerStats, err := statsHandler.statsRepository.GetPlayerStatsByDisplaySlug(request.Context(), playerSlug, seasonID)
+	if err != nil {
+		writeRepositoryError(responseWriter, err)
+		return
+	}
+
+	WriteJSON(responseWriter, http.StatusOK, playerStats)
+}
+
 func (statsHandler StatsHandler) Seasons(responseWriter http.ResponseWriter, request *http.Request) {
 	seasons, err := statsHandler.statsRepository.ListSeasons(request.Context())
 	if err != nil {
@@ -162,39 +173,6 @@ func (statsHandler StatsHandler) CurrentSeasonDungeons(responseWriter http.Respo
 	WriteJSON(responseWriter, http.StatusOK, CurrentSeasonDungeonsResponse{
 		Season:   season,
 		Dungeons: dungeons,
-	})
-}
-
-func (statsHandler StatsHandler) SetStats(responseWriter http.ResponseWriter, request *http.Request) {
-	var setStatsRequest SetStatsRequest
-	if !decodeJSONRequest(responseWriter, request, &setStatsRequest) {
-		return
-	}
-
-	if !validateStatTarget(responseWriter, setStatsRequest.PlayerID, setStatsRequest.SeasonID, setStatsRequest.DungeonID) {
-		return
-	}
-
-	if setStatsRequest.Deaths < 0 || setStatsRequest.Yeets < 0 {
-		WriteError(responseWriter, http.StatusBadRequest, "Bad Request", "deaths and yeets must be greater than or equal to 0.")
-		return
-	}
-
-	statRow, err := statsHandler.statsRepository.SetStats(
-		request.Context(),
-		setStatsRequest.PlayerID,
-		setStatsRequest.SeasonID,
-		setStatsRequest.DungeonID,
-		setStatsRequest.Deaths,
-		setStatsRequest.Yeets,
-	)
-	if err != nil {
-		writeRepositoryError(responseWriter, err)
-		return
-	}
-
-	WriteJSON(responseWriter, http.StatusOK, StatResponse{
-		Stats: statRow,
 	})
 }
 
