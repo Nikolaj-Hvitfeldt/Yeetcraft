@@ -23,14 +23,14 @@ export const sharedColors = {
 export const colorThemes = {
   daytime: {
     background: {
-      default: '#070B1B',
+      default: '#120E09',
       app: '#100D08',
     },
     text: {
       primary: '#FFFFFF',
-      secondary: '#93A3BD',
-      tertiary: '#EDF5FF',
-      link: '#DCEAFF',
+      secondary: '#A89478',
+      tertiary: '#EDE0C8',
+      link: '#E8C88A',
       accent: '#FEF3C6',
     },
     accent: {
@@ -40,14 +40,14 @@ export const colorThemes = {
     },
     stat: sharedColors.stat,
     border: {
-      subtle: 'rgba(140, 174, 226, 0.18)',
+      subtle: 'rgba(180, 148, 102, 0.22)',
     },
     surface: {
-      base: '#17213D',
+      base: '#352918',
       section: '#24180B',
     },
     avatar: {
-      bg: '#020618',
+      bg: '#1A1209',
     },
     overlay: {
       dark: 'rgba(0, 0, 0, 0.3)',

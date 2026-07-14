@@ -34,7 +34,7 @@ export function StatCard({ label, value, kind }: StatCardProps) {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              'radial-gradient(circle at center, rgba(23, 33, 61, 0.12) 0%, rgba(23, 33, 61, 0.28) 48%, var(--color-surface-base) 100%)',
+              'radial-gradient(circle at center, color-mix(in srgb, var(--color-surface-base) 12%, transparent) 0%, color-mix(in srgb, var(--color-surface-base) 28%, transparent) 48%, var(--color-surface-base) 100%)',
           }}
         />
         <p className="relative z-10 font-number text-3xl font-bold leading-9 text-text-primary drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]">
