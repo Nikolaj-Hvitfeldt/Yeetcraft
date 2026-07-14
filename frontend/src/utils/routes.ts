@@ -19,6 +19,28 @@ export function buildDungeonPath(
   return `/${seasonSlug(season)}/dungeon/${dungeonSlug(dungeon)}`
 }
 
+export interface PageBackState {
+  backTo?: string
+}
+
+export function buildPageBackState(backTo: string): PageBackState {
+  return { backTo }
+}
+
+export interface DungeonDetailLocationState extends PageBackState {
+  returnState?: PageBackState
+}
+
+export function buildDungeonDetailState(
+  backTo: string,
+  options?: { returnState?: PageBackState },
+): DungeonDetailLocationState {
+  return {
+    backTo,
+    returnState: options?.returnState,
+  }
+}
+
 export function replaceSeasonSlugInPath(
   pathname: string,
   seasons: SeasonSummary[],

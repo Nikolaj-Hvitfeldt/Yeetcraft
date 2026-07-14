@@ -1,10 +1,10 @@
 import { useEffect, useMemo } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useCurrentSeasonDungeons, useDungeonLeaderboard, useSeasonId, useSeasonLeaders } from '../../hooks'
 import { PageBoundary } from '../layout/PageBoundary'
 import { HomeNavigation } from '../home/HomeNavigation'
 import { SpotlightCard } from '../profile/SpotlightCard'
-import { buildDungeonPath } from '../../utils/routes'
+import { buildDungeonPath, type DungeonDetailLocationState } from '../../utils/routes'
 import { dungeonSlug, findDungeonBySlug } from '../../utils/slug'
 import {
   getDungeonAchievements,
@@ -28,7 +28,10 @@ import { MistakeMixSection } from './MistakeMixSection'
 export function DungeonDetail() {
   const { dungeonSlug: dungeonSlugParam } = useParams<{ dungeonSlug: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
   const { isSeasonReady, selectedSeasonId, selectedSeason, homePath } = useSeasonId()
+  const locationState = location.state as DungeonDetailLocationState | null
+  const backTo = locationState?.backTo ?? homePath
   const {
     data: dungeonsData,
     isPending: isPendingDungeons,
@@ -134,8 +137,11 @@ export function DungeonDetail() {
     const canonicalSlug = dungeonSlug(dungeon)
     if (dungeonSlugParam === canonicalSlug) return
 
-    navigate(buildDungeonPath(selectedSeason, dungeon), { replace: true })
-  }, [dungeon, dungeonSlugParam, navigate, selectedSeason])
+    navigate(buildDungeonPath(selectedSeason, dungeon), {
+      replace: true,
+      state: location.state,
+    })
+  }, [dungeon, dungeonSlugParam, location.state, navigate, selectedSeason])
 
   function handleRetry() {
     void refetchDungeons()
@@ -157,13 +163,19 @@ export function DungeonDetail() {
       {dungeon ? (
         <div className="flex flex-col gap-2xl">
           <HomeNavigation homePath={homePath} />
-          <BackButton fallbackTo={homePath} className="self-start" />
+          <BackButton
+            to={backTo}
+            toState={locationState?.returnState}
+            fallbackTo={homePath}
+            className="self-start"
+          />
 
           <DungeonHeroSection
             dungeon={dungeon}
             season={selectedSeason}
             dungeons={dungeons}
             bannerImageUrl={bannerImageUrl}
+            navigationState={locationState}
           />
 
           <div className="grid gap-lg md:grid-cols-3">
@@ -194,6 +206,11 @@ export function DungeonDetail() {
             <DungeonLeaderboardSection
               leaderboard={sortedLeaderboard}
               season={selectedSeason}
+              playerBackTo={
+                selectedSeason
+                  ? buildDungeonPath(selectedSeason, dungeon)
+                  : undefined
+              }
               isLoading={isPendingLeaderboard && !dungeonLeaderboardData}
               error={leaderboardError}
               onRetry={handleRetry}

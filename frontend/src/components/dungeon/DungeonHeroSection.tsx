@@ -1,3 +1,4 @@
+import type { DungeonDetailLocationState } from '../../utils/routes'
 import { getDungeonZoneImage } from '../../utils/dungeon-zone'
 import type { DungeonSummary, SeasonSummary } from '../../api/types'
 import { cn } from '../../utils/cn'
@@ -10,6 +11,7 @@ export function DungeonHeroSection({
   season,
   dungeons,
   bannerImageUrl,
+  navigationState,
 }: DungeonHeroSectionProps) {
   const seasonLabel = season
     ? [season.name, season.expansion].filter(Boolean).join(' · ')
@@ -35,6 +37,7 @@ export function DungeonHeroSection({
             dungeons={dungeons}
             selectedDungeonId={dungeon.id}
             season={season}
+            navigationState={navigationState}
           />
 
           <p
@@ -94,4 +97,5 @@ interface DungeonHeroSectionProps {
   season?: SeasonSummary
   dungeons: DungeonSummary[]
   bannerImageUrl?: string | null
+  navigationState?: DungeonDetailLocationState | null
 }

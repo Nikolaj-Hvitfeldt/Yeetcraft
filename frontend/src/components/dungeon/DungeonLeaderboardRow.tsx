@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import type { WowIconKey } from '../../assets/wow-icons'
 import type { DungeonLeaderboardEntry, SeasonSummary } from '../../api/types'
 import { cn } from '../../utils/cn'
-import { buildPlayerPath } from '../../utils/routes'
+import { buildPageBackState, buildPlayerPath } from '../../utils/routes'
 import { Avatar } from '../ui/Avatar'
 import { WowIcon } from '../WowIcon'
 
@@ -17,6 +17,7 @@ export function DungeonLeaderboardRow({
   player,
   rank,
   season,
+  playerBackTo,
 }: DungeonLeaderboardRowProps) {
   const rankIcon = RANK_ICON_BY_PLACE[rank]
   const playerPath = season ? buildPlayerPath(season, { displayName: player.displayName }) : '#'
@@ -29,6 +30,7 @@ export function DungeonLeaderboardRow({
   return (
     <Link
       to={playerPath}
+      state={playerBackTo ? buildPageBackState(playerBackTo) : undefined}
       className="group grid min-h-[74px] grid-cols-[52px_minmax(0,1fr)] items-center gap-md rounded-2xl border border-border-subtle bg-surface-base px-md py-md transition-colors hover:border-accent-primary sm:grid-cols-[52px_minmax(0,1fr)_144px]"
     >
       <div
@@ -88,4 +90,5 @@ interface DungeonLeaderboardRowProps {
   player: DungeonLeaderboardEntry
   rank: number
   season?: SeasonSummary
+  playerBackTo?: string
 }

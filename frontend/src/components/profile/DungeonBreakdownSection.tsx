@@ -39,6 +39,8 @@ export function DungeonBreakdownSection({
   isSaving,
   onAdjust,
   season,
+  dungeonBackTo,
+  profileBackTo,
 }: DungeonBreakdownSectionProps) {
   return (
     <section className="overflow-hidden rounded-3xl border border-accent-secondary bg-surface-section p-2xl">
@@ -114,6 +116,8 @@ export function DungeonBreakdownSection({
                 onAdjust={onAdjust}
                 disabled={isSaving}
                 season={season}
+                backTo={dungeonBackTo}
+                profileBackTo={profileBackTo}
               />
             ))}
           </div>
@@ -136,4 +140,6 @@ interface DungeonBreakdownSectionProps {
     delta: 1 | -1,
   ) => void;
   season?: SeasonSummary;
+  dungeonBackTo?: string;
+  profileBackTo?: string;
 }

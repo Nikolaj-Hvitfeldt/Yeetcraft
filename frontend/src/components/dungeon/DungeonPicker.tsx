@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { DungeonSummary, SeasonSummary } from '../../api/types'
+import type { DungeonDetailLocationState } from '../../utils/routes'
 import { buildDungeonPath } from '../../utils/routes'
 
 export function DungeonPicker({
   dungeons,
   selectedDungeonId,
   season,
+  navigationState,
 }: DungeonPickerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const pickerRef = useRef<HTMLDivElement>(null)
@@ -35,7 +37,10 @@ export function DungeonPicker({
 
   function handleDungeonSelect(dungeon: DungeonSummary) {
     if (!season) return
-    navigate(buildDungeonPath(season, dungeon))
+    navigate(buildDungeonPath(season, dungeon), {
+      replace: true,
+      state: navigationState,
+    })
     setIsOpen(false)
   }
 
@@ -105,4 +110,5 @@ interface DungeonPickerProps {
   dungeons: DungeonSummary[]
   selectedDungeonId: string
   season?: SeasonSummary
+  navigationState?: DungeonDetailLocationState | null
 }

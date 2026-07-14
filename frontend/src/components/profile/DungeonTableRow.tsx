@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import type { DungeonStats, SeasonSummary } from '../../api/types'
-import { buildDungeonPath } from '../../utils/routes'
+import { buildDungeonDetailState, buildDungeonPath, buildPageBackState } from '../../utils/routes'
 import { cn } from '../../utils/cn'
 import { STAT_COLOR_BY_KIND } from '../../utils/stat-colors'
 import { StatCounter } from './StatCounter'
@@ -15,6 +15,8 @@ export function DungeonTableRow({
   className,
   mode = 'browse',
   season,
+  backTo,
+  profileBackTo,
   gridTemplateColumns = 'minmax(0, 3.5fr) minmax(5.5rem, 1fr) minmax(5.5rem, 1fr) minmax(5.5rem, 1fr)',
   onAdjust,
   disabled = false,
@@ -74,6 +76,15 @@ export function DungeonTableRow({
     return (
       <Link
         to={dungeonPath}
+        state={
+          backTo
+            ? buildDungeonDetailState(backTo, {
+                returnState: profileBackTo
+                  ? buildPageBackState(profileBackTo)
+                  : undefined,
+              })
+            : undefined
+        }
         className={cn(BROWSE_ROW_CLASS, className)}
         style={rowStyle}
       >
@@ -99,6 +110,8 @@ interface DungeonTableRowProps {
   className?: string
   mode?: DungeonTableMode
   season?: SeasonSummary
+  backTo?: string
+  profileBackTo?: string
   gridTemplateColumns?: string
   onAdjust?: (dungeonId: string, field: 'deaths' | 'yeets', delta: 1 | -1) => void
   disabled?: boolean

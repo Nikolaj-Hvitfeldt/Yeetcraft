@@ -3,6 +3,8 @@ import { resetScrollPosition } from '../../utils/scroll'
 
 export function BackButton({
   fallbackTo = '/',
+  to,
+  toState,
   label = 'Back',
   className,
 }: BackButtonProps) {
@@ -10,7 +12,9 @@ export function BackButton({
   const location = useLocation()
 
   function handleBack() {
-    if (location.key !== 'default') {
+    if (to) {
+      navigate(to, { replace: true, state: toState })
+    } else if (location.key !== 'default') {
       navigate(-1)
     } else {
       navigate(fallbackTo)
@@ -53,6 +57,8 @@ function ChevronLeftIcon({ className }: { className?: string }) {
 
 interface BackButtonProps {
   fallbackTo?: string
+  to?: string
+  toState?: unknown
   label?: string
   className?: string
 }

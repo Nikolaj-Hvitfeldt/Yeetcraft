@@ -5,6 +5,7 @@ import { DungeonLeaderboardRow } from "./DungeonLeaderboardRow";
 export function DungeonLeaderboardSection({
   leaderboard,
   season,
+  playerBackTo,
   isLoading,
   error,
   onRetry,
@@ -33,6 +34,7 @@ export function DungeonLeaderboardSection({
               player={player}
               rank={index + 1}
               season={season}
+              playerBackTo={playerBackTo}
             />
           ))}
         </div>
@@ -44,6 +46,7 @@ export function DungeonLeaderboardSection({
 interface DungeonLeaderboardSectionProps {
   leaderboard: DungeonLeaderboardEntry[];
   season?: SeasonSummary;
+  playerBackTo?: string;
   isLoading?: boolean;
   error?: Error | null;
   onRetry?: () => void;
