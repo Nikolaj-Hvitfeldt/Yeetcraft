@@ -9,10 +9,7 @@ import type {
   DungeonMistakeMix,
   DungeonReputationScores,
 } from "./dungeon-stats";
-import {
-  DEATH_RATIO_THRESHOLD,
-  YEET_RATIO_THRESHOLD,
-} from "./stat-thresholds";
+import { DEATH_RATIO_THRESHOLD, YEET_RATIO_THRESHOLD } from "./stat-thresholds";
 import { pickLeader, sortByName } from "./leaderboard-selection";
 const LIABILITY_MIN_MISTAKES = 3;
 const LIABILITY_MIN_BLAME_SHARE = 50;
@@ -227,8 +224,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
     id: "the-liability",
     title: "The Liability",
     icon: "the-liability",
-    tooltip:
-      "Given to the player who owns the biggest share of mistakes here.",
+    tooltip: "Given to the player who owns the biggest share of mistakes here.",
     priority: 95,
     evaluate: ({ dungeon, leaderboard, reputationScores }) => {
       if (
@@ -492,7 +488,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
 
       return {
         eligible: true,
-        description: `Mistakes were spread across ${contributors.length} players with no clear standout`,
+        description: `Mistakes were spread across ${contributors.length} players`,
         scoreBonus: contributors.length,
       };
     },

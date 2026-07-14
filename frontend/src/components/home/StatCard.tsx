@@ -41,7 +41,7 @@ export function StatCard({ label, value, kind }: StatCardProps) {
           {value}
         </p>
       </article>
-      <p className={cn('text-xs leading-4', colorClassName)}>{label}</p>
+      <p className={cn('stat-label-on-image text-xs leading-4', colorClassName)}>{label}</p>
     </div>
   )
 }

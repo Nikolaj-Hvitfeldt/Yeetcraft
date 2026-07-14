@@ -11,8 +11,7 @@ export function AppLayout() {
   return (
     <div
       className={cn(
-        'min-h-screen bg-background-app',
-        isHome && 'home-page-backdrop',
+        'app-page-backdrop min-h-screen bg-background-app',
       )}
     >
       <div className={cn(APP_LAYOUT_CONTENT_CLASS, isHome && 'min-h-screen')}>

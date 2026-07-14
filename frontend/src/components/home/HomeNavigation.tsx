@@ -29,7 +29,7 @@ export function HomeNavigation({ homePath }: HomeNavigationProps) {
           <p className="font-heading text-xl font-bold leading-6 text-accent-primary">
             YeetCraft
           </p>
-          <p className="text-xs font-semibold leading-4 text-text-secondary">
+          <p className="text-on-image text-xs font-semibold leading-4 text-text-accent">
             Mythic+ Hall of Shame
           </p>
         </div>
