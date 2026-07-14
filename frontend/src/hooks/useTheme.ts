@@ -11,7 +11,6 @@ export const ThemeContext = createContext<ThemeContextValue | null>(null)
 function getInitialTheme(): Theme {
   if (typeof window === 'undefined') return DEFAULT_THEME
   const stored = localStorage.getItem(STORAGE_KEY)
-  if (stored === 'warcraft') return 'daytime'
   if (stored === 'daytime' || stored === 'midnight') return stored
   return DEFAULT_THEME
 }
