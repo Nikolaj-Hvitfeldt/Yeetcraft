@@ -42,7 +42,7 @@ export function DungeonDetail() {
     refetch: refetchDungeons,
   } = useCurrentSeasonDungeons(selectedSeasonId, { enabled: isSeasonReady })
 
-  const dungeons = dungeonsData ?? []
+  const dungeons = useMemo(() => dungeonsData ?? [], [dungeonsData])
   const dungeon = findDungeonBySlug(dungeons, dungeonSlugParam)
 
   const {
