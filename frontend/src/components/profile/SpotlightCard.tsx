@@ -1,19 +1,16 @@
 import type { ReactNode } from 'react'
 import type { WowIconKey } from '../../assets/wow-icons'
-import { SkullIcon } from '../SkullIcon'
 import { WowIcon } from '../WowIcon'
 import { STAT_COLOR_BY_KIND, type StatKind } from '../../utils/stat-colors'
 
-const WOW_ICON_BY_KIND: Partial<Record<StatKind, WowIconKey>> = {
+const WOW_ICON_BY_KIND: Partial<Record<StatKind | 'default', WowIconKey>> = {
   deaths: 'deaths',
   yeets: 'yeets',
+  default: 'safestPlayer',
 }
 
 function renderSpotlightIcon(categoryKind?: StatKind | 'default') {
-  const wowIcon =
-    categoryKind && categoryKind !== 'default'
-      ? WOW_ICON_BY_KIND[categoryKind]
-      : undefined
+  const wowIcon = categoryKind ? WOW_ICON_BY_KIND[categoryKind] : undefined
 
   if (wowIcon) {
     return (
@@ -22,13 +19,15 @@ function renderSpotlightIcon(categoryKind?: StatKind | 'default') {
         size={28}
         objectFit={categoryKind === 'deaths' ? 'contain' : 'cover'}
         className={
-          categoryKind === 'yeets' ? 'size-7 rounded-full' : 'size-7'
+          categoryKind === 'yeets' || categoryKind === 'default'
+            ? 'size-7 rounded-full'
+            : 'size-7'
         }
       />
     )
   }
 
-  return <SkullIcon className="size-7 text-stat-deaths" />
+  return null
 }
 
 export function SpotlightCard({

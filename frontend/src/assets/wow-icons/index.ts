@@ -12,6 +12,7 @@ import nemesis from './nemesis.webp'
 import platinum from './platinum.webp'
 import player from './player.webp'
 import save from './save.webp'
+import safestPlayer from './safestPlayer.webp'
 import season from './season.webp'
 import silver from './silver.webp'
 import total from './total.webp'
@@ -31,6 +32,7 @@ export const wowIcons = {
   achievementShield,
   edit,
   save,
+  safestPlayer,
   bronze,
   silver,
   gold,
