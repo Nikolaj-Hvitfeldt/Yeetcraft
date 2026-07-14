@@ -462,7 +462,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
     icon: "meat-grinder",
     tooltip: "This dungeon hurts more than most keys this season.",
     priority: 65,
-    evaluate: ({ dungeon, reputationScores }) => {
+    evaluate: ({ reputationScores }) => {
       if (reputationScores.dangerRating < DANGER_RATING_THRESHOLD) {
         return ineligible();
       }
@@ -480,7 +480,7 @@ const ACHIEVEMENT_RULES: AchievementRule[] = [
     icon: "yeet-cannon",
     tooltip: "Yeets dominate the mistake mix in this dungeon.",
     priority: 65,
-    evaluate: ({ dungeon, reputationScores, mistakeMix }) => {
+    evaluate: ({ reputationScores, mistakeMix }) => {
       if (reputationScores.yeetFactor < YEET_FACTOR_THRESHOLD) {
         return ineligible();
       }
