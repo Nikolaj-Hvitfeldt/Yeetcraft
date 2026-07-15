@@ -31,7 +31,12 @@ export function QueryAppProviders({ client, children }: QueryAppProvidersProps) 
             },
           }}
           onSuccess={() => setIsRestoring(false)}
-          onError={() => setIsRestoring(false)}
+          onError={() => {
+            if (import.meta.env.DEV) {
+              console.warn('[YeetCraft] Failed to restore persisted query cache.')
+            }
+            setIsRestoring(false)
+          }}
         >
           <WriteOutboxSyncListener />
           {children}

@@ -5,11 +5,13 @@ import { useQueryRestorePending } from '../hooks/query-restore-context'
 import { useConnectionTimingSignals } from '../hooks/usePageConnectionState'
 import { useFailedOutboxWrites } from '../hooks/useWriteOutboxStatus'
 import {
+  ConnectionRefreshRegistrarContext,
   ConnectionStatusContext,
   ConnectionStatusRegistrarContext,
   usePageConnectionRegistrar,
   type PageConnectionRegistration,
 } from '../hooks/connection-status-context'
+import { isBackgroundRefreshConnectionState } from '../lib/connection-state'
 import { getPageConnectionResults } from '../lib/page-connection'
 import { retryOutboxSync } from '../lib/write-outbox/sync'
 import type { PendingWrite } from '../lib/write-outbox/types'
@@ -40,7 +42,11 @@ const DEFAULT_PAGE_INPUT: PageConnectionRegistration = {
 export function ConnectionStatusProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient()
   const [pageInput, setPageInput] = useState<PageConnectionRegistration | null>(null)
+  const [isPageRefreshing, setIsPageRefreshing] = useState(false)
   const registerPageConnection = usePageConnectionRegistrar(setPageInput)
+  const registerPageRefresh = useCallback((isRefreshing: boolean) => {
+    setIsPageRefreshing(isRefreshing)
+  }, [])
   const failedWrites = useFailedOutboxWrites()
   const isOnline = useOnlineStatus()
   const isRestorePending = useQueryRestorePending()
@@ -101,8 +107,20 @@ export function ConnectionStatusProvider({ children }: { children: ReactNode }) 
       }
     }
 
+    if (
+      isPageRefreshing &&
+      isBackgroundRefreshConnectionState(pageResults.connectionState)
+    ) {
+      return null
+    }
+
     return pageResults.bannerContent
-  }, [globalFailedWrites.length, pageResults.bannerContent])
+  }, [
+    globalFailedWrites.length,
+    isPageRefreshing,
+    pageResults.bannerContent,
+    pageResults.connectionState,
+  ])
 
   const onRetry = useMemo(() => {
     if (globalFailedWrites.length > 0) {
@@ -125,7 +143,9 @@ export function ConnectionStatusProvider({ children }: { children: ReactNode }) 
   return (
     <ConnectionStatusContext.Provider value={contextValue}>
       <ConnectionStatusRegistrarContext.Provider value={registerPageConnection}>
-        {children}
+        <ConnectionRefreshRegistrarContext.Provider value={registerPageRefresh}>
+          {children}
+        </ConnectionRefreshRegistrarContext.Provider>
       </ConnectionStatusRegistrarContext.Provider>
     </ConnectionStatusContext.Provider>
   )

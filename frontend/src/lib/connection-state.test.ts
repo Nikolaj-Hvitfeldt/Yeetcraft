@@ -3,6 +3,7 @@ import {
   deriveConnectionState,
   getConnectionBannerContent,
   getPageLoadingMessage,
+  isBackgroundRefreshConnectionState,
   shouldShowOfflineNoCache,
 } from './connection-state'
 
@@ -134,5 +135,15 @@ describe('connection banner copy', () => {
   it('flags offline without cache', () => {
     expect(shouldShowOfflineNoCache('offline_no_cache')).toBe(true)
     expect(shouldShowOfflineNoCache('offline_cached')).toBe(false)
+  })
+})
+
+describe('isBackgroundRefreshConnectionState', () => {
+  it('identifies in-progress refresh banners', () => {
+    expect(isBackgroundRefreshConnectionState('cached_refreshing')).toBe(true)
+    expect(isBackgroundRefreshConnectionState('cached_waking')).toBe(true)
+    expect(isBackgroundRefreshConnectionState('reconnecting')).toBe(true)
+    expect(isBackgroundRefreshConnectionState('cached_refresh_failed')).toBe(false)
+    expect(isBackgroundRefreshConnectionState('offline_cached')).toBe(false)
   })
 })

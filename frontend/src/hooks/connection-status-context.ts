@@ -33,6 +33,10 @@ export const ConnectionStatusRegistrarContext = createContext<
   (input: PageConnectionRegistration | null) => void
 >(() => {})
 
+export const ConnectionRefreshRegistrarContext = createContext<
+  (isRefreshing: boolean) => void
+>(() => {})
+
 function isSameLocalOutboxScope(
   previous: LocalOutboxScope | undefined,
   next: LocalOutboxScope | undefined,
@@ -127,4 +131,13 @@ export function useConnectionPageState(): Pick<
 > {
   const { loadingMessage, showOfflineNoCache } = useContext(ConnectionStatusContext)
   return { loadingMessage, showOfflineNoCache }
+}
+
+export function useReportPageRefresh(isRefreshing: boolean): void {
+  const registerPageRefresh = useContext(ConnectionRefreshRegistrarContext)
+
+  useLayoutEffect(() => {
+    registerPageRefresh(isRefreshing)
+    return () => registerPageRefresh(false)
+  }, [registerPageRefresh, isRefreshing])
 }

@@ -30,6 +30,7 @@ export function getPageConnectionResults(
   })
 
   return {
+    connectionState,
     loadingMessage: getPageLoadingMessage(connectionState),
     showOfflineNoCache: shouldShowOfflineNoCache(connectionState),
     bannerContent: getConnectionBannerContent(connectionState),

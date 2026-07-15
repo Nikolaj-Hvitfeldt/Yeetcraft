@@ -3,12 +3,13 @@ import { AuthRequired } from '../AuthRequired'
 import { ErrorMessage } from '../ErrorMessage'
 import { LoadingSpinner } from '../LoadingSpinner'
 import { OfflineNoCacheState } from '../OfflineNoCacheState'
+import { useReportPageRefresh } from '../../hooks/connection-status-context'
 import { useAuthGuard } from '../../hooks/useAuthGuard'
 import { getUserFacingErrorMessage, isRetryableError } from '../../utils/api-error'
 
 export function PageBoundary({
   isLoading,
-  isRefreshing,
+  isRefreshing = false,
   error,
   notFoundMessage,
   onRetry,
@@ -16,6 +17,7 @@ export function PageBoundary({
   showOfflineNoCache,
   children,
 }: PageBoundaryProps) {
+  useReportPageRefresh(Boolean(isRefreshing))
   const { showAuthRequired } = useAuthGuard(error ?? null)
   const blockingError = error && !children ? error : null
 

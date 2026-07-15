@@ -95,3 +95,7 @@ export function getPageLoadingMessage(state: ConnectionState): string | undefine
 export function shouldShowOfflineNoCache(state: ConnectionState): boolean {
   return state === 'offline_no_cache'
 }
+
+export function isBackgroundRefreshConnectionState(state: ConnectionState): boolean {
+  return state === 'cached_refreshing' || state === 'cached_waking' || state === 'reconnecting'
+}
