@@ -1,4 +1,5 @@
 import type { DungeonStats, SeasonSummary } from "../../api/types";
+import { PendingSyncStatus } from "../PendingSyncStatus";
 import { DungeonTableRow } from "./DungeonTableRow";
 import { TableHeader } from "../ui/TableHeader";
 import { STAT_COLOR_BY_KIND } from "../../utils/stat-colors";
@@ -42,57 +43,69 @@ export function DungeonBreakdownSection({
   season,
   dungeonBackTo,
   profileBackTo,
+  pendingSyncStatus,
+  onPendingSyncRetry,
 }: DungeonBreakdownSectionProps) {
   return (
     <section className="overflow-hidden rounded-3xl border border-accent-secondary bg-surface-section p-2xl">
-      <div
-        className={
-          mode === "edit"
-            ? "grid grid-cols-[1fr_auto_1fr] items-center gap-md"
-            : "flex items-center justify-between"
-        }
-      >
-        <h2 className="font-heading text-2xl font-bold leading-[30px] text-text-accent">
-          Dungeon breakdown
-        </h2>
+      <div className="flex flex-col gap-sm">
+        <div
+          className={
+            mode === "edit"
+              ? "grid grid-cols-[1fr_auto_1fr] items-center gap-md"
+              : "flex items-center justify-between"
+          }
+        >
+          <h2 className="font-heading text-2xl font-bold leading-[30px] text-text-accent">
+            Dungeon breakdown
+          </h2>
 
-        {mode === "browse" ? (
-          <button
-            type="button"
-            disabled={isSaving}
-            onClick={onEnterEdit}
-            className={`rounded-[20px] border border-border-subtle bg-overlay-dark px-[14px] py-[7px] text-[13px] font-semibold text-accent-primary hover:border-accent-primary disabled:opacity-40 ${FOCUS_ACCENT_BORDER}`}
-          >
-            Edit Stats
-          </button>
-        ) : (
-          <>
-            <span className="inline-flex items-center justify-self-center rounded-[12px] border border-border-subtle bg-overlay-dark px-[10px] py-xs text-[11px] font-semibold text-accent-primary">
-              EDITING
-            </span>
+          {mode === "browse" ? (
+            <button
+              type="button"
+              disabled={isSaving}
+              onClick={onEnterEdit}
+              className={`rounded-[20px] border border-border-subtle bg-overlay-dark px-[14px] py-[7px] text-[13px] font-semibold text-accent-primary hover:border-accent-primary disabled:opacity-40 ${FOCUS_ACCENT_BORDER}`}
+            >
+              Edit Stats
+            </button>
+          ) : (
+            <>
+              <span className="inline-flex items-center justify-self-center rounded-[12px] border border-border-subtle bg-overlay-dark px-[10px] py-xs text-[11px] font-semibold text-accent-primary">
+                EDITING
+              </span>
 
-            <div className="flex items-center justify-end gap-md">
-              <button
-                type="button"
-                disabled={isSaving}
-                onClick={onDone}
-                className="inline-flex items-center gap-[6px] rounded-[20px] border border-transparent bg-accent-primary px-lg py-[7px] text-[13px] font-semibold text-background-default outline-none transition-colors focus-visible:border-background-default disabled:opacity-40"
-              >
-                <span aria-hidden="true">✓</span>
-                Done
-              </button>
+              <div className="flex items-center justify-end gap-md">
+                <button
+                  type="button"
+                  disabled={isSaving}
+                  onClick={onDone}
+                  className="inline-flex items-center gap-[6px] rounded-[20px] border border-transparent bg-accent-primary px-lg py-[7px] text-[13px] font-semibold text-background-default outline-none transition-colors focus-visible:border-background-default disabled:opacity-40"
+                >
+                  <span aria-hidden="true">✓</span>
+                  Done
+                </button>
 
-              <button
-                type="button"
-                disabled={isSaving}
-                onClick={onCancel}
-                className={`inline-flex items-center rounded-[20px] border border-red-400/40 bg-red-950/30 px-xl py-sm text-xs font-bold text-red-300 hover:border-accent-primary disabled:opacity-40 ${FOCUS_ACCENT_BORDER}`}
-              >
-                Cancel
-              </button>
-            </div>
-          </>
-        )}
+                <button
+                  type="button"
+                  disabled={isSaving}
+                  onClick={onCancel}
+                  className={`inline-flex items-center rounded-[20px] border border-red-400/40 bg-red-950/30 px-xl py-sm text-xs font-bold text-red-300 hover:border-accent-primary disabled:opacity-40 ${FOCUS_ACCENT_BORDER}`}
+                >
+                  Cancel
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+
+        {pendingSyncStatus ? (
+          <PendingSyncStatus
+            status={pendingSyncStatus.status}
+            lastError={pendingSyncStatus.lastError}
+            onRetry={pendingSyncStatus.status === 'failed' ? onPendingSyncRetry : undefined}
+          />
+        ) : null}
       </div>
 
       <div className="pt-lg">
@@ -129,7 +142,7 @@ export function DungeonBreakdownSection({
 }
 
 interface DungeonBreakdownSectionProps {
-  mode: DungeonBreakdownMode;
+  mode: 'browse' | 'edit';
   dungeons: DungeonStats[];
   onEnterEdit: () => void;
   onCancel: () => void;
@@ -143,4 +156,9 @@ interface DungeonBreakdownSectionProps {
   season?: SeasonSummary;
   dungeonBackTo?: string;
   profileBackTo?: string;
+  pendingSyncStatus?: {
+    status: 'pending' | 'syncing' | 'failed';
+    lastError?: string;
+  } | null;
+  onPendingSyncRetry?: () => void;
 }

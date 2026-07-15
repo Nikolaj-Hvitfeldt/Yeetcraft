@@ -7,6 +7,7 @@ import { AppLayout } from './components/layout/AppLayout'
 import { HomePage } from './components/home'
 import { RootRedirect } from './components/routing/RootRedirect'
 import { ScrollToTop } from './components/routing/ScrollToTop'
+import { AppUpdatePrompt } from './components/AppUpdatePrompt'
 
 const PlayerProfile = lazy(() =>
   import('./components/profile').then((module) => ({ default: module.PlayerProfile })),
@@ -27,6 +28,7 @@ export function App() {
     <ThemeProvider>
       <ErrorBoundary>
         <ScrollToTop />
+        <AppUpdatePrompt />
         <Routes>
           <Route element={<AppLayout />}>
             <Route path="/" element={<RootRedirect />} />

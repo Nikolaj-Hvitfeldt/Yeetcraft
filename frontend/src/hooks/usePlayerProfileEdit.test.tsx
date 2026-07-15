@@ -1,5 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { ApiError } from '../utils/api-error'
 import type { PlayerStatsResponse } from '../api/types'
 import { usePlayerProfileEdit } from './usePlayerProfileEdit'
 
@@ -146,8 +147,36 @@ describe('usePlayerProfileEdit', () => {
     expect(result.current.toastMessage).toBeNull()
   })
 
-  it('restores edit state and shows toast when save fails', async () => {
-    mutateAsync.mockRejectedValue(new Error('network'))
+  it('keeps browse mode when a retryable save fails', async () => {
+    mutateAsync.mockRejectedValue(new ApiError('network', 'Failed to reach the server'))
+
+    const { result } = renderHook(() =>
+      usePlayerProfileEdit({
+        playerStats,
+        playerSlugParam: 'alpha',
+        selectedSeasonId: 's1',
+      }),
+    )
+
+    act(() => {
+      result.current.handleEnterEdit()
+    })
+
+    act(() => {
+      result.current.handleAdjustDraft('d1', 'yeets', 1)
+    })
+
+    await act(async () => {
+      await result.current.handleDoneEdit()
+    })
+
+    expect(result.current.isEditing).toBe(false)
+    expect(result.current.breakdownMode).toBe('browse')
+    expect(result.current.toastMessage).toBeNull()
+  })
+
+  it('restores edit state and shows toast when save fails permanently', async () => {
+    mutateAsync.mockRejectedValue(new ApiError('validation', 'Bad request'))
 
     const { result } = renderHook(() =>
       usePlayerProfileEdit({
@@ -171,7 +200,7 @@ describe('usePlayerProfileEdit', () => {
 
     expect(result.current.isEditing).toBe(true)
     expect(result.current.breakdownMode).toBe('edit')
-    expect(result.current.toastMessage).toBe('Could not save stats. Try again.')
+    expect(result.current.toastMessage).toContain('unexpected data')
   })
 
   it('resets edit state when player or season changes', () => {
@@ -196,7 +225,7 @@ describe('usePlayerProfileEdit', () => {
   })
 
   it('clears toast after timeout', async () => {
-    mutateAsync.mockRejectedValue(new Error('network'))
+    mutateAsync.mockRejectedValue(new ApiError('validation', 'Bad request'))
 
     const { result } = renderHook(() =>
       usePlayerProfileEdit({
@@ -218,7 +247,7 @@ describe('usePlayerProfileEdit', () => {
       await result.current.handleDoneEdit()
     })
 
-    expect(result.current.toastMessage).toBe('Could not save stats. Try again.')
+    expect(result.current.toastMessage).toContain('unexpected data')
 
     act(() => {
       vi.advanceTimersByTime(4000)

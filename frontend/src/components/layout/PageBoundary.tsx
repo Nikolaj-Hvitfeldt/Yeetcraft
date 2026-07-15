@@ -2,23 +2,27 @@ import type { ReactNode } from 'react'
 import { AuthRequired } from '../AuthRequired'
 import { ErrorMessage } from '../ErrorMessage'
 import { LoadingSpinner } from '../LoadingSpinner'
+import { OfflineNoCacheState } from '../OfflineNoCacheState'
+import { useReportPageRefresh } from '../../hooks/connection-status-context'
 import { useAuthGuard } from '../../hooks/useAuthGuard'
 import { getUserFacingErrorMessage, isRetryableError } from '../../utils/api-error'
-import { cn } from '../../utils/cn'
 
 export function PageBoundary({
   isLoading,
-  isRefreshing,
-  isShowingStaleData,
+  isRefreshing = false,
   error,
   notFoundMessage,
   onRetry,
+  loadingMessage,
+  showOfflineNoCache,
   children,
 }: PageBoundaryProps) {
+  useReportPageRefresh(Boolean(isRefreshing))
   const { showAuthRequired } = useAuthGuard(error ?? null)
   const blockingError = error && !children ? error : null
 
-  if (isLoading) return <LoadingSpinner />
+  if (showOfflineNoCache) return <OfflineNoCacheState />
+  if (isLoading) return <LoadingSpinner message={loadingMessage} />
   if (showAuthRequired) return <AuthRequired />
   if (blockingError) {
     return (
@@ -35,22 +39,7 @@ export function PageBoundary({
   return (
     <>
       {isRefreshing ? <RefreshingBar /> : null}
-      {isShowingStaleData ? (
-        <div
-          role="status"
-          className="fixed left-1/2 top-3 z-50 -translate-x-1/2 rounded-full border border-border-subtle bg-surface-secondary/95 px-md py-xs text-xs font-semibold text-text-secondary shadow-lg backdrop-blur-sm"
-        >
-          Updating...
-        </div>
-      ) : null}
-      <div
-        className={cn(
-          isRefreshing && 'transition-opacity duration-200',
-          isRefreshing && 'opacity-80',
-        )}
-      >
-        {children}
-      </div>
+      {children}
     </>
   )
 }
@@ -70,9 +59,10 @@ function RefreshingBar() {
 interface PageBoundaryProps {
   isLoading?: boolean
   isRefreshing?: boolean
-  isShowingStaleData?: boolean
   error?: Error | null
   notFoundMessage?: string | null
   onRetry?: () => void
+  loadingMessage?: string
+  showOfflineNoCache?: boolean
   children?: ReactNode
 }

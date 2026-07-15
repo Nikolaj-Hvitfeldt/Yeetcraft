@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { DungeonStats, PlayerStatsResponse } from '../api/types'
+import { getUserFacingErrorMessage, isRetryableError } from '../utils/api-error'
 import { useSetPlayerStats } from './useSetPlayerStats'
 
 type DungeonBreakdownMode = 'browse' | 'edit'
@@ -100,10 +101,14 @@ export function usePlayerProfileEdit({
           yeets: row.yeets,
         })),
       })
-    } catch {
+    } catch (error) {
+      if (isRetryableError(error)) {
+        return
+      }
+
       setIsEditing(true)
       setDraftDungeons(draftSnapshot)
-      setToastMessage('Could not save stats. Try again.')
+      setToastMessage(getUserFacingErrorMessage(error))
     }
   }
 

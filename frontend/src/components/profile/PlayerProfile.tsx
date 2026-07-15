@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   deriveLeaderboard,
   usePlayerProfileEdit,
@@ -7,6 +8,10 @@ import {
   useSeasonId,
   useSeasonLeaders,
 } from "../../hooks";
+import { usePageConnection } from "../../hooks/usePageConnectionState";
+import { useSetPlayerStatsOutboxStatus } from "../../hooks/useWriteOutboxStatus";
+import { hasRecoverableQueryError } from "../../lib/query-defaults";
+import { retryOutboxSync } from "../../lib/write-outbox/sync";
 import { PageBoundary } from "../layout/PageBoundary";
 import { buildPlayerPath, type PageBackState } from "../../utils/routes";
 import { playerSlug } from "../../utils/slug";
@@ -25,6 +30,7 @@ import { getNemesisDungeon } from "../../utils/player-stats";
 import { getPlayerProfile } from "../../utils/player-characters";
 
 export function PlayerProfile() {
+  const queryClient = useQueryClient();
   const { playerSlug: playerSlugParam } = useParams<{ playerSlug: string }>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -42,8 +48,8 @@ export function PlayerProfile() {
     isPending: isPendingPlayerStats,
     isFetching: isFetchingPlayerStats,
     isFetched: hasFetchedPlayerStats,
-    isPlaceholderData: isShowingStalePlayerStats,
     error: playerStatsError,
+    failureCount: playerStatsFailureCount,
     refetch: refetchPlayerStats,
   } = usePlayerStatsBySlug(playerSlugParam, selectedSeasonId, { enabled: isSeasonReady });
 
@@ -62,6 +68,20 @@ export function PlayerProfile() {
     playerSlugParam,
     selectedSeasonId,
   });
+
+  const pendingSyncStatus = useSetPlayerStatsOutboxStatus(
+    playerStats?.player.id,
+    selectedSeasonId,
+  );
+
+  function handlePendingSyncRetry() {
+    if (pendingSyncStatus?.id) {
+      void retryOutboxSync(queryClient, pendingSyncStatus.id)
+      return
+    }
+
+    void retryOutboxSync(queryClient)
+  }
 
   const nemesis = useMemo(
     () => (playerStats ? getNemesisDungeon(playerStats.dungeons) : null),
@@ -103,10 +123,38 @@ export function PlayerProfile() {
   }, [leaderboardRank, nemesis, playerStats, seasonLeaders]);
 
   const isPlayerNotFound = isNotFoundApiError(playerStatsError);
+  const hasCachedData = playerStats !== undefined;
+  const profileError = isPlayerNotFound ? null : playerStatsError;
+  const hasRecoverableError = hasRecoverableQueryError(
+    Boolean(profileError),
+    playerStatsFailureCount,
+  );
+  const localOutboxScope = useMemo(
+    () =>
+      playerStats && selectedSeasonId
+        ? { playerId: playerStats.player.id, seasonId: selectedSeasonId }
+        : undefined,
+    [playerStats, selectedSeasonId],
+  );
+
+  function handleRetry() {
+    void refetchPlayerStats();
+  }
+
+  const { loadingMessage, showOfflineNoCache } = usePageConnection({
+    hasCachedData,
+    isFetching: isFetchingPlayerStats,
+    isPending: isPendingPlayerStats && !hasCachedData && !isPlayerNotFound,
+    isError: Boolean(profileError),
+    hasRecoverableError,
+    localOutboxScope,
+    onRetry: handleRetry,
+  });
 
   const isPageLoading =
-    !isSeasonReady ||
-    (isPendingPlayerStats && !playerStats && !isPlayerNotFound);
+    !showOfflineNoCache &&
+    (!isSeasonReady ||
+      (isPendingPlayerStats && !playerStats && !isPlayerNotFound));
   const isRefreshingProfile =
     isFetchingPlayerStats && !!playerStats && !isPendingPlayerStats;
   const notFoundMessage =
@@ -117,7 +165,7 @@ export function PlayerProfile() {
     (isPlayerNotFound || (!playerStats && !playerStatsError))
       ? "Player stats were not found."
       : null;
-  const profileError = isPlayerNotFound ? null : playerStatsError;
+  const blockingError = profileError && !hasCachedData ? profileError : null;
 
   useEffect(() => {
     if (!playerStats || !selectedSeason || !playerSlugParam) return;
@@ -135,12 +183,11 @@ export function PlayerProfile() {
     <PageBoundary
       isLoading={isPageLoading}
       isRefreshing={isRefreshingProfile}
-      isShowingStaleData={isShowingStalePlayerStats && isFetchingPlayerStats}
-      error={profileError}
+      loadingMessage={loadingMessage}
+      showOfflineNoCache={showOfflineNoCache}
+      error={blockingError}
       notFoundMessage={notFoundMessage}
-      onRetry={() => {
-        void refetchPlayerStats();
-      }}
+      onRetry={handleRetry}
     >
       {playerStats ? (
         <div className="flex flex-col gap-2xl">
@@ -190,6 +237,8 @@ export function PlayerProfile() {
             isSaving={isSaving}
             onAdjust={handleAdjustDraft}
             season={playerStats.season}
+            pendingSyncStatus={pendingSyncStatus}
+            onPendingSyncRetry={handlePendingSyncRetry}
             dungeonBackTo={buildPlayerPath(
               playerStats.season,
               playerStats.player,

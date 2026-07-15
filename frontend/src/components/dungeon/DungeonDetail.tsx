@@ -1,6 +1,8 @@
 import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useCurrentSeasonDungeons, useDungeonLeaderboard, useSeasonId, useSeasonLeaders } from '../../hooks'
+import { usePageConnection } from '../../hooks/usePageConnectionState'
+import { hasRecoverableQueryError } from '../../lib/query-defaults'
 import { PageBoundary } from '../layout/PageBoundary'
 import { HomeNavigation } from '../home/HomeNavigation'
 import { SpotlightCard } from '../ui/SpotlightCard'
@@ -37,8 +39,8 @@ export function DungeonDetail() {
     isPending: isPendingDungeons,
     isFetching: isFetchingDungeons,
     isFetched: hasFetchedDungeons,
-    isPlaceholderData: isShowingStaleDungeons,
     error: dungeonsError,
+    failureCount: dungeonsFailureCount,
     refetch: refetchDungeons,
   } = useCurrentSeasonDungeons(selectedSeasonId, { enabled: isSeasonReady })
 
@@ -50,6 +52,7 @@ export function DungeonDetail() {
     isPending: isPendingLeaderboard,
     isFetching: isFetchingLeaderboard,
     error: leaderboardError,
+    failureCount: leaderboardFailureCount,
     refetch: refetchLeaderboard,
   } = useDungeonLeaderboard(selectedSeasonId, dungeon?.id, {
     enabled: isSeasonReady && !!dungeon,
@@ -115,11 +118,35 @@ export function DungeonDetail() {
   )
 
   const error = dungeonsError ?? leaderboardError
-  const hasInitialData = dungeonsData !== undefined && (!dungeon || dungeonLeaderboardData !== undefined)
+  const hasRecoverableError =
+    hasRecoverableQueryError(Boolean(dungeonsError), dungeonsFailureCount) ||
+    hasRecoverableQueryError(Boolean(leaderboardError), leaderboardFailureCount)
+  const hasCachedData =
+    dungeonsData !== undefined && (!dungeon || dungeonLeaderboardData !== undefined)
+
+  function handleRetry() {
+    void refetchDungeons()
+    void refetchLeaderboard()
+  }
+
+  const { loadingMessage, showOfflineNoCache } = usePageConnection({
+    hasCachedData,
+    isFetching: isFetchingDungeons || isFetchingLeaderboard,
+    isPending:
+      !isSeasonReady ||
+      ((isPendingDungeons || isPendingLeaderboard) && !hasCachedData),
+    isError: Boolean(error),
+    hasRecoverableError,
+    onRetry: handleRetry,
+  })
+
   const isPageLoading =
-    !isSeasonReady || ((isPendingDungeons || isPendingLeaderboard) && !hasInitialData)
+    !showOfflineNoCache &&
+    (!isSeasonReady || ((isPendingDungeons || isPendingLeaderboard) && !hasCachedData))
   const isRefreshingDetail =
-    (isFetchingDungeons || isFetchingLeaderboard) && hasInitialData && !isPageLoading
+    (isFetchingDungeons || isFetchingLeaderboard) && hasCachedData && !isPageLoading
+  const blockingError = error && !hasCachedData ? error : null
+
   const notFoundMessage =
     isSeasonReady &&
     hasFetchedDungeons &&
@@ -142,20 +169,13 @@ export function DungeonDetail() {
     })
   }, [dungeon, dungeonSlugParam, location.state, navigate, selectedSeason])
 
-  function handleRetry() {
-    void refetchDungeons()
-    void refetchLeaderboard()
-  }
-
   return (
     <PageBoundary
       isLoading={isPageLoading}
       isRefreshing={isRefreshingDetail}
-      isShowingStaleData={
-        (isShowingStaleDungeons && isFetchingDungeons) ||
-        (isFetchingLeaderboard && !!dungeonLeaderboardData)
-      }
-      error={error}
+      loadingMessage={loadingMessage}
+      showOfflineNoCache={showOfflineNoCache}
+      error={blockingError}
       notFoundMessage={notFoundMessage}
       onRetry={handleRetry}
     >

@@ -9,6 +9,8 @@ import {
   StatsBatchResponseSchema,
 } from './schemas'
 import { getAccessToken } from '../utils/token'
+import { fetchWithTimeout } from '../lib/fetch-with-timeout'
+import { parseApiResponse, throwForFailedResponse } from '../lib/api-response'
 
 // Default to same-origin /api so Vite proxies to the backend in dev.
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
@@ -33,30 +35,14 @@ async function fetchApi<T>(endpoint: string, schema: z.ZodType<T>): Promise<T> {
     headers['X-API-Key'] = token
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, { headers })
+  const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, { headers })
 
   if (!response.ok) {
-    if (response.status === 401) {
-      if (token) {
-        localStorage.removeItem('yeetcraft_token')
-      }
-      const error = await response.json().catch(() => ({ message: 'Unauthorized' }))
-      throw new Error(error.message || 'Unauthorized. Please use the shared link with a valid token.')
-    }
-    const errorText = await response.text().catch(() => response.statusText)
-    throw new Error(`API error: ${response.status} ${errorText}`)
+    await throwForFailedResponse(response, token)
   }
 
   const json: unknown = await response.json()
-
-  try {
-    return schema.parse(json)
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      throw new Error(`Invalid response from ${endpoint}: ${error.message}`)
-    }
-    throw error
-  }
+  return parseApiResponse(json, schema, endpoint)
 }
 
 async function fetchApiWithBody<T>(
@@ -66,7 +52,7 @@ async function fetchApiWithBody<T>(
   schema: z.ZodType<T>,
 ): Promise<T> {
   const token = getAccessToken()
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
     method,
     headers: {
       'Content-Type': 'application/json',
@@ -76,16 +62,11 @@ async function fetchApiWithBody<T>(
   })
 
   if (!response.ok) {
-    if (response.status === 401) {
-      const error = await response.json().catch(() => ({ message: 'Unauthorized' }))
-      throw new Error(error.message || 'Unauthorized. Please use the shared link with a valid token.')
-    }
-    const errorText = await response.text().catch(() => response.statusText)
-    throw new Error(`API error: ${response.status} ${errorText}`)
+    await throwForFailedResponse(response, token)
   }
 
   const json: unknown = await response.json()
-  return schema.parse(json)
+  return parseApiResponse(json, schema, endpoint)
 }
 
 export async function fetchSeasonLeaders(seasonId?: string) {

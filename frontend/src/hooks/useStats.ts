@@ -8,6 +8,7 @@ import {
   fetchSeasons,
 } from '../api/api'
 import { LeaderboardEntry } from '../api/types'
+import { queryKeys } from '../lib/query-keys'
 
 export interface LeaderboardPlayerStats {
   playerId: string
@@ -24,11 +25,9 @@ interface QueryEnabledOptions {
 
 export function useSeasonLeaders(seasonId?: string, options?: QueryEnabledOptions) {
   return useQuery({
-    queryKey: ['season-leaders', seasonId ?? 'current'],
+    queryKey: queryKeys.seasonLeaders(seasonId),
     queryFn: () => fetchSeasonLeaders(seasonId),
     enabled: (options?.enabled ?? true) && seasonId !== undefined,
-    staleTime: 30_000,
-    refetchOnWindowFocus: true,
     placeholderData: keepPreviousData,
   })
 }
@@ -39,21 +38,14 @@ export function usePlayerStats(
   options?: QueryEnabledOptions,
 ) {
   return useQuery({
-    queryKey: ['player-stats', playerId, seasonId],
+    queryKey: queryKeys.playerStats(playerId, seasonId),
     queryFn: () => {
       if (!playerId) throw new Error('Missing player id')
       if (!seasonId) throw new Error('Missing season id')
       return fetchPlayerStats(playerId, seasonId)
     },
     enabled: (options?.enabled ?? true) && !!playerId && !!seasonId,
-    staleTime: 30_000,
     placeholderData: keepPreviousData,
-    retry: (failureCount, error) => {
-      if (error instanceof Error && error.message.includes('500')) {
-        return failureCount < 2
-      }
-      return failureCount < 1
-    },
   })
 }
 
@@ -63,44 +55,35 @@ export function usePlayerStatsBySlug(
   options?: QueryEnabledOptions,
 ) {
   return useQuery({
-    queryKey: ['player-stats-by-slug', playerSlug, seasonId],
+    queryKey: queryKeys.playerStatsBySlug(playerSlug, seasonId),
     queryFn: () => {
       if (!playerSlug) throw new Error('Missing player slug')
       if (!seasonId) throw new Error('Missing season id')
       return fetchPlayerStatsBySlug(playerSlug, seasonId)
     },
     enabled: (options?.enabled ?? true) && !!playerSlug && !!seasonId,
-    staleTime: 30_000,
     placeholderData: keepPreviousData,
-    retry: (failureCount, error) => {
-      if (error instanceof Error && error.message.includes('500')) {
-        return failureCount < 2
-      }
-      return failureCount < 1
-    },
   })
 }
 
 export function useSeasons() {
   return useQuery({
-    queryKey: ['seasons'],
+    queryKey: queryKeys.seasons(),
     queryFn: async () => {
       const response = await fetchSeasons()
       return response.seasons
     },
-    staleTime: 60_000,
   })
 }
 
 export function useCurrentSeasonDungeons(seasonId?: string, options?: QueryEnabledOptions) {
   return useQuery({
-    queryKey: ['season-dungeons', seasonId ?? 'current'],
+    queryKey: queryKeys.seasonDungeons(seasonId),
     queryFn: async () => {
       const response = await fetchCurrentSeasonDungeons(seasonId)
       return response.dungeons
     },
     enabled: (options?.enabled ?? true) && seasonId !== undefined,
-    staleTime: 60_000,
     placeholderData: keepPreviousData,
   })
 }
@@ -111,14 +94,13 @@ export function useDungeonLeaderboard(
   options?: QueryEnabledOptions,
 ) {
   return useQuery({
-    queryKey: ['dungeon-leaderboard', seasonId, dungeonId],
+    queryKey: queryKeys.dungeonLeaderboard(seasonId, dungeonId),
     queryFn: () => {
       if (!seasonId) throw new Error('Missing season id')
       if (!dungeonId) throw new Error('Missing dungeon id')
       return fetchDungeonLeaderboard(seasonId, dungeonId)
     },
     enabled: (options?.enabled ?? true) && !!seasonId && !!dungeonId,
-    staleTime: 30_000,
     placeholderData: keepPreviousData,
   })
 }
