@@ -4,6 +4,7 @@ import { useOnlineStatus } from '../hooks/online-status-context'
 import { useQueryRestorePending } from '../hooks/query-restore-context'
 import { useConnectionTimingSignals } from '../hooks/usePageConnectionState'
 import { useFailedOutboxWrites } from '../hooks/useWriteOutboxStatus'
+import { useWriteAccess } from '../hooks/useWriteAccess'
 import {
   ConnectionRefreshRegistrarContext,
   ConnectionStatusContext,
@@ -48,6 +49,7 @@ export function ConnectionStatusProvider({ children }: { children: ReactNode }) 
     setIsPageRefreshing(isRefreshing)
   }, [])
   const failedWrites = useFailedOutboxWrites()
+  const canWrite = useWriteAccess()
   const isOnline = useOnlineStatus()
   const isRestorePending = useQueryRestorePending()
   const hasCachedData = pageInput?.hasCachedData ?? DEFAULT_PAGE_INPUT.hasCachedData
@@ -95,8 +97,8 @@ export function ConnectionStatusProvider({ children }: { children: ReactNode }) 
   }, [queryClient])
 
   const globalFailedWrites = useMemo(
-    () => getGlobalFailedOutboxWrites(failedWrites, localOutboxScope),
-    [failedWrites, localOutboxScope],
+    () => (canWrite ? getGlobalFailedOutboxWrites(failedWrites, localOutboxScope) : []),
+    [canWrite, failedWrites, localOutboxScope],
   )
 
   const bannerContent = useMemo(() => {

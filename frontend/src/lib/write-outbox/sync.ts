@@ -56,7 +56,15 @@ function shouldAttemptWrite(write: PendingWrite): WriteAttemptEligibility {
     }
   }
 
-  if (write.authScope !== null && write.authScope !== currentToken) {
+  if (write.authScope === null) {
+    return {
+      attempt: false,
+      reason: MISSING_ACCESS_LINK_MESSAGE,
+      stayPending: true,
+    }
+  }
+
+  if (write.authScope !== currentToken) {
     return { attempt: false, reason: getAuthScopeMismatchMessage() }
   }
 

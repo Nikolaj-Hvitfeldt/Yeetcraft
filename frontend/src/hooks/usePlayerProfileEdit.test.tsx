@@ -2,14 +2,9 @@ import { act, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from '../utils/api-error'
 import type { PlayerStatsResponse } from '../api/types'
-import { getAccessToken } from '../utils/token'
 import { usePlayerProfileEdit } from './usePlayerProfileEdit'
 
 const mutateAsync = vi.fn()
-
-vi.mock('../utils/token', () => ({
-  getAccessToken: vi.fn(() => 'test-token'),
-}))
 
 vi.mock('./useSetPlayerStats', () => ({
   useSetPlayerStats: () => ({
@@ -42,6 +37,13 @@ const playerStats: PlayerStatsResponse = {
   ],
 }
 
+const defaultOptions = {
+  canWrite: true,
+  playerStats,
+  playerSlugParam: 'alpha',
+  selectedSeasonId: 's1',
+} as const
+
 describe('usePlayerProfileEdit', () => {
   beforeEach(() => {
     mutateAsync.mockReset()
@@ -52,14 +54,11 @@ describe('usePlayerProfileEdit', () => {
     vi.useRealTimers()
   })
 
-  it('does not enter edit mode without a token', () => {
-    vi.mocked(getAccessToken).mockReturnValueOnce(null)
-
+  it('does not enter edit mode without write access', () => {
     const { result } = renderHook(() =>
       usePlayerProfileEdit({
-        playerStats,
-        playerSlugParam: 'alpha',
-        selectedSeasonId: 's1',
+        ...defaultOptions,
+        canWrite: false,
       }),
     )
 
@@ -71,14 +70,30 @@ describe('usePlayerProfileEdit', () => {
     expect(result.current.breakdownMode).toBe('browse')
   })
 
-  it('enters edit mode with a cloned draft', () => {
-    const { result } = renderHook(() =>
-      usePlayerProfileEdit({
-        playerStats,
-        playerSlugParam: 'alpha',
-        selectedSeasonId: 's1',
-      }),
+  it('exits edit mode when write access is revoked', () => {
+    const { result, rerender } = renderHook(
+      (canWrite: boolean) =>
+        usePlayerProfileEdit({
+          ...defaultOptions,
+          canWrite,
+        }),
+      { initialProps: true },
     )
+
+    act(() => {
+      result.current.handleEnterEdit()
+    })
+
+    expect(result.current.isEditing).toBe(true)
+
+    rerender(false)
+
+    expect(result.current.isEditing).toBe(false)
+    expect(result.current.breakdownMode).toBe('browse')
+  })
+
+  it('enters edit mode with a cloned draft', () => {
+    const { result } = renderHook(() => usePlayerProfileEdit(defaultOptions))
 
     act(() => {
       result.current.handleEnterEdit()
@@ -91,13 +106,7 @@ describe('usePlayerProfileEdit', () => {
   })
 
   it('adjusts draft stats without going below zero', () => {
-    const { result } = renderHook(() =>
-      usePlayerProfileEdit({
-        playerStats,
-        playerSlugParam: 'alpha',
-        selectedSeasonId: 's1',
-      }),
-    )
+    const { result } = renderHook(() => usePlayerProfileEdit(defaultOptions))
 
     act(() => {
       result.current.handleEnterEdit()
@@ -118,13 +127,7 @@ describe('usePlayerProfileEdit', () => {
   })
 
   it('exits edit mode without saving when nothing changed', async () => {
-    const { result } = renderHook(() =>
-      usePlayerProfileEdit({
-        playerStats,
-        playerSlugParam: 'alpha',
-        selectedSeasonId: 's1',
-      }),
-    )
+    const { result } = renderHook(() => usePlayerProfileEdit(defaultOptions))
 
     act(() => {
       result.current.handleEnterEdit()
@@ -142,13 +145,7 @@ describe('usePlayerProfileEdit', () => {
   it('saves changed rows and exits edit mode on success', async () => {
     mutateAsync.mockResolvedValue([])
 
-    const { result } = renderHook(() =>
-      usePlayerProfileEdit({
-        playerStats,
-        playerSlugParam: 'alpha',
-        selectedSeasonId: 's1',
-      }),
-    )
+    const { result } = renderHook(() => usePlayerProfileEdit(defaultOptions))
 
     act(() => {
       result.current.handleEnterEdit()
@@ -174,13 +171,7 @@ describe('usePlayerProfileEdit', () => {
   it('keeps browse mode when a retryable save fails', async () => {
     mutateAsync.mockRejectedValue(new ApiError('network', 'Failed to reach the server'))
 
-    const { result } = renderHook(() =>
-      usePlayerProfileEdit({
-        playerStats,
-        playerSlugParam: 'alpha',
-        selectedSeasonId: 's1',
-      }),
-    )
+    const { result } = renderHook(() => usePlayerProfileEdit(defaultOptions))
 
     act(() => {
       result.current.handleEnterEdit()
@@ -202,13 +193,7 @@ describe('usePlayerProfileEdit', () => {
   it('restores edit state and shows toast when save fails permanently', async () => {
     mutateAsync.mockRejectedValue(new ApiError('validation', 'Bad request'))
 
-    const { result } = renderHook(() =>
-      usePlayerProfileEdit({
-        playerStats,
-        playerSlugParam: 'alpha',
-        selectedSeasonId: 's1',
-      }),
-    )
+    const { result } = renderHook(() => usePlayerProfileEdit(defaultOptions))
 
     act(() => {
       result.current.handleEnterEdit()
@@ -231,7 +216,7 @@ describe('usePlayerProfileEdit', () => {
     const { result, rerender } = renderHook(
       (props: { slug: string; seasonId: string }) =>
         usePlayerProfileEdit({
-          playerStats,
+          ...defaultOptions,
           playerSlugParam: props.slug,
           selectedSeasonId: props.seasonId,
         }),
@@ -251,13 +236,7 @@ describe('usePlayerProfileEdit', () => {
   it('clears toast after timeout', async () => {
     mutateAsync.mockRejectedValue(new ApiError('validation', 'Bad request'))
 
-    const { result } = renderHook(() =>
-      usePlayerProfileEdit({
-        playerStats,
-        playerSlugParam: 'alpha',
-        selectedSeasonId: 's1',
-      }),
-    )
+    const { result } = renderHook(() => usePlayerProfileEdit(defaultOptions))
 
     act(() => {
       result.current.handleEnterEdit()

@@ -81,6 +81,20 @@ describe('write outbox store', () => {
     expect(findSetPlayerStatsWrite('p1', 's1')).toBeUndefined()
   })
 
+  it('does not enqueue writes without write access', async () => {
+    const { getAccessToken } = await import('../../utils/token')
+    vi.mocked(getAccessToken).mockReturnValueOnce(null)
+
+    const write = await upsertSetPlayerStatsWrite({
+      playerId: 'p1',
+      seasonId: 's1',
+      stats: [{ dungeonId: 'd1', deaths: 1, yeets: 2 }],
+    })
+
+    expect(write).toBeNull()
+    expect(findSetPlayerStatsWrite('p1', 's1')).toBeUndefined()
+  })
+
   it('resets only the targeted failed write for manual retry', async () => {
     const first = await upsertSetPlayerStatsWrite({
       playerId: 'p1',
@@ -93,17 +107,20 @@ describe('write outbox store', () => {
       stats: [{ dungeonId: 'd1', deaths: 2, yeets: 3 }],
     })
 
+    expect(first).not.toBeNull()
+    expect(second).not.toBeNull()
+
     storage.set(OUTBOX_STORAGE_KEY, {
       version: 1,
       writes: [
-        { ...first, status: 'failed', attempts: 5, lastError: 'offline' },
-        { ...second, status: 'failed', attempts: 5, lastError: 'offline' },
+        { ...first!, status: 'failed', attempts: 5, lastError: 'offline' },
+        { ...second!, status: 'failed', attempts: 5, lastError: 'offline' },
       ],
     })
     __resetWriteOutboxStoreForTests([], { keepInMemory: false })
     await initWriteOutboxStore()
 
-    const didReset = await resetWriteForManualRetry(first.id)
+    const didReset = await resetWriteForManualRetry(first!.id)
     expect(didReset).toBe(true)
 
     const writes = [findSetPlayerStatsWrite('p1', 's1'), findSetPlayerStatsWrite('p2', 's1')]

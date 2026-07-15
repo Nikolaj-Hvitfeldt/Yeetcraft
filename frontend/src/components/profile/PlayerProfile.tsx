@@ -7,6 +7,7 @@ import {
   usePlayerStatsBySlug,
   useSeasonId,
   useSeasonLeaders,
+  useWriteAccess,
 } from "../../hooks";
 import { usePageConnection } from "../../hooks/usePageConnectionState";
 import { useSetPlayerStatsOutboxStatus } from "../../hooks/useWriteOutboxStatus";
@@ -28,7 +29,6 @@ import {
 import { getPlayerFlavorTitle } from "../../utils/player-flavor-title";
 import { getNemesisDungeon } from "../../utils/player-stats";
 import { getPlayerProfile } from "../../utils/player-characters";
-import { hasWriteAccess } from "../../utils/token";
 
 export function PlayerProfile() {
   const queryClient = useQueryClient();
@@ -54,6 +54,8 @@ export function PlayerProfile() {
     refetch: refetchPlayerStats,
   } = usePlayerStatsBySlug(playerSlugParam, selectedSeasonId, { enabled: isSeasonReady });
 
+  const canWrite = useWriteAccess();
+
   const {
     breakdownMode,
     dungeonsForBreakdown,
@@ -65,15 +67,17 @@ export function PlayerProfile() {
     isSaving,
     toastMessage,
   } = usePlayerProfileEdit({
+    canWrite,
     playerStats,
     playerSlugParam,
     selectedSeasonId,
   });
 
-  const pendingSyncStatus = useSetPlayerStatsOutboxStatus(
+  const outboxStatus = useSetPlayerStatsOutboxStatus(
     playerStats?.player.id,
     selectedSeasonId,
   );
+  const pendingSyncStatus = canWrite ? outboxStatus : null;
 
   function handlePendingSyncRetry() {
     if (pendingSyncStatus?.id) {
@@ -230,7 +234,7 @@ export function PlayerProfile() {
           <DungeonBreakdownSection
             mode={breakdownMode}
             dungeons={dungeonsForBreakdown}
-            canEdit={hasWriteAccess()}
+            canEdit={canWrite}
             onEnterEdit={handleEnterEdit}
             onCancel={handleCancelEdit}
             onDone={() => {
