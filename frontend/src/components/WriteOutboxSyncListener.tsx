@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import { useOnlineStatus } from '../hooks/online-status-context'
 import { useQueryRestorePending } from '../hooks/query-restore-context'
-import { useOnlineStatus } from '../hooks/usePageConnectionState'
 import { initWriteOutboxStore } from '../lib/write-outbox/store'
 import { syncOutbox } from '../lib/write-outbox/sync'
 

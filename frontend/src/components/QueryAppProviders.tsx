@@ -7,7 +7,7 @@ import {
   queryPersister,
 } from '../lib/query-persistence'
 import { QueryRestoreContext } from '../hooks/query-restore-context'
-import { OnlineRefetchListener } from './OnlineRefetchListener'
+import { OnlineStatusProvider } from './OnlineStatusProvider'
 import { WriteOutboxSyncListener } from './WriteOutboxSyncListener'
 
 type QueryAppProvidersProps = {
@@ -20,22 +20,23 @@ export function QueryAppProviders({ client, children }: QueryAppProvidersProps) 
 
   return (
     <QueryRestoreContext.Provider value={isRestoring}>
-      <PersistQueryClientProvider
-        client={client}
-        persistOptions={{
-          persister: queryPersister,
-          maxAge: QUERY_CACHE_MAX_AGE_MS,
-          dehydrateOptions: {
-            shouldDehydrateQuery: shouldDehydratePersistedQuery,
-          },
-        }}
-        onSuccess={() => setIsRestoring(false)}
-        onError={() => setIsRestoring(false)}
-      >
-        <OnlineRefetchListener />
-        <WriteOutboxSyncListener />
-        {children}
-      </PersistQueryClientProvider>
+      <OnlineStatusProvider>
+        <PersistQueryClientProvider
+          client={client}
+          persistOptions={{
+            persister: queryPersister,
+            maxAge: QUERY_CACHE_MAX_AGE_MS,
+            dehydrateOptions: {
+              shouldDehydrateQuery: shouldDehydratePersistedQuery,
+            },
+          }}
+          onSuccess={() => setIsRestoring(false)}
+          onError={() => setIsRestoring(false)}
+        >
+          <WriteOutboxSyncListener />
+          {children}
+        </PersistQueryClientProvider>
+      </OnlineStatusProvider>
     </QueryRestoreContext.Provider>
   )
 }

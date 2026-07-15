@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { QueryClient } from '@tanstack/react-query'
 import { invalidateSetPlayerStatsQueries } from './reconcile-queries'
+import { queryKeys } from '../query-keys'
 
 describe('invalidateSetPlayerStatsQueries', () => {
   it('invalidates all affected query keys', async () => {
@@ -17,16 +18,16 @@ describe('invalidateSetPlayerStatsQueries', () => {
     })
 
     expect(invalidateSpy).toHaveBeenCalledWith({
-      queryKey: ['player-stats', 'p1', 's1'],
+      queryKey: queryKeys.playerStats('p1', 's1'),
     })
-    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['player-stats-by-slug'] })
-    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['season-leaders', 's1'] })
-    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['season-dungeons', 's1'] })
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: queryKeys.playerStatsBySlugRoot() })
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: queryKeys.seasonLeaders('s1') })
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: queryKeys.seasonDungeons('s1') })
     expect(invalidateSpy).toHaveBeenCalledWith({
-      queryKey: ['dungeon-leaderboard', 's1', 'd1'],
+      queryKey: queryKeys.dungeonLeaderboard('s1', 'd1'),
     })
     expect(invalidateSpy).toHaveBeenCalledWith({
-      queryKey: ['dungeon-leaderboard', 's1', 'd2'],
+      queryKey: queryKeys.dungeonLeaderboard('s1', 'd2'),
     })
   })
 })

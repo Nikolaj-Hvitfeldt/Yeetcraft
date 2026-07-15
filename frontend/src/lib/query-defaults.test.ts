@@ -20,6 +20,12 @@ describe('shouldRetryQuery', () => {
     expect(shouldRetryQuery(0, new ApiError('validation', 'Bad request'))).toBe(false)
     expect(shouldRetryQuery(0, new ApiError('abort', 'Aborted'))).toBe(false)
   })
+
+  it('aligns unknown HTTP 400 errors with isRetryableError', () => {
+    expect(
+      shouldRetryQuery(0, new ApiError('unknown', 'Bad request', { status: 400 })),
+    ).toBe(false)
+  })
 })
 
 describe('queryRetryDelay', () => {

@@ -8,6 +8,8 @@ import {
   fetchSeasons,
 } from '../api/api'
 import { LeaderboardEntry } from '../api/types'
+import { queryKeys } from '../lib/query-keys'
+
 export interface LeaderboardPlayerStats {
   playerId: string
   playerName: string
@@ -23,7 +25,7 @@ interface QueryEnabledOptions {
 
 export function useSeasonLeaders(seasonId?: string, options?: QueryEnabledOptions) {
   return useQuery({
-    queryKey: ['season-leaders', seasonId ?? 'current'],
+    queryKey: queryKeys.seasonLeaders(seasonId),
     queryFn: () => fetchSeasonLeaders(seasonId),
     enabled: (options?.enabled ?? true) && seasonId !== undefined,
     placeholderData: keepPreviousData,
@@ -36,7 +38,7 @@ export function usePlayerStats(
   options?: QueryEnabledOptions,
 ) {
   return useQuery({
-    queryKey: ['player-stats', playerId, seasonId],
+    queryKey: queryKeys.playerStats(playerId, seasonId),
     queryFn: () => {
       if (!playerId) throw new Error('Missing player id')
       if (!seasonId) throw new Error('Missing season id')
@@ -53,7 +55,7 @@ export function usePlayerStatsBySlug(
   options?: QueryEnabledOptions,
 ) {
   return useQuery({
-    queryKey: ['player-stats-by-slug', playerSlug, seasonId],
+    queryKey: queryKeys.playerStatsBySlug(playerSlug, seasonId),
     queryFn: () => {
       if (!playerSlug) throw new Error('Missing player slug')
       if (!seasonId) throw new Error('Missing season id')
@@ -66,7 +68,7 @@ export function usePlayerStatsBySlug(
 
 export function useSeasons() {
   return useQuery({
-    queryKey: ['seasons'],
+    queryKey: queryKeys.seasons(),
     queryFn: async () => {
       const response = await fetchSeasons()
       return response.seasons
@@ -76,7 +78,7 @@ export function useSeasons() {
 
 export function useCurrentSeasonDungeons(seasonId?: string, options?: QueryEnabledOptions) {
   return useQuery({
-    queryKey: ['season-dungeons', seasonId ?? 'current'],
+    queryKey: queryKeys.seasonDungeons(seasonId),
     queryFn: async () => {
       const response = await fetchCurrentSeasonDungeons(seasonId)
       return response.dungeons
@@ -92,7 +94,7 @@ export function useDungeonLeaderboard(
   options?: QueryEnabledOptions,
 ) {
   return useQuery({
-    queryKey: ['dungeon-leaderboard', seasonId, dungeonId],
+    queryKey: queryKeys.dungeonLeaderboard(seasonId, dungeonId),
     queryFn: () => {
       if (!seasonId) throw new Error('Missing season id')
       if (!dungeonId) throw new Error('Missing dungeon id')

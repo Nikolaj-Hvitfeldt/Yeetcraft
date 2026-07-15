@@ -1,13 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { useQueryRestorePending } from './query-restore-context'
+import { useEffect, useRef, useState } from 'react'
 import { useReportPageConnection } from './connection-status-context'
-import {
-  COLD_START_MESSAGE_DELAY_MS,
-  deriveConnectionState,
-  getConnectionBannerContent,
-  getPageLoadingMessage,
-  shouldShowOfflineNoCache,
-} from '../lib/connection-state'
+import { useConnectionPageState } from './connection-status-context'
+import { COLD_START_MESSAGE_DELAY_MS } from '../lib/connection-state'
 
 export type PageConnectionInput = {
   hasCachedData: boolean
@@ -17,29 +11,11 @@ export type PageConnectionInput = {
   onRetry?: () => void
 }
 
-export function useOnlineStatus(): boolean {
-  const [isOnline, setIsOnline] = useState(
-    () => typeof navigator !== 'undefined' && navigator.onLine,
-  )
+export function useConnectionTimingSignals(isOnline: boolean, isFetchActive: boolean) {
+  const slowFetch = useSlowFetch(isFetchActive)
+  const justReconnected = useJustReconnected(isOnline, isFetchActive)
 
-  useEffect(() => {
-    function handleOnline() {
-      setIsOnline(true)
-    }
-
-    function handleOffline() {
-      setIsOnline(false)
-    }
-
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
-    return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-    }
-  }, [])
-
-  return isOnline
+  return { slowFetch, justReconnected }
 }
 
 function useJustReconnected(isOnline: boolean, isFetchActive: boolean): boolean {
@@ -87,54 +63,7 @@ function useSlowFetch(
   return isSlow
 }
 
-export function usePageConnectionState(
-  input: PageConnectionInput,
-): {
-  loadingMessage: string | undefined
-  showOfflineNoCache: boolean
-  bannerContent: ReturnType<typeof getConnectionBannerContent>
-} {
-  const isOnline = useOnlineStatus()
-  const isRestorePending = useQueryRestorePending()
-  const isFetchActive = input.isFetching || input.isPending
-  const slowFetch = useSlowFetch(isFetchActive)
-  const justReconnected = useJustReconnected(isOnline, isFetchActive)
-
-  const connectionState = useMemo(
-    () =>
-      deriveConnectionState({
-        isOnline,
-        isRestorePending,
-        hasCachedData: input.hasCachedData,
-        isFetching: input.isFetching,
-        isPending: input.isPending,
-        isError: input.isError,
-        slowFetch,
-        justReconnected,
-      }),
-    [
-      isOnline,
-      isRestorePending,
-      input.hasCachedData,
-      input.isFetching,
-      input.isPending,
-      input.isError,
-      slowFetch,
-      justReconnected,
-    ],
-  )
-
-  return useMemo(
-    () => ({
-      loadingMessage: getPageLoadingMessage(connectionState),
-      showOfflineNoCache: shouldShowOfflineNoCache(connectionState),
-      bannerContent: getConnectionBannerContent(connectionState),
-    }),
-    [connectionState],
-  )
-}
-
 export function usePageConnection(input: PageConnectionInput) {
   useReportPageConnection(input)
-  return usePageConnectionState(input)
+  return useConnectionPageState()
 }
