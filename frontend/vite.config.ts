@@ -17,8 +17,11 @@ export default defineConfig({
         'yeetcraft-app-icon-192.png',
         'yeetcraft-app-icon-512.png',
         'yeetcraft-app-icon-512-maskable.png',
+        'yeetcraft-screenshot-wide.png',
+        'yeetcraft-screenshot-narrow.png',
       ],
       manifest: {
+        id: '/',
         name: 'YeetCraft',
         short_name: 'YeetCraft',
         description:
@@ -44,6 +47,22 @@ export default defineConfig({
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',
+          },
+        ],
+        screenshots: [
+          {
+            src: 'yeetcraft-screenshot-wide.png',
+            sizes: '1280x720',
+            type: 'image/png',
+            form_factor: 'wide',
+            label: 'YeetCraft Hall of Shame on desktop',
+          },
+          {
+            src: 'yeetcraft-screenshot-narrow.png',
+            sizes: '390x844',
+            type: 'image/png',
+            form_factor: 'narrow',
+            label: 'YeetCraft Hall of Shame on mobile',
           },
         ],
       },
