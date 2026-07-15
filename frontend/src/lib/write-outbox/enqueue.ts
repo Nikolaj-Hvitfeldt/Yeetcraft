@@ -7,6 +7,7 @@ export async function enqueueSetPlayerStatsWrite(
   queryClient: QueryClient,
   request: SetPlayerStatsBatchRequest,
 ): Promise<void> {
-  await upsertSetPlayerStatsWrite(request)
+  const write = await upsertSetPlayerStatsWrite(request)
+  if (!write) return
   void syncOutbox(queryClient)
 }

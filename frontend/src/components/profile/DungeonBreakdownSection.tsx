@@ -43,6 +43,7 @@ export function DungeonBreakdownSection({
   season,
   dungeonBackTo,
   profileBackTo,
+  canEdit = false,
   pendingSyncStatus,
   onPendingSyncRetry,
 }: DungeonBreakdownSectionProps) {
@@ -60,7 +61,7 @@ export function DungeonBreakdownSection({
             Dungeon breakdown
           </h2>
 
-          {mode === "browse" ? (
+          {mode === "browse" && canEdit ? (
             <button
               type="button"
               disabled={isSaving}
@@ -69,7 +70,7 @@ export function DungeonBreakdownSection({
             >
               Edit Stats
             </button>
-          ) : (
+          ) : mode === "edit" ? (
             <>
               <span className="inline-flex items-center justify-self-center rounded-[12px] border border-border-subtle bg-overlay-dark px-[10px] py-xs text-[11px] font-semibold text-accent-primary">
                 EDITING
@@ -96,7 +97,7 @@ export function DungeonBreakdownSection({
                 </button>
               </div>
             </>
-          )}
+          ) : null}
         </div>
 
         {pendingSyncStatus ? (
@@ -156,6 +157,7 @@ interface DungeonBreakdownSectionProps {
   season?: SeasonSummary;
   dungeonBackTo?: string;
   profileBackTo?: string;
+  canEdit?: boolean;
   pendingSyncStatus?: {
     status: 'pending' | 'syncing' | 'failed';
     lastError?: string;

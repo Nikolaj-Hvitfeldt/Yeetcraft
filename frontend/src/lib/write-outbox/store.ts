@@ -83,12 +83,16 @@ export async function removeWriteByDedupeKey(dedupeKey: string): Promise<void> {
 
 export async function upsertSetPlayerStatsWrite(
   payload: SetPlayerStatsBatchRequest,
-): Promise<SetPlayerStatsWrite> {
+): Promise<SetPlayerStatsWrite | null> {
   await initWriteOutboxStore()
+
+  const authScope = getAccessToken()
+  if (!authScope) {
+    return null
+  }
 
   const dedupeKey = getSetPlayerStatsDedupeKey(payload)
   const now = new Date().toISOString()
-  const authScope = getAccessToken()
   const existingIndex = writesCache.findIndex((write) => write.dedupeKey === dedupeKey)
 
   if (existingIndex === -1) {

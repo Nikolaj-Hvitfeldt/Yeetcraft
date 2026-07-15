@@ -1,7 +1,16 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
 import { ApiError } from '../utils/api-error'
-import { parseApiResponse, toHttpApiError } from './api-response'
+import { clearAccessToken } from '../utils/token'
+import { parseApiResponse, toHttpApiError, throwForFailedResponse } from './api-response'
+
+vi.mock('../utils/token', async () => {
+  const actual = await vi.importActual<typeof import('../utils/token')>('../utils/token')
+  return {
+    ...actual,
+    clearAccessToken: vi.fn(actual.clearAccessToken),
+  }
+})
 
 describe('api-response helpers', () => {
   it('maps HTTP statuses to ApiError kinds', () => {
@@ -17,5 +26,19 @@ describe('api-response helpers', () => {
 
     expect(() => parseApiResponse({ id: 1 }, schema, '/api/test')).toThrow(ApiError)
     expect(() => parseApiResponse({ id: 1 }, schema, '/api/test')).toThrow(/Invalid response/)
+  })
+
+  it('clears write access on 401 when a token was sent', async () => {
+    localStorage.setItem('yeetcraft_token', 'stored-token')
+
+    await expect(
+      throwForFailedResponse(
+        new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401 }),
+        'stored-token',
+      ),
+    ).rejects.toMatchObject({ kind: 'auth' })
+
+    expect(clearAccessToken).toHaveBeenCalled()
+    expect(localStorage.getItem('yeetcraft_token')).toBeNull()
   })
 })

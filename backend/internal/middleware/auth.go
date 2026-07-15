@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"crypto/subtle"
 	"net/http"
 	"strings"
 
@@ -23,7 +24,7 @@ func APIKey(expectedKey string) func(http.Handler) http.Handler {
 				return
 			}
 
-			if extractToken(request) != expectedKey {
+			if !tokensEqual(extractToken(request), expectedKey) {
 				handler.WriteError(responseWriter, http.StatusUnauthorized, unauthorizedError, unauthorizedMessage)
 				return
 			}
@@ -31,6 +32,14 @@ func APIKey(expectedKey string) func(http.Handler) http.Handler {
 			nextHandler.ServeHTTP(responseWriter, request)
 		})
 	}
+}
+
+func tokensEqual(providedToken string, expectedToken string) bool {
+	if len(providedToken) != len(expectedToken) {
+		return false
+	}
+
+	return subtle.ConstantTimeCompare([]byte(providedToken), []byte(expectedToken)) == 1
 }
 
 func extractToken(request *http.Request) string {

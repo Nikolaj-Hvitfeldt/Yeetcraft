@@ -19,32 +19,35 @@ function buildSeasonQuery(seasonId?: string): string {
   return seasonId ? `?seasonId=${encodeURIComponent(seasonId)}` : ''
 }
 
+function buildWriteHeaders(): HeadersInit {
+  const token = getAccessToken()
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { 'X-API-Key': token } : {}),
+  }
+}
+
 /**
- * Generic fetch wrapper with automatic token handling.
- *
- * Automatically includes the access token from URL or localStorage
- * in the X-API-Key header for all requests.
+ * Public read fetch wrapper. Does not send write-access headers.
  */
 async function fetchApi<T>(endpoint: string, schema: z.ZodType<T>): Promise<T> {
-  const token = getAccessToken()
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-  }
-
-  if (token) {
-    headers['X-API-Key'] = token
-  }
-
-  const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, { headers })
+  const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
 
   if (!response.ok) {
-    await throwForFailedResponse(response, token)
+    await throwForFailedResponse(response, null)
   }
 
   const json: unknown = await response.json()
   return parseApiResponse(json, schema, endpoint)
 }
 
+/**
+ * Protected write fetch wrapper. Sends X-API-Key when a write token is stored.
+ */
 async function fetchApiWithBody<T>(
   endpoint: string,
   method: 'PATCH',
@@ -54,10 +57,7 @@ async function fetchApiWithBody<T>(
   const token = getAccessToken()
   const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { 'X-API-Key': token } : {}),
-    },
+    headers: buildWriteHeaders(),
     body: JSON.stringify(body),
   })
 

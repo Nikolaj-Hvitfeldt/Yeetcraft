@@ -41,14 +41,15 @@ func main() {
 	router.NotFound(handler.NotFound)
 
 	router.Get("/api/health", healthHandler.Get)
-	protectedRouter := router.With(appmiddleware.APIKey(appConfig.APIKey))
-	protectedRouter.Get("/api/players/by-slug/{playerSlug}/stats", statsHandler.PlayerStatsBySlug)
-	protectedRouter.Get("/api/players/{playerId}/stats", statsHandler.PlayerStats)
-	protectedRouter.Get("/api/seasons", statsHandler.Seasons)
-	protectedRouter.Get("/api/seasons/leaders", statsHandler.SeasonLeaders)
-	protectedRouter.Get("/api/seasons/current/dungeons", statsHandler.CurrentSeasonDungeons)
-	protectedRouter.Get("/api/seasons/{seasonId}/dungeons/{dungeonId}/leaderboard", statsHandler.DungeonLeaderboard)
-	protectedRouter.Patch("/api/stats/batch", statsHandler.SetStatsBatch)
+	router.Get("/api/players/by-slug/{playerSlug}/stats", statsHandler.PlayerStatsBySlug)
+	router.Get("/api/players/{playerId}/stats", statsHandler.PlayerStats)
+	router.Get("/api/seasons", statsHandler.Seasons)
+	router.Get("/api/seasons/leaders", statsHandler.SeasonLeaders)
+	router.Get("/api/seasons/current/dungeons", statsHandler.CurrentSeasonDungeons)
+	router.Get("/api/seasons/{seasonId}/dungeons/{dungeonId}/leaderboard", statsHandler.DungeonLeaderboard)
+
+	writeRouter := router.With(appmiddleware.APIKey(appConfig.APIKey))
+	writeRouter.Patch("/api/stats/batch", statsHandler.SetStatsBatch)
 
 	serverAddress := appConfig.Server.Address()
 	log.Printf("starting server on %s", serverAddress)

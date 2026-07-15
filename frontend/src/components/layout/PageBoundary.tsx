@@ -1,10 +1,8 @@
 import type { ReactNode } from 'react'
-import { AuthRequired } from '../AuthRequired'
 import { ErrorMessage } from '../ErrorMessage'
 import { LoadingSpinner } from '../LoadingSpinner'
 import { OfflineNoCacheState } from '../OfflineNoCacheState'
 import { useReportPageRefresh } from '../../hooks/connection-status-context'
-import { useAuthGuard } from '../../hooks/useAuthGuard'
 import { getUserFacingErrorMessage, isRetryableError } from '../../utils/api-error'
 
 export function PageBoundary({
@@ -18,12 +16,10 @@ export function PageBoundary({
   children,
 }: PageBoundaryProps) {
   useReportPageRefresh(Boolean(isRefreshing))
-  const { showAuthRequired } = useAuthGuard(error ?? null)
   const blockingError = error && !children ? error : null
 
   if (showOfflineNoCache) return <OfflineNoCacheState />
   if (isLoading) return <LoadingSpinner message={loadingMessage} />
-  if (showAuthRequired) return <AuthRequired />
   if (blockingError) {
     return (
       <ErrorMessage

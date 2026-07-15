@@ -199,14 +199,14 @@ describe('outbox sync', () => {
   })
 
   it('keeps pending writes when access token is missing', async () => {
-    const { getAccessToken } = await import('../../utils/token')
-    vi.mocked(getAccessToken).mockReturnValue(null)
-
     await upsertSetPlayerStatsWrite({
       playerId: 'p1',
       seasonId: 's1',
       stats: [{ dungeonId: 'd1', deaths: 1, yeets: 2 }],
     })
+
+    const { getAccessToken } = await import('../../utils/token')
+    vi.mocked(getAccessToken).mockReturnValue(null)
 
     const syncPromise = syncOutbox(queryClient)
     await vi.runAllTimersAsync()
@@ -215,6 +215,36 @@ describe('outbox sync', () => {
     expect(fetchSetStatsBatch).not.toHaveBeenCalled()
     expect(getOutboxWrites()[0]?.status).toBe('pending')
     expect(getOutboxWrites()[0]?.lastError).toBeUndefined()
+  })
+
+  it('keeps legacy unscoped writes pending until write access is available', async () => {
+    __resetWriteOutboxStoreForTests(
+      [
+        {
+          id: 'w1',
+          type: 'set-player-stats',
+          createdAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+          attempts: 0,
+          status: 'pending',
+          authScope: null,
+          dedupeKey: 'set-player-stats:p1:s1',
+          payload: {
+            playerId: 'p1',
+            seasonId: 's1',
+            stats: [{ dungeonId: 'd1', deaths: 1, yeets: 2 }],
+          },
+        },
+      ],
+      { keepInMemory: true },
+    )
+
+    const syncPromise = syncOutbox(queryClient)
+    await vi.runAllTimersAsync()
+    await syncPromise
+
+    expect(fetchSetStatsBatch).not.toHaveBeenCalled()
+    expect(getOutboxWrites()[0]?.status).toBe('pending')
   })
 
   it('does not remove a write when it changes during sync', async () => {
@@ -274,16 +304,19 @@ describe('outbox sync', () => {
       stats: [{ dungeonId: 'd1', deaths: 2, yeets: 3 }],
     })
 
+    expect(first).not.toBeNull()
+    expect(second).not.toBeNull()
+
     __resetWriteOutboxStoreForTests(
       [
-        { ...first, status: 'failed', attempts: 5, lastError: 'offline' },
-        { ...second, status: 'failed', attempts: 5, lastError: 'offline' },
+        { ...first!, status: 'failed', attempts: 5, lastError: 'offline' },
+        { ...second!, status: 'failed', attempts: 5, lastError: 'offline' },
       ],
       { keepInMemory: true },
     )
 
     fetchSetStatsBatch.mockResolvedValue([])
-    expect(await resetWriteForManualRetry(first.id)).toBe(true)
+    expect(await resetWriteForManualRetry(first!.id)).toBe(true)
     expect(getOutboxWrites().filter((write) => write.status === 'pending')).toHaveLength(1)
 
     const syncPromise = syncOutbox(queryClient)

@@ -6,6 +6,7 @@ import { useSetPlayerStats } from './useSetPlayerStats'
 type DungeonBreakdownMode = 'browse' | 'edit'
 
 export function usePlayerProfileEdit({
+  canWrite,
   playerStats,
   playerSlugParam,
   selectedSeasonId,
@@ -22,12 +23,21 @@ export function usePlayerProfileEdit({
   }, [playerSlugParam, selectedSeasonId])
 
   useEffect(() => {
+    if (!canWrite && isEditing) {
+      setIsEditing(false)
+      setDraftDungeons(null)
+      setToastMessage(null)
+    }
+  }, [canWrite, isEditing])
+
+  useEffect(() => {
     if (!toastMessage) return
     const id = window.setTimeout(() => setToastMessage(null), 4000)
     return () => window.clearTimeout(id)
   }, [toastMessage])
 
   function handleEnterEdit() {
+    if (!canWrite) return
     if (!playerStats) return
     setDraftDungeons(structuredClone(playerStats.dungeons))
     setIsEditing(true)
@@ -132,6 +142,7 @@ export function usePlayerProfileEdit({
 }
 
 interface UsePlayerProfileEditOptions {
+  canWrite: boolean
   playerStats: PlayerStatsResponse | undefined
   playerSlugParam: string | undefined
   selectedSeasonId: string | undefined

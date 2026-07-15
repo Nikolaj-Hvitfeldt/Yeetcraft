@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { ApiError } from '../utils/api-error'
+import { clearAccessToken } from '../utils/token'
 
 export function toHttpApiError(status: number, message: string): ApiError {
   if (status === 401) {
@@ -31,7 +32,7 @@ export async function throwForFailedResponse(
 ): Promise<never> {
   if (response.status === 401) {
     if (token) {
-      localStorage.removeItem('yeetcraft_token')
+      clearAccessToken()
     }
     const error = await response.json().catch(() => ({ message: 'Unauthorized' }))
     throw toHttpApiError(
