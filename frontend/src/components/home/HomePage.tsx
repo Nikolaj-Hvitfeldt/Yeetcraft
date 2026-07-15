@@ -7,6 +7,7 @@ import {
   useSeasonLeaders,
 } from '../../hooks'
 import { usePageConnection } from '../../hooks/usePageConnectionState'
+import { hasRecoverableQueryError } from '../../lib/query-defaults'
 import { PageBoundary } from '../layout/PageBoundary'
 import { resolveDungeonBannerSeasonKey } from '../../utils/dungeon-image'
 import { DungeonNavPanel } from './DungeonNavPanel'
@@ -23,6 +24,7 @@ export function HomePage() {
     isPending: isPendingLeaderboard,
     isFetching: isFetchingLeaderboard,
     error: leaderboardError,
+    failureCount: leaderboardFailureCount,
     refetch: refetchLeaderboard,
   } = useSeasonLeaders(selectedSeasonId, { enabled: isSeasonReady })
 
@@ -31,6 +33,7 @@ export function HomePage() {
     isPending: isPendingDungeons,
     isFetching: isFetchingDungeons,
     error: dungeonsError,
+    failureCount: dungeonsFailureCount,
     refetch: refetchDungeons,
   } = useCurrentSeasonDungeons(selectedSeasonId, { enabled: isSeasonReady })
 
@@ -40,6 +43,9 @@ export function HomePage() {
   const isFetchingHome = isFetchingLeaderboard || isFetchingDungeons
   const isPendingHome = isPendingLeaderboard || isPendingDungeons
   const homeError = leaderboardError ?? dungeonsError
+  const hasRecoverableError =
+    hasRecoverableQueryError(Boolean(leaderboardError), leaderboardFailureCount) ||
+    hasRecoverableQueryError(Boolean(dungeonsError), dungeonsFailureCount)
 
   function handleRetry() {
     void refetchLeaderboard()
@@ -51,6 +57,7 @@ export function HomePage() {
     isFetching: isFetchingHome,
     isPending: isPendingSeasons || (isSeasonReady && isPendingHome && !hasCachedData),
     isError: Boolean(homeError),
+    hasRecoverableError,
     onRetry: handleRetry,
   })
 

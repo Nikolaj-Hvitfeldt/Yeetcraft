@@ -5,6 +5,7 @@ import {
   findSetPlayerStatsWrite,
   initWriteOutboxStore,
   removeWriteByDedupeKey,
+  resetWriteForManualRetry,
   upsertSetPlayerStatsWrite,
 } from './store'
 
@@ -78,5 +79,36 @@ describe('write outbox store', () => {
     await removeWriteByDedupeKey('set-player-stats:p1:s1')
 
     expect(findSetPlayerStatsWrite('p1', 's1')).toBeUndefined()
+  })
+
+  it('resets only the targeted failed write for manual retry', async () => {
+    const first = await upsertSetPlayerStatsWrite({
+      playerId: 'p1',
+      seasonId: 's1',
+      stats: [{ dungeonId: 'd1', deaths: 1, yeets: 2 }],
+    })
+    const second = await upsertSetPlayerStatsWrite({
+      playerId: 'p2',
+      seasonId: 's1',
+      stats: [{ dungeonId: 'd1', deaths: 2, yeets: 3 }],
+    })
+
+    storage.set(OUTBOX_STORAGE_KEY, {
+      version: 1,
+      writes: [
+        { ...first, status: 'failed', attempts: 5, lastError: 'offline' },
+        { ...second, status: 'failed', attempts: 5, lastError: 'offline' },
+      ],
+    })
+    __resetWriteOutboxStoreForTests([], { keepInMemory: false })
+    await initWriteOutboxStore()
+
+    const didReset = await resetWriteForManualRetry(first.id)
+    expect(didReset).toBe(true)
+
+    const writes = [findSetPlayerStatsWrite('p1', 's1'), findSetPlayerStatsWrite('p2', 's1')]
+    expect(writes[0]?.status).toBe('pending')
+    expect(writes[0]?.attempts).toBe(0)
+    expect(writes[1]?.status).toBe('failed')
   })
 })

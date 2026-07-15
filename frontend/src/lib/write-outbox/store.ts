@@ -144,6 +144,26 @@ export async function updateWrite(
   await persistCurrentWrites()
 }
 
+export async function resetWriteForManualRetry(writeId: string): Promise<boolean> {
+  await initWriteOutboxStore()
+  const target = writesCache.find((write) => write.id === writeId)
+  if (!target || target.status !== 'failed') return false
+
+  writesCache = writesCache.map((write) =>
+    write.id === writeId
+      ? {
+          ...write,
+          status: 'pending' satisfies WriteStatus,
+          attempts: 0,
+          lastError: undefined,
+          updatedAt: new Date().toISOString(),
+        }
+      : write,
+  )
+  await persistCurrentWrites()
+  return true
+}
+
 export async function resetFailedWritesForManualRetry(): Promise<void> {
   await initWriteOutboxStore()
   writesCache = writesCache.map((write) =>
@@ -160,8 +180,11 @@ export async function resetFailedWritesForManualRetry(): Promise<void> {
   await persistCurrentWrites()
 }
 
-export function __resetWriteOutboxStoreForTests(writes: PendingWrite[] = []): void {
+export function __resetWriteOutboxStoreForTests(
+  writes: PendingWrite[] = [],
+  options?: { keepInMemory?: boolean },
+): void {
   writesCache = writes
-  initPromise = null
+  initPromise = options?.keepInMemory ? Promise.resolve() : null
   notifyListeners()
 }

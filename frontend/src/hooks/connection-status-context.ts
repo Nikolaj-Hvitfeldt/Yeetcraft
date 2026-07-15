@@ -7,7 +7,7 @@ import {
   type Dispatch,
   type SetStateAction,
 } from 'react'
-import type { PageConnectionInput } from './usePageConnectionState'
+import type { LocalOutboxScope, PageConnectionInput } from './usePageConnectionState'
 import type { getConnectionBannerContent } from '../lib/connection-state'
 
 export type PageConnectionRegistration = PageConnectionInput
@@ -33,6 +33,15 @@ export const ConnectionStatusRegistrarContext = createContext<
   (input: PageConnectionRegistration | null) => void
 >(() => {})
 
+function isSameLocalOutboxScope(
+  previous: LocalOutboxScope | undefined,
+  next: LocalOutboxScope | undefined,
+): boolean {
+  if (previous === next) return true
+  if (previous === undefined || next === undefined) return false
+  return previous.playerId === next.playerId && previous.seasonId === next.seasonId
+}
+
 function isSamePageConnectionRegistration(
   previous: PageConnectionRegistration | null,
   next: PageConnectionRegistration | null,
@@ -45,6 +54,8 @@ function isSamePageConnectionRegistration(
     previous.isFetching === next.isFetching &&
     previous.isPending === next.isPending &&
     previous.isError === next.isError &&
+    (previous.hasRecoverableError ?? false) === (next.hasRecoverableError ?? false) &&
+    isSameLocalOutboxScope(previous.localOutboxScope, next.localOutboxScope) &&
     previous.onRetry === next.onRetry
   )
 }
@@ -69,6 +80,9 @@ export function useReportPageConnection(input: PageConnectionInput): void {
   }, [])
 
   const hasOnRetry = Boolean(input.onRetry)
+  const hasRecoverableError = input.hasRecoverableError ?? false
+  const localOutboxPlayerId = input.localOutboxScope?.playerId
+  const localOutboxSeasonId = input.localOutboxScope?.seasonId
 
   useLayoutEffect(() => {
     registerPageConnection({
@@ -76,6 +90,11 @@ export function useReportPageConnection(input: PageConnectionInput): void {
       isFetching: input.isFetching,
       isPending: input.isPending,
       isError: input.isError,
+      hasRecoverableError,
+      localOutboxScope:
+        localOutboxPlayerId && localOutboxSeasonId
+          ? { playerId: localOutboxPlayerId, seasonId: localOutboxSeasonId }
+          : undefined,
       onRetry: hasOnRetry ? stableOnRetry : undefined,
     })
 
@@ -84,6 +103,9 @@ export function useReportPageConnection(input: PageConnectionInput): void {
     registerPageConnection,
     stableOnRetry,
     hasOnRetry,
+    hasRecoverableError,
+    localOutboxPlayerId,
+    localOutboxSeasonId,
     input.hasCachedData,
     input.isFetching,
     input.isPending,

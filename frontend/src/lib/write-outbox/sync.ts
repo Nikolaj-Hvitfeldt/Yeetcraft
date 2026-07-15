@@ -4,10 +4,12 @@ import { getAccessToken } from '../../utils/token'
 import { writeHandlers } from './handlers'
 import { invalidateSetPlayerStatsQueries } from './reconcile-queries'
 import {
+  findWriteByDedupeKey,
   getOutboxWrites,
   initWriteOutboxStore,
   removeWriteByDedupeKey,
   resetFailedWritesForManualRetry,
+  resetWriteForManualRetry,
   updateWrite,
 } from './store'
 import type { PendingWrite } from './types'
@@ -35,11 +37,23 @@ function getAuthScopeMismatchMessage(): string {
   return 'Saved under a different access link. Restore the original link to sync.'
 }
 
-function shouldAttemptWrite(write: PendingWrite): { attempt: boolean; reason?: string } {
+const MISSING_ACCESS_LINK_MESSAGE = 'Missing access link. Use the shared link to sync.'
+
+type WriteAttemptEligibility = {
+  attempt: boolean
+  reason?: string
+  stayPending?: boolean
+}
+
+function shouldAttemptWrite(write: PendingWrite): WriteAttemptEligibility {
   const currentToken = getAccessToken()
 
   if (!currentToken) {
-    return { attempt: false, reason: 'Missing access link. Use the shared link to sync.' }
+    return {
+      attempt: false,
+      reason: MISSING_ACCESS_LINK_MESSAGE,
+      stayPending: true,
+    }
   }
 
   if (write.authScope !== null && write.authScope !== currentToken) {
@@ -70,6 +84,17 @@ async function runWithOptionalLock(task: () => Promise<void>): Promise<void> {
   await task()
 }
 
+async function releaseStaleSyncingWrite(
+  write: PendingWrite,
+  syncedUpdatedAt: string,
+): Promise<void> {
+  const current = findWriteByDedupeKey(write.dedupeKey)
+  if (!current || current.id !== write.id || current.status !== 'syncing') return
+  if (current.updatedAt !== syncedUpdatedAt) {
+    await updateWrite(current.id, { status: 'pending' })
+  }
+}
+
 async function processWrite(
   queryClient: QueryClient,
   write: PendingWrite,
@@ -77,7 +102,7 @@ async function processWrite(
 ): Promise<void> {
   const eligibility = shouldAttemptWrite(write)
   if (!eligibility.attempt) {
-    if (eligibility.reason && write.status === 'pending') {
+    if (eligibility.reason && write.status === 'pending' && !eligibility.stayPending) {
       await updateWrite(write.id, {
         status: 'failed',
         lastError: eligibility.reason,
@@ -86,20 +111,45 @@ async function processWrite(
     return
   }
 
-  await updateWrite(write.id, { status: 'syncing' })
+  const syncedUpdatedAt = write.updatedAt
+  await updateWrite(write.id, { status: 'syncing', updatedAt: syncedUpdatedAt })
 
   try {
     const handler = writeHandlers[write.type]
     await handler(write)
 
-    if (generation !== syncGeneration) return
+    if (generation !== syncGeneration) {
+      await releaseStaleSyncingWrite(write, syncedUpdatedAt)
+      return
+    }
+
+    const current = findWriteByDedupeKey(write.dedupeKey)
+    if (!current) return
+
+    if (current.updatedAt !== syncedUpdatedAt) {
+      if (current.status !== 'failed') {
+        await updateWrite(current.id, { status: 'pending' })
+      }
+      return
+    }
 
     await removeWriteByDedupeKey(write.dedupeKey)
     if (write.type === 'set-player-stats') {
       await invalidateSetPlayerStatsQueries(queryClient, write.payload)
     }
   } catch (error) {
-    if (generation !== syncGeneration) return
+    if (generation !== syncGeneration) {
+      await releaseStaleSyncingWrite(write, syncedUpdatedAt)
+      return
+    }
+
+    const current = findWriteByDedupeKey(write.dedupeKey)
+    if (!current || current.updatedAt !== syncedUpdatedAt) {
+      if (current?.status === 'syncing') {
+        await updateWrite(current.id, { status: 'pending' })
+      }
+      return
+    }
 
     const message = getUserFacingErrorMessage(error)
     const nextAttempts = write.attempts + 1
@@ -135,9 +185,7 @@ async function processWrite(
 async function runSyncLoop(queryClient: QueryClient, generation: number): Promise<void> {
   await initWriteOutboxStore()
 
-  const pendingWrites = getOutboxWrites().filter(
-    (write) => write.status === 'pending' || write.status === 'syncing',
-  )
+  const pendingWrites = getOutboxWrites().filter((write) => write.status === 'pending')
 
   for (const write of pendingWrites) {
     if (generation !== syncGeneration) return
@@ -161,12 +209,27 @@ export async function syncOutbox(queryClient: QueryClient): Promise<void> {
   return activeSync
 }
 
-export async function retryOutboxSync(queryClient: QueryClient): Promise<void> {
-  await resetFailedWritesForManualRetry()
+export async function retryOutboxSync(
+  queryClient: QueryClient,
+  writeId?: string,
+): Promise<void> {
+  if (writeId) {
+    await resetWriteForManualRetry(writeId)
+  } else {
+    await resetFailedWritesForManualRetry()
+  }
   await syncOutbox(queryClient)
 }
 
 export function __resetOutboxSyncForTests(): void {
   activeSync = null
   syncGeneration = 0
+}
+
+export async function __processWriteForTests(
+  queryClient: QueryClient,
+  write: PendingWrite,
+  generation: number,
+): Promise<void> {
+  await processWrite(queryClient, write, generation)
 }

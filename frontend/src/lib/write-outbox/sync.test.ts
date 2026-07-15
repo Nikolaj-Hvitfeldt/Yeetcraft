@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { QueryClient } from '@tanstack/react-query'
 import { ApiError } from '../../utils/api-error'
 import {
+  __processWriteForTests,
   __resetOutboxSyncForTests,
   MAX_AUTO_SYNC_ATTEMPTS,
   retryOutboxSync,
@@ -11,6 +12,7 @@ import {
   __resetWriteOutboxStoreForTests,
   getOutboxWrites,
   initWriteOutboxStore,
+  resetWriteForManualRetry,
   upsertSetPlayerStatsWrite,
 } from './store'
 
@@ -38,11 +40,20 @@ describe('outbox sync', () => {
     },
   })
 
-  beforeEach(() => {
+  beforeEach(async () => {
     fetchSetStatsBatch.mockReset()
     __resetWriteOutboxStoreForTests()
     __resetOutboxSyncForTests()
     vi.useFakeTimers()
+    vi.stubGlobal('navigator', {
+      ...globalThis.navigator,
+      locks: {
+        request: async (_name: string, callback: () => Promise<void>) => callback(),
+      },
+    })
+
+    const { getAccessToken } = await import('../../utils/token')
+    vi.mocked(getAccessToken).mockReturnValue('test-token')
   })
 
   afterEach(() => {
@@ -185,5 +196,103 @@ describe('outbox sync', () => {
 
     expect(getOutboxWrites()[0]?.status).toBe('failed')
     expect(getOutboxWrites()[0]?.attempts).toBe(MAX_AUTO_SYNC_ATTEMPTS)
+  })
+
+  it('keeps pending writes when access token is missing', async () => {
+    const { getAccessToken } = await import('../../utils/token')
+    vi.mocked(getAccessToken).mockReturnValue(null)
+
+    await upsertSetPlayerStatsWrite({
+      playerId: 'p1',
+      seasonId: 's1',
+      stats: [{ dungeonId: 'd1', deaths: 1, yeets: 2 }],
+    })
+
+    const syncPromise = syncOutbox(queryClient)
+    await vi.runAllTimersAsync()
+    await syncPromise
+
+    expect(fetchSetStatsBatch).not.toHaveBeenCalled()
+    expect(getOutboxWrites()[0]?.status).toBe('pending')
+    expect(getOutboxWrites()[0]?.lastError).toBeUndefined()
+  })
+
+  it('does not remove a write when it changes during sync', async () => {
+    let releaseFetch!: (value: never[]) => void
+    fetchSetStatsBatch.mockReturnValue(
+      new Promise<never[]>((resolve) => {
+        releaseFetch = resolve
+      }),
+    )
+
+    await upsertSetPlayerStatsWrite({
+      playerId: 'p1',
+      seasonId: 's1',
+      stats: [{ dungeonId: 'd1', deaths: 1, yeets: 2 }],
+    })
+
+    const write = getOutboxWrites()[0]!
+    const processPromise = __processWriteForTests(queryClient, write, 1)
+
+    for (let attempt = 0; attempt < 50; attempt += 1) {
+      if (getOutboxWrites()[0]?.status === 'syncing') break
+      await Promise.resolve()
+    }
+
+    expect(getOutboxWrites()[0]?.status).toBe('syncing')
+
+    await upsertSetPlayerStatsWrite({
+      playerId: 'p1',
+      seasonId: 's1',
+      stats: [{ dungeonId: 'd2', deaths: 3, yeets: 4 }],
+    })
+
+    releaseFetch([])
+    await vi.runAllTimersAsync()
+    await processPromise
+
+    const remainingWrite = getOutboxWrites()[0]
+    expect(remainingWrite?.status).toBe('pending')
+    expect(remainingWrite?.payload.stats).toEqual(
+      expect.arrayContaining([
+        { dungeonId: 'd1', deaths: 1, yeets: 2 },
+        { dungeonId: 'd2', deaths: 3, yeets: 4 },
+      ]),
+    )
+    expect(fetchSetStatsBatch).toHaveBeenCalledTimes(1)
+  })
+
+  it('retries only a targeted failed write on manual retry', async () => {
+    const first = await upsertSetPlayerStatsWrite({
+      playerId: 'p1',
+      seasonId: 's1',
+      stats: [{ dungeonId: 'd1', deaths: 1, yeets: 2 }],
+    })
+    const second = await upsertSetPlayerStatsWrite({
+      playerId: 'p2',
+      seasonId: 's1',
+      stats: [{ dungeonId: 'd1', deaths: 2, yeets: 3 }],
+    })
+
+    __resetWriteOutboxStoreForTests(
+      [
+        { ...first, status: 'failed', attempts: 5, lastError: 'offline' },
+        { ...second, status: 'failed', attempts: 5, lastError: 'offline' },
+      ],
+      { keepInMemory: true },
+    )
+
+    fetchSetStatsBatch.mockResolvedValue([])
+    expect(await resetWriteForManualRetry(first.id)).toBe(true)
+    expect(getOutboxWrites().filter((write) => write.status === 'pending')).toHaveLength(1)
+
+    const syncPromise = syncOutbox(queryClient)
+    await vi.runAllTimersAsync()
+    await syncPromise
+
+    const writes = getOutboxWrites()
+    expect(fetchSetStatsBatch).toHaveBeenCalledTimes(1)
+    expect(writes.find((write) => write.payload.playerId === 'p1')).toBeUndefined()
+    expect(writes.find((write) => write.payload.playerId === 'p2')?.status).toBe('failed')
   })
 })

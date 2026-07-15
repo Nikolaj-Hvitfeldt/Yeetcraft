@@ -10,6 +10,7 @@ import {
 } from "../../hooks";
 import { usePageConnection } from "../../hooks/usePageConnectionState";
 import { useSetPlayerStatsOutboxStatus } from "../../hooks/useWriteOutboxStatus";
+import { hasRecoverableQueryError } from "../../lib/query-defaults";
 import { retryOutboxSync } from "../../lib/write-outbox/sync";
 import { PageBoundary } from "../layout/PageBoundary";
 import { buildPlayerPath, type PageBackState } from "../../utils/routes";
@@ -48,6 +49,7 @@ export function PlayerProfile() {
     isFetching: isFetchingPlayerStats,
     isFetched: hasFetchedPlayerStats,
     error: playerStatsError,
+    failureCount: playerStatsFailureCount,
     refetch: refetchPlayerStats,
   } = usePlayerStatsBySlug(playerSlugParam, selectedSeasonId, { enabled: isSeasonReady });
 
@@ -73,7 +75,12 @@ export function PlayerProfile() {
   );
 
   function handlePendingSyncRetry() {
-    void retryOutboxSync(queryClient);
+    if (pendingSyncStatus?.id) {
+      void retryOutboxSync(queryClient, pendingSyncStatus.id)
+      return
+    }
+
+    void retryOutboxSync(queryClient)
   }
 
   const nemesis = useMemo(
@@ -118,6 +125,17 @@ export function PlayerProfile() {
   const isPlayerNotFound = isNotFoundApiError(playerStatsError);
   const hasCachedData = playerStats !== undefined;
   const profileError = isPlayerNotFound ? null : playerStatsError;
+  const hasRecoverableError = hasRecoverableQueryError(
+    Boolean(profileError),
+    playerStatsFailureCount,
+  );
+  const localOutboxScope = useMemo(
+    () =>
+      playerStats && selectedSeasonId
+        ? { playerId: playerStats.player.id, seasonId: selectedSeasonId }
+        : undefined,
+    [playerStats, selectedSeasonId],
+  );
 
   function handleRetry() {
     void refetchPlayerStats();
@@ -128,6 +146,8 @@ export function PlayerProfile() {
     isFetching: isFetchingPlayerStats,
     isPending: isPendingPlayerStats && !hasCachedData && !isPlayerNotFound,
     isError: Boolean(profileError),
+    hasRecoverableError,
+    localOutboxScope,
     onRetry: handleRetry,
   });
 

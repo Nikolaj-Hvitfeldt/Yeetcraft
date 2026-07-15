@@ -19,6 +19,7 @@ export type ConnectionStateInput = {
   isFetching: boolean
   isPending: boolean
   isError: boolean
+  hasRecoverableError: boolean
   slowFetch: boolean
   justReconnected: boolean
 }
@@ -42,12 +43,12 @@ export function deriveConnectionState(input: ConnectionStateInput): ConnectionSt
     return 'first_load'
   }
 
-  if (input.isError && !input.isFetching && !input.isPending) {
-    return 'cached_refresh_failed'
+  if (input.justReconnected) {
+    return 'reconnecting'
   }
 
-  if (input.justReconnected && (input.isFetching || input.isPending)) {
-    return 'reconnecting'
+  if (input.isError && !input.isFetching && !input.isPending && !input.hasRecoverableError) {
+    return 'cached_refresh_failed'
   }
 
   if (input.isFetching || input.isPending) {

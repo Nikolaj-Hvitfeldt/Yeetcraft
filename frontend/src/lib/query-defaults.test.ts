@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ApiError } from '../utils/api-error'
-import { MAX_QUERY_RETRY_COUNT, queryRetryDelay, shouldRetryQuery } from './query-defaults'
+import { MAX_QUERY_RETRY_COUNT, hasRecoverableQueryError, queryRetryDelay, shouldRetryQuery } from './query-defaults'
 
 describe('shouldRetryQuery', () => {
   it('retries network, timeout, and server failures up to the cap', () => {
@@ -35,5 +35,14 @@ describe('queryRetryDelay', () => {
     expect(queryRetryDelay(2)).toBe(4000)
     expect(queryRetryDelay(3)).toBe(8000)
     expect(queryRetryDelay(4)).toBe(8000)
+  })
+})
+
+describe('hasRecoverableQueryError', () => {
+  it('returns true while query retries remain', () => {
+    expect(hasRecoverableQueryError(true, 0)).toBe(true)
+    expect(hasRecoverableQueryError(true, MAX_QUERY_RETRY_COUNT - 1)).toBe(true)
+    expect(hasRecoverableQueryError(true, MAX_QUERY_RETRY_COUNT)).toBe(false)
+    expect(hasRecoverableQueryError(false, 0)).toBe(false)
   })
 })

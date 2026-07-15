@@ -24,6 +24,7 @@ export function getPageConnectionResults(
     isFetching: input.isFetching,
     isPending: input.isPending,
     isError: input.isError,
+    hasRecoverableError: input.hasRecoverableError ?? false,
     slowFetch: signals.slowFetch,
     justReconnected: signals.justReconnected,
   })

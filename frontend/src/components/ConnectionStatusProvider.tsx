@@ -12,6 +12,23 @@ import {
 } from '../hooks/connection-status-context'
 import { getPageConnectionResults } from '../lib/page-connection'
 import { retryOutboxSync } from '../lib/write-outbox/sync'
+import type { PendingWrite } from '../lib/write-outbox/types'
+
+function getGlobalFailedOutboxWrites(
+  failedWrites: readonly PendingWrite[],
+  localOutboxScope?: { playerId: string; seasonId: string },
+): readonly PendingWrite[] {
+  if (!localOutboxScope) return failedWrites
+
+  return failedWrites.filter((write) => {
+    if (write.type !== 'set-player-stats') return true
+
+    return !(
+      write.payload.playerId === localOutboxScope.playerId &&
+      write.payload.seasonId === localOutboxScope.seasonId
+    )
+  })
+}
 
 const DEFAULT_PAGE_INPUT: PageConnectionRegistration = {
   hasCachedData: false,
@@ -31,6 +48,8 @@ export function ConnectionStatusProvider({ children }: { children: ReactNode }) 
   const isFetching = pageInput?.isFetching ?? DEFAULT_PAGE_INPUT.isFetching
   const isPending = pageInput?.isPending ?? DEFAULT_PAGE_INPUT.isPending
   const isError = pageInput?.isError ?? DEFAULT_PAGE_INPUT.isError
+  const hasRecoverableError = pageInput?.hasRecoverableError ?? false
+  const localOutboxScope = pageInput?.localOutboxScope
   const isFetchActive = isFetching || isPending
 
   const { slowFetch, justReconnected } = useConnectionTimingSignals(isOnline, isFetchActive)
@@ -43,6 +62,7 @@ export function ConnectionStatusProvider({ children }: { children: ReactNode }) 
           isFetching,
           isPending,
           isError,
+          hasRecoverableError,
         },
         {
           isOnline,
@@ -56,6 +76,7 @@ export function ConnectionStatusProvider({ children }: { children: ReactNode }) 
       isFetching,
       isPending,
       isError,
+      hasRecoverableError,
       isOnline,
       isRestorePending,
       slowFetch,
@@ -67,8 +88,13 @@ export function ConnectionStatusProvider({ children }: { children: ReactNode }) 
     void retryOutboxSync(queryClient)
   }, [queryClient])
 
+  const globalFailedWrites = useMemo(
+    () => getGlobalFailedOutboxWrites(failedWrites, localOutboxScope),
+    [failedWrites, localOutboxScope],
+  )
+
   const bannerContent = useMemo(() => {
-    if (failedWrites.length > 0) {
+    if (globalFailedWrites.length > 0) {
       return {
         message: "Couldn't sync changes",
         showRetry: true,
@@ -76,15 +102,15 @@ export function ConnectionStatusProvider({ children }: { children: ReactNode }) 
     }
 
     return pageResults.bannerContent
-  }, [failedWrites.length, pageResults.bannerContent])
+  }, [globalFailedWrites.length, pageResults.bannerContent])
 
   const onRetry = useMemo(() => {
-    if (failedWrites.length > 0) {
+    if (globalFailedWrites.length > 0) {
       return handleOutboxRetry
     }
 
     return pageInput?.onRetry
-  }, [failedWrites.length, handleOutboxRetry, pageInput?.onRetry])
+  }, [globalFailedWrites.length, handleOutboxRetry, pageInput?.onRetry])
 
   const contextValue = useMemo(
     () => ({

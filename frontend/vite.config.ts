@@ -54,7 +54,8 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/api(?:\/|$)/],
         runtimeCaching: [
           {
-            urlPattern: ({ request }) => request.url.includes('/api/'),
+            urlPattern: ({ url }) =>
+              url.origin === self.location.origin && url.pathname.startsWith('/api/'),
             handler: 'NetworkOnly',
           },
           {

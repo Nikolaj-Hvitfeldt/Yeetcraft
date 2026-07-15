@@ -18,3 +18,7 @@ export function shouldRetryQuery(failureCount: number, error: unknown): boolean 
 export function queryRetryDelay(attemptIndex: number): number {
   return Math.min(1000 * 2 ** attemptIndex, 8000)
 }
+
+export function hasRecoverableQueryError(isError: boolean, failureCount: number): boolean {
+  return isError && failureCount < MAX_QUERY_RETRY_COUNT
+}

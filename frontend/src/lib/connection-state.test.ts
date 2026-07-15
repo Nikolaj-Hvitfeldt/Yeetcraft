@@ -14,6 +14,7 @@ describe('deriveConnectionState', () => {
     isFetching: false,
     isPending: false,
     isError: false,
+    hasRecoverableError: false,
     slowFetch: false,
     justReconnected: false,
   }
@@ -77,12 +78,22 @@ describe('deriveConnectionState', () => {
     ).toBe('cached_refresh_failed')
   })
 
+  it('suppresses cached_refresh_failed while query retries remain', () => {
+    expect(
+      deriveConnectionState({
+        ...base,
+        hasCachedData: true,
+        isError: true,
+        hasRecoverableError: true,
+      }),
+    ).toBe('idle')
+  })
+
   it('returns reconnecting after coming back online with cached data', () => {
     expect(
       deriveConnectionState({
         ...base,
         hasCachedData: true,
-        isFetching: true,
         justReconnected: true,
       }),
     ).toBe('reconnecting')
