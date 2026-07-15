@@ -2,9 +2,14 @@ import { act, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from '../utils/api-error'
 import type { PlayerStatsResponse } from '../api/types'
+import { getAccessToken } from '../utils/token'
 import { usePlayerProfileEdit } from './usePlayerProfileEdit'
 
 const mutateAsync = vi.fn()
+
+vi.mock('../utils/token', () => ({
+  getAccessToken: vi.fn(() => 'test-token'),
+}))
 
 vi.mock('./useSetPlayerStats', () => ({
   useSetPlayerStats: () => ({
@@ -45,6 +50,25 @@ describe('usePlayerProfileEdit', () => {
 
   afterEach(() => {
     vi.useRealTimers()
+  })
+
+  it('does not enter edit mode without a token', () => {
+    vi.mocked(getAccessToken).mockReturnValueOnce(null)
+
+    const { result } = renderHook(() =>
+      usePlayerProfileEdit({
+        playerStats,
+        playerSlugParam: 'alpha',
+        selectedSeasonId: 's1',
+      }),
+    )
+
+    act(() => {
+      result.current.handleEnterEdit()
+    })
+
+    expect(result.current.isEditing).toBe(false)
+    expect(result.current.breakdownMode).toBe('browse')
   })
 
   it('enters edit mode with a cloned draft', () => {

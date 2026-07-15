@@ -9,7 +9,6 @@ export {
   calculateTotalStats,
 } from './useStats'
 export type { LeaderboardPlayerStats } from './useStats'
-export { useAuthGuard } from './useAuthGuard'
 export { useSeasonId } from './useSeasonId'
 export { useSetPlayerStats } from './useSetPlayerStats'
 export { usePlayerProfileEdit } from './usePlayerProfileEdit'

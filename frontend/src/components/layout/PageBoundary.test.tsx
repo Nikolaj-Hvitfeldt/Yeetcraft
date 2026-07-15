@@ -2,12 +2,8 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { PageBoundary } from './PageBoundary'
 
-vi.mock('../../hooks/useAuthGuard', () => ({
-  useAuthGuard: vi.fn(() => ({
-    hasToken: true,
-    needsAuth: false,
-    showAuthRequired: false,
-  })),
+vi.mock('../../hooks/connection-status-context', () => ({
+  useReportPageRefresh: vi.fn(),
 }))
 
 describe('PageBoundary', () => {
@@ -40,6 +36,17 @@ describe('PageBoundary', () => {
       </PageBoundary>,
     )
 
+    expect(screen.getByText('Something went wrong. Please try again.')).toBeInTheDocument()
+  })
+
+  it('does not render auth required for unauthorized errors', () => {
+    render(
+      <PageBoundary error={new Error('Unauthorized')}>
+        {null}
+      </PageBoundary>,
+    )
+
+    expect(screen.queryByText('Access Required')).not.toBeInTheDocument()
     expect(screen.getByText('Something went wrong. Please try again.')).toBeInTheDocument()
   })
 

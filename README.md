@@ -75,15 +75,15 @@ Open the app at **http://localhost:3000**. Requests to `/api/*` are proxied to *
 | Method  | Path                                                              | Auth   | Description                          |
 | ------- | ----------------------------------------------------------------- | ------ | ------------------------------------ |
 | `GET`   | `/api/health`                                                     | No     | Health check                         |
-| `GET`   | `/api/seasons`                                                    | Yes*   | List seasons                         |
-| `GET`   | `/api/seasons/leaders?seasonId=`                                  | Yes*   | Season leaderboard and crown players |
-| `GET`   | `/api/seasons/current/dungeons?seasonId=`                         | Yes*   | Dungeons for a season                |
-| `GET`   | `/api/players/{playerId}/stats?seasonId=`                         | Yes*   | Player stats by dungeon              |
-| `GET`   | `/api/players/by-slug/{playerSlug}/stats?seasonId=`               | Yes*   | Player stats by display-name slug    |
-| `GET`   | `/api/seasons/{seasonId}/dungeons/{dungeonId}/leaderboard`        | Yes*   | Dungeon leaderboard                  |
+| `GET`   | `/api/seasons`                                                    | No     | List seasons                         |
+| `GET`   | `/api/seasons/leaders?seasonId=`                                  | No     | Season leaderboard and crown players |
+| `GET`   | `/api/seasons/current/dungeons?seasonId=`                         | No     | Dungeons for a season                |
+| `GET`   | `/api/players/{playerId}/stats?seasonId=`                         | No     | Player stats by dungeon              |
+| `GET`   | `/api/players/by-slug/{playerSlug}/stats?seasonId=`               | No     | Player stats by display-name slug    |
+| `GET`   | `/api/seasons/{seasonId}/dungeons/{dungeonId}/leaderboard`        | No     | Dungeon leaderboard                  |
 | `PATCH` | `/api/stats/batch`                                                | Yes*   | Batch update player dungeon stats    |
 
-\*Auth is enforced when `API_KEY` is set. The frontend sends `X-API-Key` from the URL token or local storage.
+\*Write auth is enforced when `API_KEY` is set. The frontend sends `X-API-Key` from the URL token or local storage for `PATCH` requests.
 
 ## Development
 

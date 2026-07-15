@@ -28,6 +28,7 @@ import {
 import { getPlayerFlavorTitle } from "../../utils/player-flavor-title";
 import { getNemesisDungeon } from "../../utils/player-stats";
 import { getPlayerProfile } from "../../utils/player-characters";
+import { hasWriteAccess } from "../../utils/token";
 
 export function PlayerProfile() {
   const queryClient = useQueryClient();
@@ -229,6 +230,7 @@ export function PlayerProfile() {
           <DungeonBreakdownSection
             mode={breakdownMode}
             dungeons={dungeonsForBreakdown}
+            canEdit={hasWriteAccess()}
             onEnterEdit={handleEnterEdit}
             onCancel={handleCancelEdit}
             onDone={() => {

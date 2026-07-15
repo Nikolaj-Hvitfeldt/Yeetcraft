@@ -1,3 +1,4 @@
+import { getAccessToken } from '../utils/token'
 import { useEffect, useState } from 'react'
 import type { DungeonStats, PlayerStatsResponse } from '../api/types'
 import { getUserFacingErrorMessage, isRetryableError } from '../utils/api-error'
@@ -28,6 +29,7 @@ export function usePlayerProfileEdit({
   }, [toastMessage])
 
   function handleEnterEdit() {
+    if (!getAccessToken()) return
     if (!playerStats) return
     setDraftDungeons(structuredClone(playerStats.dungeons))
     setIsEditing(true)

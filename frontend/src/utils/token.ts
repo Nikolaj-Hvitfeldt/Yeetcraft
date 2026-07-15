@@ -31,6 +31,13 @@ export function getAccessToken(): string | null {
 }
 
 /**
+ * Whether the current session has a stored token for write operations.
+ */
+export function hasWriteAccess(): boolean {
+  return getAccessToken() !== null
+}
+
+/**
  * Removes the token query parameter from the URL without reloading the page.
  */
 function cleanTokenFromUrl(): void {
