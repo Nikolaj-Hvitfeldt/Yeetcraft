@@ -1,239 +1,253 @@
+<div align="center">
+
+<img src="docs/assets/yeetcraft-logo.png" alt="Yeetcraft logo" width="128" height="128" />
+
 # Yeetcraft
 
-Full-stack app for tracking World of Warcraft dungeon mistakes (deaths, yeets) among friends across seasons.
+**A season-aware Hall of Shame for tracking WoW dungeon deaths and yeets with friends.**
+
+Full-stack tracker for Mythic+ mistakes across seasons — rankings, player profiles, dungeon insights, and token-gated editing.
+
+[Highlights](#technical-highlights) · [Screenshots](#screenshots) · [Architecture](#architecture) · [Local setup](#running-locally)
+
+![Go](https://img.shields.io/badge/Go-1.25-00ADD8?logo=go&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-4169E1?logo=postgresql&logoColor=white)
+![PWA](https://img.shields.io/badge/PWA-Workbox-5A0FC8?logo=pwa&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+</div>
+
+## Technical Highlights
+
+- **Offline-first PWA** — service worker shell, IndexedDB query cache, and a write outbox for edits
+- **Public reads / token-protected writes** — fail-closed if `API_KEY` is unset (503 on mutations)
+- **Go + chi + pgx** over Supabase Postgres — backend-only data plane with RLS and no public policies
+- **Lighthouse-minded performance** — Desktop Perf **99 / 99 / 98** on home / player / dungeon ([details](docs/PERFORMANCE.md))
+- **Multi-layer tests** — Vitest, Go unit/handlers, Postgres integration, Playwright E2E
+- **Daytime / Midnight dual-theme UI** — WoW-inspired tokens, art, and typography
+
+## Why I Built This
+
+Yeetcraft started as a way for our friend group to track dungeon deaths and “yeets” across Mythic+ seasons — a shared Hall of Shame instead of a forgotten spreadsheet.
+
+The banter needed something we would actually open mid-session: season rankings, per-dungeon blame, and a simple way for anyone with the link to update scores.
+
+Along the way it became a deliberate full-stack project: a small hardened Go API, an offline-capable React PWA, and enough tests and performance work that the “fun tracker” also holds up as engineering practice.
+
+## Screenshots
+
+<p align="center">
+  <img src="docs/assets/screenshots/home-daytime.png" alt="Hall of Shame — Daytime theme" width="800" />
+  <br />
+  <em>Hall of Shame — Daytime</em>
+</p>
+
+<p align="center">
+  <img src="docs/assets/screenshots/home-midnight.png" alt="Hall of Shame — Midnight theme" width="800" />
+  <br />
+  <em>Hall of Shame — Midnight</em>
+</p>
+
+<p align="center">
+  <img src="docs/assets/screenshots/player-profile.png" alt="Player profile" width="800" />
+  <br />
+  <em>Player profile &amp; nemesis dungeon</em>
+</p>
+
+<p align="center">
+  <img src="docs/assets/screenshots/dungeon-detail.png" alt="Dungeon detail" width="800" />
+  <br />
+  <em>Dungeon detail</em>
+</p>
+
+<p align="center">
+  <img src="docs/assets/screenshots/edit-mode.png" alt="Edit stats mode" width="800" />
+  <br />
+  <em>Token-unlocked edit mode</em>
+</p>
+
+<details>
+<summary>Mobile (Daytime)</summary>
+<p align="center">
+  <img src="docs/assets/screenshots/home-mobile.png" alt="Hall of Shame on mobile" width="280" />
+</p>
+</details>
+
+## Features
+
+### Core Experience
+
+- Season-scoped Hall of Shame with crowns (King of Yeets / King of Deaths)
+- Dungeon navigation with seasonal banner art
+- Daytime and Midnight themes
+- Season slug as part of the URL
+
+### Statistics & Insights
+
+- Player profiles with local avatar registry and flavor titles
+- Nemesis dungeon, dungeon leaderboards, reputation / mistake mix
+- Rule-driven achievement banners
+
+### Offline & Performance
+
+- Installable PWA with persisted reads and write-outbox sync
+- Connection status when offline or on a cold backend
+- Asset/LCP work aimed at high Desktop Lighthouse scores
+
+### Architecture & Security
+
+- Public `GET` / token-gated `PATCH`
+- Backend-only Postgres access (RLS; React never talks to Supabase)
+- Zod-validated API client
+
+### Developer Experience
+
+- Layered Go API with injectable repository boundary
+- `testdb` CLI with `_test` name guards
+- Vitest + Go integration + Playwright coverage
+
+## Architecture
+
+```mermaid
+flowchart TB
+  spa[ViteReactPWA] -->|public GET /api| api[GoChiAPI]
+  spa -->|PATCH X-API-Key| api
+  api --> pg[(SupabasePostgres)]
+  spa -.->|IndexedDB cache + outbox| idb[(BrowserStorage)]
+  vercel[Vercel] --> spa
+  render[Render] --> api
+```
+
+- Backend-only data plane; fail-closed write auth
+- Season-scoped stats with composite FKs into `season_dungeons`
+- FE/BE slug helpers stay in sync (`internal/slug` ↔ `frontend/src/utils/slug.ts`)
+
+More detail: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · [docs/OFFLINE.md](docs/OFFLINE.md) · [docs/API.md](docs/API.md)
 
 ## Tech stack
 
-| Layer    | Stack                                                                 |
-| -------- | --------------------------------------------------------------------- |
-| Backend  | Go, chi, pgx → PostgreSQL (e.g. Supabase)                            |
-| Frontend | React, TypeScript, Vite, Tailwind CSS, TanStack Query, React Router  |
+| Layer | Technology | Why |
+| ----- | ---------- | --- |
+| API | Go 1.25, chi, pgx | Small explicit HTTP surface; pooler-aware Postgres |
+| Database | PostgreSQL (Supabase) | Hosted Postgres + RLS as a hard boundary |
+| Frontend | React 18, Vite 5, React Router 7 | Fast SPA with season-first routes |
+| Data | TanStack Query + IndexedDB persist | Offline-first reads |
+| PWA | vite-plugin-pwa / Workbox | Installable shell; NetworkOnly for `/api` |
+| Validation | Zod | Runtime API contract safety |
+| Styling | Tailwind + theme CSS variables | Daytime/Midnight without dual codebases |
+| Tests | Vitest, Go test, Playwright | Unit → integration → E2E pyramid |
+| Hosting | Vercel + Render | SPA/PWA frontend; Go API; Supabase DB |
 
-## Prerequisites
+## Performance
 
-- **Backend**: Go 1.22 or newer
-- **Frontend**: Node.js and npm
-- **Database**: PostgreSQL (required for API data). See `backend/db/schema.sql` for the schema.
+Desktop Lighthouse medians (2026-07-16, `vite preview`, 3 runs/route):
 
-## Repository layout
+| Route | Performance | LCP |
+| ----- | ----------- | --- |
+| Home | **99** | ~0.96 s |
+| Player | **99** | ~1.02 s |
+| Dungeon | **98** | ~1.05 s |
 
-- `backend/` — Go API (`go run ./cmd/server`)
-- `frontend/` — Vite dev server on port **3000**, proxying `/api` to the backend
+Accessibility, Best Practices, and SEO scored **100** on these runs. See [docs/PERFORMANCE.md](docs/PERFORMANCE.md) for methodology and optimizations.
 
-## Quick start
+## Testing
 
-### Backend
+```text
+        Playwright E2E (Chromium read/write)
+      Go repository integration (Postgres _test)
+    Vitest + Go unit/handler/middleware
+```
+
+DB tooling refuses non-`_test` databases and requires `YEETCRAFT_TEST_MODE=1`. Commands and setup: [docs/TESTING.md](docs/TESTING.md).
+
+## Running locally
+
+**Prerequisites:** Go **1.25**, Node.js/npm, PostgreSQL.
 
 ```powershell
+# Backend
 cd backend
 copy .env.example .env
-# Edit .env with your Supabase DATABASE_URL (see below)
+# Set DATABASE_URL (Supabase pooler :6543 preferred) and API_KEY
 go run ./cmd/server
-```
 
-The API listens on **8080** by default (`SERVER_HOST` / `SERVER_PORT` env overrides).
-
-Without `DATABASE_URL` (or `DB_*` fields), the server starts but API requests return database errors. Set database credentials to connect to Supabase or another PostgreSQL instance.
-
-### Supabase connection
-
-1. Open [Supabase Dashboard](https://supabase.com/dashboard) → your project → **Project Settings** → **Database**.
-2. Copy the **Connection string** (URI). Prefer the **Transaction pooler** on port **6543** for the Go backend.
-3. Paste it into `backend/.env` as `DATABASE_URL`.
-
-Example (replace `[project-ref]`, `[password]`, and `[region]`):
-
-```env
-DATABASE_URL=postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
-```
-
-RLS is enabled on all tables with **no public policies**, so only the backend (postgres role) can read/write. The React app calls the Go API, not Supabase directly.
-
-### Frontend
-
-```powershell
+# Frontend (separate terminal)
 cd frontend
 npm install
 npm run dev
 ```
 
-Open the app at **http://localhost:3000**. Requests to `/api/*` are proxied to **http://localhost:8080** (see `frontend/vite.config.ts`).
-
-## Environment variables
-
-| Variable                                              | Purpose                                      |
-| ----------------------------------------------------- | -------------------------------------------- |
-| `SERVER_HOST`                                         | Bind address (default: `0.0.0.0`)          |
-| `SERVER_PORT`                                         | HTTP port (default: `8080`)                 |
-| `DATABASE_URL`                                        | Supabase/Postgres URI (preferred)           |
-| `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` | PostgreSQL connection (alternative)   |
-| `DB_SSL_MODE`                                         | PostgreSQL `sslmode` (default: `require`)   |
-| `API_KEY`                                             | Required for writes; empty/missing fails closed (503 on PATCH) |
-| `CORS_ALLOWED_ORIGINS`                                | Optional comma-separated browser origins (defaults to local Vite/E2E origins) |
-
-## API
-
-| Method  | Path                                                              | Auth   | Description                          |
-| ------- | ----------------------------------------------------------------- | ------ | ------------------------------------ |
-| `GET`   | `/api/health`                                                     | No     | Health check                         |
-| `GET`   | `/api/seasons`                                                    | No     | List seasons                         |
-| `GET`   | `/api/seasons/leaders?seasonId=`                                  | No     | Season leaderboard and crown players |
-| `GET`   | `/api/seasons/current/dungeons?seasonId=`                         | No     | Dungeons for a season                |
-| `GET`   | `/api/players/{playerId}/stats?seasonId=`                         | No     | Player stats by dungeon              |
-| `GET`   | `/api/players/by-slug/{playerSlug}/stats?seasonId=`               | No     | Player stats by display-name slug    |
-| `GET`   | `/api/seasons/{seasonId}/dungeons/{dungeonId}/leaderboard`        | No     | Dungeon leaderboard                  |
-| `PATCH` | `/api/stats/batch`                                                | Yes*   | Batch update player dungeon stats    |
-
-\*Write auth requires a non-empty `API_KEY` on the server. An empty or missing `API_KEY` does **not** open writes—the server returns **503** on mutation requests. The frontend unlocks editing via `?token=` in the page URL (stored locally); PATCH requests send `X-API-Key`. The backend also accepts `Authorization: Bearer <token>`. Query `?token=` on API routes is **not** supported.
-
-## Testing
-
-Yeetcraft uses four layers: **Vitest** (frontend units), **Go unit/handler tests**, **Go repository integration tests** (PostgreSQL), and **Playwright** (Chromium E2E). Tests never mutate dev or production databases—all DB tooling refuses non-`_test` database names and requires `YEETCRAFT_TEST_MODE=1`.
-
-### 1. Frontend unit tests
-
-Vitest is the frontend unit and component test layer.
-
-```powershell
-cd frontend
-npm test
-```
-
-### 2. Go unit, middleware, and handler tests
-
-Runs handler, middleware, slug, and testdb package tests. Does **not** run integration-tagged PostgreSQL tests.
-
-```powershell
-cd backend
-go test ./...
-```
-
-### 3. Test database setup
-
-Create an **empty** PostgreSQL database whose name contains `_test` (for example `yeetcraft_test`). Do not point test tooling at your Supabase or local dev database.
-
-Set these environment variables in your shell before running testdb, integration, or E2E commands. Use non-production test secrets only.
+Open **http://localhost:3000** (`/api` proxies to **:8080**).
 
 | Variable | Purpose |
 | -------- | ------- |
-| `YEETCRAFT_TEST_MODE` | Must be `1` for testdb and integration tests |
-| `TEST_DATABASE_URL` | PostgreSQL URI for the `_test` database (used by testdb, integration, and E2E) |
-| `API_KEY` | Write token for E2E; must match `E2E_WRITE_TOKEN` |
-| `E2E_WRITE_TOKEN` | Same value as `API_KEY` for Playwright write tests |
+| `DATABASE_URL` | Postgres URI |
+| `API_KEY` | Write token (fail-closed if empty) |
+| `CORS_ALLOWED_ORIGINS` | Browser origins for the API |
+| `VITE_API_BASE_URL` | Optional; unset uses same-origin `/api` |
 
-Example (adjust host/port/credentials):
+Unlock editing with `?token=<API_KEY>` on any page URL. Full env and Supabase notes: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
-```powershell
-$env:YEETCRAFT_TEST_MODE = '1'
-$env:TEST_DATABASE_URL = 'postgres://postgres@127.0.0.1:55432/yeetcraft_test?sslmode=disable'
-$env:API_KEY = 'e2e-test-token'
-$env:E2E_WRITE_TOKEN = 'e2e-test-token'
+## Project structure
+
+```text
+Yeetcraft/
+├── backend/          # Go API, schema, testdb CLI
+│   ├── cmd/server
+│   ├── cmd/testdb
+│   ├── db/
+│   └── internal/
+├── frontend/         # Vite React PWA + e2e
+│   ├── public/       # icons, PWA screenshots
+│   ├── e2e/
+│   └── src/
+└── docs/             # deep-dive docs + README assets
 ```
 
-**testdb commands** (run from `backend/`):
+## Deployment
 
-```powershell
-cd backend
-go run ./cmd/testdb prepare   # empty DB only: apply schema.sql once, then seed
-go run ./cmd/testdb seed      # upsert deterministic fixtures
-go run ./cmd/testdb reset     # restore mutable stats to seeded baseline
-go run ./cmd/testdb verify    # assert baseline matches seed data
-```
+| Piece | Host | Notes |
+| ----- | ---- | ----- |
+| Frontend | Vercel | SPA rewrite + long-cache `/assets`; no-cache SW/manifest ([`vercel.json`](frontend/vercel.json)) |
+| Backend | Render (or any Go host) | `DATABASE_URL`, `API_KEY`, `CORS_ALLOWED_ORIGINS`; FE uses a 45s API timeout for cold starts |
+| Database | Supabase Postgres | Transaction pooler `:6543`; RLS; backend-only access |
 
-- **`prepare`** — for an empty test database only. Applies non-idempotent `schema.sql` once, then seeds. Fails if tables already exist; do not rerun on an initialized database.
-- **`reset`** — idempotent; restores only mutable `player_dungeon_stats` rows to the seeded baseline.
-- All commands refuse databases whose name does not contain `_test`.
+## Roadmap
 
-After the first successful `prepare`, E2E and integration runs typically use `reset` / `verify` via the setup project or test hooks.
+**Shipped**
 
-### 4. Repository integration tests
+- [x] Season-aware stats API and Hall of Shame UI
+- [x] Daytime / Midnight themes
+- [x] Offline PWA + write outbox
+- [x] Token write access (fail-closed)
+- [x] Vitest / Go / Playwright test pyramid
+- [x] Lighthouse asset & LCP pass
+- [x] Player avatars
 
-PostgreSQL integration tests for the stats repository. They **fail fast** when misconfigured—they never silently skip.
+**Later**
 
-```powershell
-cd backend
-go test ./internal/repository -tags=integration
-```
+- [ ] GitHub Actions CI
+- [ ] Docker Compose for local Postgres
+- [ ] Public demo URL once deployed
 
-Requires `YEETCRAFT_TEST_MODE=1`, `TEST_DATABASE_URL` pointing at a `_test` database, and a prepared test DB (`prepare` once, or `seed`/`reset`/`verify` thereafter).
+## License
 
-### 5. Playwright E2E
+MIT — see [LICENSE](LICENSE).
 
-Chromium-only smoke tests. Playwright starts its own Go API on port **18080** and Vite preview on **14173** (not dev ports 8080/4173). Service workers are blocked. The E2E frontend build targets `http://127.0.0.1:18080` directly (no preview `/api` proxy).
+## Contributing
 
-```powershell
-cd frontend
-# Set YEETCRAFT_TEST_MODE, TEST_DATABASE_URL, API_KEY, E2E_WRITE_TOKEN first (see above)
-npm run test:e2e
-npm run test:e2e:ui
-```
+Issues and PRs for bugs, docs, and small fixes are welcome. This started as a friend-group tracker; keep changes focused and covered by the existing test layers. Setup: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) · [docs/TESTING.md](docs/TESTING.md). Also see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Optional project filters:
+## Further reading
 
-```powershell
-npm run test:e2e -- --project=chromium-read
-npm run test:e2e -- --project=chromium-write
-```
-
-Projects:
-
-| Project | Purpose |
-| ------- | ------- |
-| `setup` | Validates env, resets/verifies test DB via `cmd/testdb` |
-| `chromium-read` | Public-read smoke (no writes) |
-| `chromium-write` | Write-access tests; **serial** (`workers: 1`) with per-test `reset`/`verify` |
-
-Write tests reset the database before and after each test via `go run ./cmd/testdb reset` and `verify`. No frontend PostgreSQL client is used—`cmd/testdb` is the only DB authority from E2E.
-
-Install Chromium once if needed:
-
-```powershell
-cd frontend
-npx playwright install chromium
-```
-
-### 6. Fail-closed `API_KEY`
-
-- **`API_KEY` is required for writes** in normal operation. Set it in `backend/.env` for local dev.
-- An **empty or missing `API_KEY`** does not disable protection—the server returns **503** on `PATCH /api/stats/batch`.
-- The frontend **`?token=` query param** on page URLs is only the unlock mechanism; it is stripped from the URL and stored locally.
-- API writes use the **`X-API-Key`** header (frontend) or **`Authorization: Bearer`** (also supported by the backend).
-- API query **`?token=` is not supported** on backend routes.
-
-### Full local validation (optional)
-
-```powershell
-# Frontend
-cd frontend
-npm run lint
-npm test
-npm run build
-
-# Backend
-cd backend
-go test ./...
-go test ./internal/repository -tags=integration
-
-# E2E (with test DB env vars set)
-cd frontend
-npm run test:e2e
-
-# Confirm baseline after E2E
-cd backend
-go run ./cmd/testdb verify
-```
-
-## Development
-
-```powershell
-# Frontend
-cd frontend
-npm run lint
-npm test
-npm run build
-
-# Backend
-cd backend
-go test ./...
-go build ./cmd/server
-```
+| Doc | Topic |
+| --- | ----- |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, schema, auth |
+| [docs/API.md](docs/API.md) | HTTP routes and write auth |
+| [docs/OFFLINE.md](docs/OFFLINE.md) | PWA, cache, outbox |
+| [docs/PERFORMANCE.md](docs/PERFORMANCE.md) | Lighthouse results |
+| [docs/TESTING.md](docs/TESTING.md) | Full test commands |
+| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Local setup deep dive |
