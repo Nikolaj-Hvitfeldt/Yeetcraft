@@ -18,9 +18,9 @@ export function AppLayout() {
         )}
       >
         <ConnectionStatusBanner />
-        <div className={cn(APP_LAYOUT_CONTENT_CLASS, isHome && 'min-h-screen')}>
+        <main className={cn(APP_LAYOUT_CONTENT_CLASS, isHome && 'min-h-screen')}>
           <Outlet />
-        </div>
+        </main>
       </div>
     </ConnectionStatusProvider>
   )
