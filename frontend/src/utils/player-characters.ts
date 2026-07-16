@@ -4,28 +4,38 @@ import {
   type PlayerRole,
 } from '../data/player-characters'
 
-function getPlayerKey(displayName: string | undefined): string | undefined {
+/**
+ * Resolves a frontend registry player key from a display name.
+ * Returns undefined when the name is empty or not in `PLAYERS_BY_KEY`.
+ */
+export function getRegistryPlayerKey(
+  displayName: string | null | undefined,
+): string | undefined {
   if (!displayName) return undefined
-  return displayName.trim().toLowerCase()
+  const key = displayName.trim().toLowerCase()
+  if (!key || !(key in PLAYERS_BY_KEY)) return undefined
+  return key
 }
 
 export function getPlayerProfile(displayName: string | undefined): {
+  /** Registry key when the display name maps to `PLAYERS_BY_KEY`; otherwise undefined. */
+  playerKey: string | undefined
   characters: PlayerCharacter[]
   roles: PlayerRole[]
 } {
-  const key = getPlayerKey(displayName)
-  if (!key) return { characters: [], roles: [] }
-
-  const profile = PLAYERS_BY_KEY[key]
-  if (profile) {
+  const playerKey = getRegistryPlayerKey(displayName)
+  if (!playerKey) {
     return {
-      characters: profile.characters,
-      roles: profile.roles,
+      playerKey: undefined,
+      characters: displayName ? [{ name: displayName }] : [],
+      roles: [],
     }
   }
 
+  const profile = PLAYERS_BY_KEY[playerKey]
   return {
-    characters: [{ name: displayName ?? '' }],
-    roles: [],
+    playerKey,
+    characters: profile.characters,
+    roles: profile.roles,
   }
 }

@@ -17,7 +17,7 @@ export function LeaderboardRow({
   isKingOfDeaths,
 }: LeaderboardRowProps) {
   const playerPath = season ? buildPlayerPath(season, { displayName: player.playerName }) : '#'
-  const roles = getPlayerProfile(player.playerName).roles
+  const { roles, playerKey } = getPlayerProfile(player.playerName)
 
   return (
     <Link
@@ -29,7 +29,7 @@ export function LeaderboardRow({
 
       <div className="flex min-w-0 items-center gap-lg">
         <PlayerAvatar
-          playerId={player.playerId}
+          playerKey={playerKey}
           displayName={player.playerName}
           avatarUrl={player.avatarUrl}
           size="sm"

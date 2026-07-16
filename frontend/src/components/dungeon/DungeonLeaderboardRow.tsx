@@ -25,7 +25,6 @@ export function DungeonLeaderboardRow({
 
       <div className="flex min-w-0 items-center gap-md">
         <PlayerAvatar
-          playerId={player.playerId}
           displayName={player.displayName}
           avatarUrl={player.avatarUrl}
           size="sm"

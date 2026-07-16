@@ -67,7 +67,8 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,ttf}'],
+        // png/ico come from includeAssets only — avoid duplicate precache entries.
+        globPatterns: ['**/*.{js,css,html,svg,woff2}'],
         cleanupOutdatedCaches: true,
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api(?:\/|$)/],
@@ -94,7 +95,7 @@ export default defineConfig({
           {
             urlPattern: ({ request, url }) =>
               url.origin === self.location.origin &&
-              (request.destination === 'font' || /\.(?:woff2|ttf)$/i.test(url.pathname)),
+              (request.destination === 'font' || /\.woff2$/i.test(url.pathname)),
             handler: 'CacheFirst',
             options: {
               cacheName: 'yeetcraft-local-fonts',

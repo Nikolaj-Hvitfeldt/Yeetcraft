@@ -22,6 +22,8 @@ export function HomeNavigation({ homePath }: HomeNavigationProps) {
           <img
             src={logosByTheme[theme]}
             alt=""
+            width={56}
+            height={56}
             className="size-full object-contain"
           />
         </span>

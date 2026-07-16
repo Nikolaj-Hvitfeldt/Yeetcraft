@@ -31,10 +31,11 @@ describe('AchievementBanner', () => {
     expect(avatar).toBeDefined()
     expect(avatar).toHaveAttribute('alt', '')
     expect(avatar).toHaveAttribute('loading', 'lazy')
-    expect(avatar).toHaveAttribute('width', '32')
-    expect(avatar).toHaveAttribute('height', '32')
+    expect(avatar).toHaveAttribute('width', '28')
+    expect(avatar).toHaveAttribute('height', '28')
     expect(avatar?.className).toContain('rounded-full')
     expect(avatar?.className).toContain('size-7')
+    expect(avatar?.className).toContain('sm:size-8')
     expect(screen.getByText('Niko', { selector: '.sr-only' })).toBeInTheDocument()
   })
 

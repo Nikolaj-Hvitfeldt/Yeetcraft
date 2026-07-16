@@ -16,7 +16,8 @@ const SIZE_CLASS_BY_VARIANT: Record<AvatarSize, string> = {
 const SIZE_PX: Record<AvatarSize, number> = {
   sm: 48,
   lg: 96,
-  achievement: 32,
+  // Matches default CSS `size-7` (28px); `sm:size-8` (32px) is visual-only via class.
+  achievement: 28,
 }
 
 export interface AvatarProps {

@@ -8,6 +8,8 @@ backend/*.iml
 frontend/node_modules/
 frontend/dist/
 frontend/.vscode/
+frontend/.lh-tmp/
+frontend/.lighthouse-*/
 
 # Environment variables
 .env

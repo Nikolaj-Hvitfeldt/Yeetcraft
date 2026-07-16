@@ -58,12 +58,24 @@ describe('getDungeonHighlights', () => {
   it('picks biggest yeeter, most deaths, and safest player', () => {
     const highlights = getDungeonHighlights(leaderboard)
 
-    expect(highlights.biggestYeeter?.displayName).toBe('Niklas')
-    expect(highlights.biggestYeeter?.value).toBe(1)
-    expect(highlights.mostDeaths?.displayName).toBe('Niklas')
-    expect(highlights.mostDeaths?.value).toBe(2)
-    expect(highlights.safestPlayer?.displayName).toBe('Martin')
-    expect(highlights.safestPlayer?.value).toBe(0)
+    expect(highlights.biggestYeeter).toEqual({
+      playerId: 'p1',
+      displayName: 'Niklas',
+      value: 1,
+      subtitle: 'biggest yeeter',
+    })
+    expect(highlights.mostDeaths).toEqual({
+      playerId: 'p1',
+      displayName: 'Niklas',
+      value: 2,
+      subtitle: 'most deaths',
+    })
+    expect(highlights.safestPlayer).toEqual({
+      playerId: 'p2',
+      displayName: 'Martin',
+      value: 0,
+      subtitle: 'mistakes',
+    })
   })
 })
 

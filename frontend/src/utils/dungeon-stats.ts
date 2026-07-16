@@ -12,7 +12,6 @@ export { getDungeonAchievements } from "./dungeon-achievements";
 export interface DungeonHighlight {
   playerId: string;
   displayName: string;
-  avatarUrl: string | null;
   value: number;
   subtitle: string;
 }
@@ -129,7 +128,6 @@ export function getDungeonHighlights(leaderboard: DungeonLeaderboardEntry[]): {
       ? {
           playerId: biggestYeeterEntry.playerId,
           displayName: biggestYeeterEntry.displayName,
-          avatarUrl: biggestYeeterEntry.avatarUrl,
           value: biggestYeeterEntry.yeets,
           subtitle: "biggest yeeter",
         }
@@ -138,7 +136,6 @@ export function getDungeonHighlights(leaderboard: DungeonLeaderboardEntry[]): {
       ? {
           playerId: mostDeathsEntry.playerId,
           displayName: mostDeathsEntry.displayName,
-          avatarUrl: mostDeathsEntry.avatarUrl,
           value: mostDeathsEntry.deaths,
           subtitle: "most deaths",
         }
@@ -147,7 +144,6 @@ export function getDungeonHighlights(leaderboard: DungeonLeaderboardEntry[]): {
       ? {
           playerId: safestPlayerEntry.playerId,
           displayName: safestPlayerEntry.displayName,
-          avatarUrl: safestPlayerEntry.avatarUrl,
           value: safestPlayerEntry.totalMistakes,
           subtitle: "mistakes",
         }

@@ -32,9 +32,10 @@ describe('Avatar', () => {
       />,
     )
     image = within(container).getByRole('img', { name: 'Seb avatar' })
-    expect(image).toHaveAttribute('width', '32')
-    expect(image).toHaveAttribute('height', '32')
+    expect(image).toHaveAttribute('width', '28')
+    expect(image).toHaveAttribute('height', '28')
     expect(image.className).toContain('size-7')
+    expect(image.className).toContain('sm:size-8')
     expect(image.className).toContain('rounded-full')
   })
 

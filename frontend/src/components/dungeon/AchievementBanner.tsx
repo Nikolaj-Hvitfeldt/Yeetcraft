@@ -151,7 +151,6 @@ export function AchievementBanner({
               {holder ? (
                 <>
                   <PlayerAvatar
-                    playerId={holder.playerId}
                     displayName={holder.displayName}
                     avatarUrl={holder.avatarUrl}
                     size="achievement"
