@@ -35,10 +35,6 @@ type fakeStatsRepository struct {
 	setStatsBatchUpdates   []repository.StatUpdate
 }
 
-func (fake *fakeStatsRepository) ListLeaderboard(context.Context, string) ([]repository.LeaderboardEntry, error) {
-	return nil, nil
-}
-
 func (fake *fakeStatsRepository) GetSeasonLeaders(_ context.Context, _ string) (repository.SeasonLeaders, error) {
 	return fake.getSeasonLeadersResult, fake.getSeasonLeadersErr
 }

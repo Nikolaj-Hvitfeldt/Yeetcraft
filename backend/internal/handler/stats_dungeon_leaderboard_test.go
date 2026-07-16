@@ -17,10 +17,6 @@ type dungeonLeaderboardRepositoryStub struct {
 	err         error
 }
 
-func (stub dungeonLeaderboardRepositoryStub) ListLeaderboard(context.Context, string) ([]repository.LeaderboardEntry, error) {
-	return nil, nil
-}
-
 func (stub dungeonLeaderboardRepositoryStub) GetSeasonLeaders(context.Context, string) (repository.SeasonLeaders, error) {
 	return repository.SeasonLeaders{}, nil
 }

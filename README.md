@@ -69,6 +69,7 @@ Open the app at **http://localhost:3000**. Requests to `/api/*` are proxied to *
 | `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` | PostgreSQL connection (alternative)   |
 | `DB_SSL_MODE`                                         | PostgreSQL `sslmode` (default: `require`)   |
 | `API_KEY`                                             | Required for writes; empty/missing fails closed (503 on PATCH) |
+| `CORS_ALLOWED_ORIGINS`                                | Optional comma-separated browser origins (defaults to local Vite/E2E origins) |
 
 ## API
 
