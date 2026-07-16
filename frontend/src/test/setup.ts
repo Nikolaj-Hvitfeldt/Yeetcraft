@@ -1,6 +1,5 @@
 import '@testing-library/jest-dom/vitest'
 import { beforeEach, vi } from 'vitest'
-
 class LocalStorageMock {
   private store = new Map<string, string>()
 

@@ -9,8 +9,8 @@ import type {
 } from "../../utils/dungeon-achievements";
 import { icons } from "../../assets/icons";
 import { cn } from "../../utils/cn";
-import { Avatar } from "../ui/Avatar";
 import { HoverTooltipPanel } from "../ui/HoverTooltipPanel";
+import { PlayerAvatar } from "../ui/PlayerAvatar";
 import { Icon } from "../Icon";
 
 // achievementFrameSimple.webp is 256×64px (4:1) — square wells on left and right.
@@ -150,10 +150,13 @@ export function AchievementBanner({
             <div className="relative flex min-h-0 items-center justify-center">
               {holder ? (
                 <>
-                  <Avatar
-                    name={holder.displayName}
-                    imageUrl={holder.avatarUrl}
-                    className="!size-7 !rounded-full text-[10px] leading-none ring-1 ring-black/50 sm:!size-8"
+                  <PlayerAvatar
+                    playerId={holder.playerId}
+                    displayName={holder.displayName}
+                    avatarUrl={holder.avatarUrl}
+                    size="achievement"
+                    decorative
+                    loading="lazy"
                   />
                   <span id={holderId} className="sr-only">
                     {holder.displayName}
