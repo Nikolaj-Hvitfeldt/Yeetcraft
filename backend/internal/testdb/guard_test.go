@@ -65,6 +65,22 @@ insert into seasons (id) values ('x');
 	}
 }
 
+func TestRequireIntegrationTestDatabaseURL(t *testing.T) {
+	t.Setenv(testModeEnvKey, "")
+	t.Setenv("TEST_DATABASE_URL", "postgres://localhost/yeetcraft_test")
+
+	if err := RequireIntegrationTestDatabaseURL(); err == nil {
+		t.Fatal("expected error when test mode is unset")
+	}
+
+	t.Setenv(testModeEnvKey, "1")
+	t.Setenv("TEST_DATABASE_URL", "")
+
+	if err := RequireIntegrationTestDatabaseURL(); err == nil {
+		t.Fatal("expected error when TEST_DATABASE_URL is unset")
+	}
+}
+
 func TestBaselineStatsCount(t *testing.T) {
 	if len(BaselineStats) != 8 {
 		t.Fatalf("expected 8 baseline stat rows, got %d", len(BaselineStats))
