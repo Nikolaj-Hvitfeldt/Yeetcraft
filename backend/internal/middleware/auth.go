@@ -9,18 +9,24 @@ import (
 )
 
 const (
-	queryTokenKey       = "token"
-	headerAPIKey        = "X-API-Key"
-	bearerPrefix        = "Bearer "
-	unauthorizedError   = "Unauthorized"
-	unauthorizedMessage = "Invalid or missing access token. Please use the shared link."
+	headerAPIKey              = "X-API-Key"
+	bearerPrefix              = "Bearer "
+	unauthorizedError         = "Unauthorized"
+	unauthorizedMessage       = "Invalid or missing access token. Please use the shared link."
+	writeNotConfiguredError   = "Service Unavailable"
+	writeNotConfiguredMessage = "Write access is not configured on the server."
 )
 
 func APIKey(expectedKey string) func(http.Handler) http.Handler {
 	return func(nextHandler http.Handler) http.Handler {
 		return http.HandlerFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
-			if expectedKey == "" {
-				nextHandler.ServeHTTP(responseWriter, request)
+			if strings.TrimSpace(expectedKey) == "" {
+				handler.WriteError(
+					responseWriter,
+					http.StatusServiceUnavailable,
+					writeNotConfiguredError,
+					writeNotConfiguredMessage,
+				)
 				return
 			}
 
@@ -43,10 +49,6 @@ func tokensEqual(providedToken string, expectedToken string) bool {
 }
 
 func extractToken(request *http.Request) string {
-	if queryToken := strings.TrimSpace(request.URL.Query().Get(queryTokenKey)); queryToken != "" {
-		return queryToken
-	}
-
 	if authorizationHeader := request.Header.Get("Authorization"); strings.HasPrefix(authorizationHeader, bearerPrefix) {
 		return strings.TrimSpace(strings.TrimPrefix(authorizationHeader, bearerPrefix))
 	}
