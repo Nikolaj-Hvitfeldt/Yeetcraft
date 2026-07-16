@@ -8,7 +8,16 @@ afterEach(() => {
 })
 
 describe('PlayerAvatar', () => {
-  it('renders the resolved local avatar source', () => {
+  it('renders the local avatar from an explicit playerKey', () => {
+    render(<PlayerAvatar playerKey="seb" displayName="Someone Else" />)
+
+    expect(screen.getByRole('img', { name: 'Someone Else avatar' })).toHaveAttribute(
+      'src',
+      PLAYER_AVATAR_BY_KEY.seb,
+    )
+  })
+
+  it('renders the resolved local avatar via displayName fallback', () => {
     render(<PlayerAvatar displayName="Seb" />)
 
     expect(screen.getByRole('img', { name: 'Seb avatar' })).toHaveAttribute(

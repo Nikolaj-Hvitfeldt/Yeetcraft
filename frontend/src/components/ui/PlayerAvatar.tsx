@@ -2,7 +2,8 @@ import { resolvePlayerAvatarSrc } from '../../utils/player-avatar'
 import { Avatar, type AvatarProps, type AvatarSize } from './Avatar'
 
 export interface PlayerAvatarProps {
-  playerId?: string | null
+  /** Preferred when the caller already has or naturally derives a registry key. */
+  playerKey?: string | null
   displayName: string
   avatarUrl?: string | null
   size?: AvatarSize
@@ -12,7 +13,7 @@ export interface PlayerAvatarProps {
 }
 
 export function PlayerAvatar({
-  playerId,
+  playerKey,
   displayName,
   avatarUrl,
   size = 'sm',
@@ -21,7 +22,7 @@ export function PlayerAvatar({
   decorative = false,
 }: PlayerAvatarProps) {
   const imageUrl = resolvePlayerAvatarSrc({
-    playerId,
+    playerKey,
     displayName,
     avatarUrl,
   })

@@ -5,19 +5,41 @@ import {
 } from './player-avatar'
 
 describe('resolvePlayerAvatarSrc', () => {
-  it('resolves local bundled avatars via registry player keys', () => {
-    expect(resolvePlayerAvatarSrc({ displayName: 'Seb' })).toBe(
+  it('resolves local bundled avatars via explicit playerKey', () => {
+    expect(resolvePlayerAvatarSrc({ playerKey: 'seb' })).toBe(
       PLAYER_AVATAR_BY_KEY.seb,
     )
-    expect(resolvePlayerAvatarSrc({ displayName: 'martin' })).toBe(
+    expect(resolvePlayerAvatarSrc({ playerKey: 'martin' })).toBe(
       PLAYER_AVATAR_BY_KEY.martin,
     )
-    expect(resolvePlayerAvatarSrc({ displayName: 'Niklas' })).toBe(
-      PLAYER_AVATAR_BY_KEY.niklas,
+  })
+
+  it('prefers explicit playerKey over displayName-derived key', () => {
+    expect(
+      resolvePlayerAvatarSrc({
+        playerKey: 'martin',
+        displayName: 'Seb',
+        avatarUrl: 'https://cdn.example.com/ignored.png',
+      }),
+    ).toBe(PLAYER_AVATAR_BY_KEY.martin)
+  })
+
+  it('falls back to displayName→key when playerKey is omitted', () => {
+    expect(resolvePlayerAvatarSrc({ displayName: 'Seb' })).toBe(
+      PLAYER_AVATAR_BY_KEY.seb,
     )
     expect(resolvePlayerAvatarSrc({ displayName: 'NIKO' })).toBe(
       PLAYER_AVATAR_BY_KEY.niko,
     )
+  })
+
+  it('falls back to displayName→key when playerKey misses the local map', () => {
+    expect(
+      resolvePlayerAvatarSrc({
+        playerKey: 'unknown',
+        displayName: 'Niklas',
+      }),
+    ).toBe(PLAYER_AVATAR_BY_KEY.niklas)
   })
 
   it('prefers local bundled avatars over API avatarUrl', () => {
@@ -42,22 +64,5 @@ describe('resolvePlayerAvatarSrc', () => {
     expect(resolvePlayerAvatarSrc({ displayName: 'Guest' })).toBeNull()
     expect(resolvePlayerAvatarSrc({ displayName: undefined })).toBeNull()
     expect(resolvePlayerAvatarSrc({})).toBeNull()
-  })
-
-  it('accepts playerId without changing current resolution', () => {
-    expect(
-      resolvePlayerAvatarSrc({
-        playerId: '00000000-0000-0000-0000-000000000001',
-        displayName: 'Seb',
-      }),
-    ).toBe(PLAYER_AVATAR_BY_KEY.seb)
-
-    expect(
-      resolvePlayerAvatarSrc({
-        playerId: '00000000-0000-0000-0000-000000000001',
-        displayName: 'Guest',
-        avatarUrl: 'https://cdn.example.com/guest.png',
-      }),
-    ).toBe('https://cdn.example.com/guest.png')
   })
 })
