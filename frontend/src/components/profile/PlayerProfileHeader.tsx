@@ -2,9 +2,9 @@ import type { PlayerStatsResponse, SeasonSummary } from '../../api/types'
 import type { PlayerCharacter } from '../../data/player-characters'
 import { SeasonPicker } from '../home/SeasonPicker'
 import { StatCard } from '../home/StatCard'
-import { Avatar } from '../ui/Avatar'
 import { CharacterTag } from '../ui/CharacterTag'
 import { CrownBadge } from '../ui/CrownBadge'
+import { PlayerAvatar } from '../ui/PlayerAvatar'
 
 export function PlayerProfileHeader({
   playerStats,
@@ -19,10 +19,12 @@ export function PlayerProfileHeader({
 }: PlayerProfileHeaderProps) {
   return (
     <header className="relative flex flex-col gap-2xl overflow-hidden rounded-3xl border border-accent-secondary bg-surface-section p-2xl shadow-2xl sm:flex-row sm:items-start sm:justify-between">      <div className="flex min-w-0 flex-1 items-start gap-lg">
-        <Avatar
-          name={playerStats.player.displayName}
-          imageUrl={playerStats.player.avatarUrl}
+        <PlayerAvatar
+          playerId={playerStats.player.id}
+          displayName={playerStats.player.displayName}
+          avatarUrl={playerStats.player.avatarUrl}
           size="lg"
+          loading="eager"
           className="drop-shadow-[0_12px_25px_rgba(0,0,0,0.35)]"
         />
 

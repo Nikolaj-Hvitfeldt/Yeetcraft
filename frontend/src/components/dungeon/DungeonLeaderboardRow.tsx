@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
 import type { DungeonLeaderboardEntry, SeasonSummary } from '../../api/types'
 import { buildPageBackState, buildPlayerPath } from '../../utils/routes'
-import { Avatar } from '../ui/Avatar'
 import { DeathsYeetsBar } from '../ui/DeathsYeetsBar'
+import { PlayerAvatar } from '../ui/PlayerAvatar'
 import { RankBadge } from '../ui/RankBadge'
 
 export function DungeonLeaderboardRow({
@@ -24,7 +24,13 @@ export function DungeonLeaderboardRow({
       <RankBadge rank={rank} />
 
       <div className="flex min-w-0 items-center gap-md">
-        <Avatar name={player.displayName} imageUrl={player.avatarUrl} size="sm" />
+        <PlayerAvatar
+          playerId={player.playerId}
+          displayName={player.displayName}
+          avatarUrl={player.avatarUrl}
+          size="sm"
+          decorative
+        />
         <div className="min-w-0">
           <p className="truncate text-base font-bold leading-[22px] text-text-primary transition-colors group-hover:text-accent-primary">
             {player.displayName}

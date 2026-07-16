@@ -82,8 +82,10 @@ describe("getDungeonAchievements", () => {
       "The Benchwarmer",
     ]);
     expect(achievements[0]?.holder?.displayName).toBe("Niklas");
+    expect(achievements[0]?.holder?.playerId).toBe("p1");
     expect(achievements[0]?.description).toContain("100%");
     expect(achievements[1]?.holder?.displayName).toBe("Martin");
+    expect(achievements[1]?.holder?.playerId).toBe("p2");
   });
 
   it("solo act rule includes the sole contributor as holder", () => {
@@ -96,9 +98,27 @@ describe("getDungeonAchievements", () => {
 
     expect(result.eligible).toBe(true);
     expect(result.holder?.displayName).toBe("Niklas");
+    expect(result.holder?.playerId).toBe("p1");
     expect(result.description).toBe(
       "Every mistake in this dungeon came from Niklas",
     );
+  });
+
+  it("exposes playerId on public achievement holders", () => {
+    const achievements = getDungeonAchievements(
+      buildContext(soloOffenderLeaderboard),
+    );
+
+    expect(achievements[0]?.holder).toEqual({
+      playerId: "p1",
+      displayName: "Niklas",
+      avatarUrl: null,
+    });
+    expect(achievements[1]?.holder).toEqual({
+      playerId: "p2",
+      displayName: "Martin",
+      avatarUrl: null,
+    });
   });
 
   it("does not award raw yeet or death leader achievements", () => {

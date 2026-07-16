@@ -3,8 +3,8 @@ import type { LeaderboardPlayerStats } from '../../hooks'
 import type { SeasonSummary } from '../../api/types'
 import { getPlayerProfile } from '../../utils/player-characters'
 import { buildPageBackState, buildPlayerPath, buildSeasonHomePath } from '../../utils/routes'
-import { Avatar } from '../ui/Avatar'
 import { CrownBadge } from '../ui/CrownBadge'
+import { PlayerAvatar } from '../ui/PlayerAvatar'
 import { RankBadge } from '../ui/RankBadge'
 import { RoleTags } from '../ui/RoleTags'
 import { StatItem } from '../ui/StatItem'
@@ -28,7 +28,13 @@ export function LeaderboardRow({
       <RankBadge rank={rank} />
 
       <div className="flex min-w-0 items-center gap-lg">
-        <Avatar name={player.playerName} imageUrl={player.avatarUrl} size="sm" />
+        <PlayerAvatar
+          playerId={player.playerId}
+          displayName={player.playerName}
+          avatarUrl={player.avatarUrl}
+          size="sm"
+          decorative
+        />
         <div className="min-w-0">
           <p className="flex min-w-0 items-center gap-sm text-base font-bold leading-[22px] text-text-primary transition-colors group-hover:text-accent-primary">
             <span className="truncate">{player.playerName}</span>

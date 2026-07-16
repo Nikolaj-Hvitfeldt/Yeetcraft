@@ -26,6 +26,7 @@ export interface DungeonAchievement {
   icon: AchievementIcon;
   title: string;
   holder?: {
+    playerId: string;
     displayName: string;
     avatarUrl: string | null;
   };
@@ -511,6 +512,7 @@ function toPublicHolder(holder: AchievementHolder | undefined) {
   if (!holder) return undefined;
 
   return {
+    playerId: holder.playerId,
     displayName: holder.displayName,
     avatarUrl: holder.avatarUrl,
   };
