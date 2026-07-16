@@ -109,6 +109,7 @@ test.describe('write access', () => {
 
     await expect(page.getByRole('button', { name: 'Done' })).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'Edit Stats' })).toHaveCount(0)
+    await expect(page.getByRole('alert')).toContainText(/access link/i)
     await expect(page.getByText(INVALID_WRITE_TOKEN)).toHaveCount(0)
     await expect(dungeonBreakdownRow(page, DUNGEON_ALPHA.name)).toContainText(
       String(DUNGEON_ALPHA.baselineDeaths),

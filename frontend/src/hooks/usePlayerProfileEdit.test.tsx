@@ -212,6 +212,39 @@ describe('usePlayerProfileEdit', () => {
     expect(result.current.toastMessage).toContain('unexpected data')
   })
 
+  it('shows auth toast in browse mode when save is rejected', async () => {
+    mutateAsync.mockRejectedValue(new ApiError('auth', 'Unauthorized', { status: 401 }))
+
+    const { result, rerender } = renderHook(
+      (canWrite: boolean) =>
+        usePlayerProfileEdit({
+          ...defaultOptions,
+          canWrite,
+        }),
+      { initialProps: true },
+    )
+
+    act(() => {
+      result.current.handleEnterEdit()
+    })
+
+    act(() => {
+      result.current.handleAdjustDraft('d1', 'yeets', 1)
+    })
+
+    await act(async () => {
+      await result.current.handleDoneEdit()
+    })
+
+    expect(result.current.isEditing).toBe(false)
+    expect(result.current.breakdownMode).toBe('browse')
+    expect(result.current.toastMessage).toContain('access link')
+
+    rerender(false)
+
+    expect(result.current.toastMessage).toContain('access link')
+  })
+
   it('resets edit state when player or season changes', () => {
     const { result, rerender } = renderHook(
       (props: { slug: string; seasonId: string }) =>

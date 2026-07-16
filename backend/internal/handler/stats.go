@@ -18,7 +18,6 @@ import (
 var uuidPattern = regexp.MustCompile(`(?i)^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`)
 
 type StatsRepository interface {
-	ListLeaderboard(ctx context.Context, seasonID string) ([]repository.LeaderboardEntry, error)
 	GetSeasonLeaders(ctx context.Context, seasonID string) (repository.SeasonLeaders, error)
 	GetPlayerStats(ctx context.Context, playerID string, seasonID string) (repository.PlayerStats, error)
 	GetPlayerStatsByDisplaySlug(ctx context.Context, playerSlug string, seasonID string) (repository.PlayerStats, error)

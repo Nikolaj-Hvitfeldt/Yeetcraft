@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { DungeonStats, PlayerStatsResponse } from '../api/types'
-import { getUserFacingErrorMessage, isRetryableError } from '../utils/api-error'
+import { getApiErrorKind, getUserFacingErrorMessage, isRetryableError } from '../utils/api-error'
 import { useSetPlayerStats } from './useSetPlayerStats'
 
 type DungeonBreakdownMode = 'browse' | 'edit'
@@ -26,7 +26,6 @@ export function usePlayerProfileEdit({
     if (!canWrite && isEditing) {
       setIsEditing(false)
       setDraftDungeons(null)
-      setToastMessage(null)
     }
   }, [canWrite, isEditing])
 
@@ -116,9 +115,15 @@ export function usePlayerProfileEdit({
         return
       }
 
+      const message = getUserFacingErrorMessage(error)
+      if (getApiErrorKind(error) === 'auth') {
+        setToastMessage(message)
+        return
+      }
+
       setIsEditing(true)
       setDraftDungeons(draftSnapshot)
-      setToastMessage(getUserFacingErrorMessage(error))
+      setToastMessage(message)
     }
   }
 
