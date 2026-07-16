@@ -32,12 +32,13 @@ export function DungeonNavPanel({
         className="flex flex-col gap-[10px]"
       >
         {dungeons.length > 0
-          ? dungeons.map((dungeon) => (
+          ? dungeons.map((dungeon, index) => (
               <DungeonCard
                 key={dungeon.id}
                 dungeon={dungeon}
                 season={season}
                 bannerSeasonKey={bannerSeasonKey}
+                priority={index === 0}
               />
             ))
           : null}

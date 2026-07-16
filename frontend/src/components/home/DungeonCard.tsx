@@ -5,7 +5,7 @@ import { cn } from '../../utils/cn'
 import { buildDungeonDetailState, buildDungeonPath, buildSeasonHomePath } from '../../utils/routes'
 import { getDungeonBannerImage } from '../../utils/dungeon-image'
 
-export function DungeonCard({ dungeon, season, bannerSeasonKey }: DungeonCardProps) {
+export function DungeonCard({ dungeon, season, bannerSeasonKey, priority = false }: DungeonCardProps) {
   const to = season ? buildDungeonPath(season, dungeon) : '#'
   const bannerImageUrl = bannerSeasonKey
     ? getDungeonBannerImage(bannerSeasonKey, dungeon)
@@ -27,7 +27,8 @@ export function DungeonCard({ dungeon, season, bannerSeasonKey }: DungeonCardPro
           <img
             src={bannerImageUrl}
             alt=""
-            loading="lazy"
+            loading={priority ? 'eager' : 'lazy'}
+            fetchPriority={priority ? 'high' : undefined}
             className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
           <div
@@ -62,4 +63,6 @@ interface DungeonCardProps {
   dungeon: DungeonSummary
   season?: SeasonSummary
   bannerSeasonKey?: DungeonBannerSeasonKey
+  /** When true, marks this card banner as the LCP candidate (first visible card only). */
+  priority?: boolean
 }

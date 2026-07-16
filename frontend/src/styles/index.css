@@ -3,13 +3,12 @@
  *
  * Design tokens are defined in src/themes and injected as CSS variables by
  * ThemeProvider.
+ * Google font families are self-hosted via @fontsource imports in main.tsx.
  */
-
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cousine:wght@400;700&family=Inter:wght@400;500;600;700;800&display=swap');
 
 @font-face {
   font-family: 'LifeCraft';
-  src: url('../assets/fonts/lifeCraft.ttf') format('truetype');
+  src: url('../assets/fonts/lifeCraft.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -27,6 +26,12 @@
   html {
     scroll-behavior: smooth;
     scrollbar-gutter: stable;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 
   body {

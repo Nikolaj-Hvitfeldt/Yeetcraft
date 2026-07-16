@@ -11,6 +11,17 @@ import {
   READ_QUERY_STALE_TIME_MS,
   shouldRetryQuery,
 } from './lib/query-defaults'
+import '@fontsource/cinzel/latin-400.css'
+import '@fontsource/cinzel/latin-500.css'
+import '@fontsource/cinzel/latin-600.css'
+import '@fontsource/cinzel/latin-700.css'
+import '@fontsource/inter/latin-400.css'
+import '@fontsource/inter/latin-500.css'
+import '@fontsource/inter/latin-600.css'
+import '@fontsource/inter/latin-700.css'
+import '@fontsource/inter/latin-800.css'
+import '@fontsource/cousine/latin-400.css'
+import '@fontsource/cousine/latin-700.css'
 import './styles/index.css'
 
 captureTokenFromUrl()
