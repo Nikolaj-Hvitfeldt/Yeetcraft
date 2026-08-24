@@ -247,6 +247,7 @@ Issues and PRs for bugs, docs, and small fixes are welcome. This started as a fr
 | --- | ----- |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, schema, auth |
 | [docs/API.md](docs/API.md) | HTTP routes and write auth |
+| [docs/CHARACTERS_AND_BOSS_NEMESIS.md](docs/CHARACTERS_AND_BOSS_NEMESIS.md) | Next-session character model and future boss insight brief |
 | [docs/OFFLINE.md](docs/OFFLINE.md) | PWA, cache, outbox |
 | [docs/PERFORMANCE.md](docs/PERFORMANCE.md) | Lighthouse results |
 | [docs/TESTING.md](docs/TESTING.md) | Full test commands |

@@ -80,3 +80,14 @@ sequenceDiagram
 ```
 
 See [OFFLINE.md](./OFFLINE.md) for service worker, query persistence, and connection UX.
+
+## Planned character and event evolution
+
+Characters are currently frontend-only presentation metadata; statistics remain
+owned by players. The implementation brief for moving character metadata into
+PostgreSQL and preparing future encounter-derived **Nemesis Boss** insights is
+[`CHARACTERS_AND_BOSS_NEMESIS.md`](./CHARACTERS_AND_BOSS_NEMESIS.md).
+
+That work is additive. It must preserve current player-level aggregates and
+must not imply that companion ingest, death events, or boss statistics already
+exist.
