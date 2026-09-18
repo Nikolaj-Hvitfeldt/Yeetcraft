@@ -106,6 +106,21 @@
               }
             }
           }
+        },
+        {
+          "if": {
+            "properties": {
+              "outcome": {
+                "enum": ["needs_review", "rejected"]
+              }
+            },
+            "required": ["outcome"]
+          },
+          "then": {
+            "properties": {
+              "serverEventId": false
+            }
+          }
         }
       ]
     }

@@ -61,11 +61,13 @@
         },
         "challengeMapId": {
           "type": "integer",
-          "minimum": 1
+          "minimum": 1,
+          "maximum": 999999
         },
         "keystoneLevel": {
           "type": "integer",
-          "minimum": 0
+          "minimum": 0,
+          "maximum": 99
         },
         "seasonId": {
           "$ref": "#/$defs/uuid"
@@ -79,7 +81,8 @@
       "properties": {
         "encounterId": {
           "type": "integer",
-          "minimum": 1
+          "minimum": 1,
+          "maximum": 999999
         }
       }
     },
@@ -99,11 +102,13 @@
         },
         "spellId": {
           "type": "integer",
-          "minimum": 1
+          "minimum": 1,
+          "maximum": 999999
         },
         "creatureId": {
           "type": "integer",
-          "minimum": 1
+          "minimum": 1,
+          "maximum": 999999
         },
         "environmentalType": {
           "type": "string",
@@ -112,11 +117,13 @@
         },
         "amount": {
           "type": "integer",
-          "minimum": 0
+          "minimum": 0,
+          "maximum": 9999999999
         },
         "overkill": {
           "type": "integer",
-          "minimum": 0
+          "minimum": 0,
+          "maximum": 9999999999
         },
         "confidence": {
           "type": "string",

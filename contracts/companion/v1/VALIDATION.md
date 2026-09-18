@@ -26,6 +26,8 @@ WP2/WP3 subset scripts remain for incremental checks:
 5. Error envelopes (including `examples/response/unsupported-version.json`) vs `error.schema.json`.
 6. Schema-invalid request fixtures rejected by Ajv.
 7. Semantic-only request fixtures accepted by Ajv and reviewed for hash / rank / instant rules.
+   Positive requests also assert `environmentalType` is **1–64 UTF-8 bytes** (schema
+   `maxLength` is a code-point guard; byte length is enforced in the gate script).
 8. Every `error.schema.json` enum code has an `examples/error/` fixture (`invalid_json` is `.txt`).
 9. Relative Markdown links in this directory and `docs/adr/`.
 10. No non-contract banner fields on wire examples.

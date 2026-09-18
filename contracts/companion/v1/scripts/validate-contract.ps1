@@ -75,6 +75,13 @@ function Invoke-Ajv {
     }
 }
 
+function Get-Utf8ByteLength([string]$Value) {
+    if ($null -eq $Value) {
+        return 0
+    }
+    return [Text.Encoding]::UTF8.GetByteCount($Value)
+}
+
 function Encode-HashField([string]$Value) {
     $normalized = $Value.Normalize([Text.NormalizationForm]::FormC)
     $bytes = [Text.Encoding]::UTF8.GetBytes($normalized)
@@ -214,6 +221,14 @@ Get-ChildItem -Path $RequestExamples -Filter "*.json" | ForEach-Object {
         if ($event.deathInstant -lt $event.run.challengeModeStartInstant) {
             $Failures.Add("$($_.Name) deathInstant precedes run start") | Out-Null
         }
+        foreach ($cause in $event.causes) {
+            if ($cause.PSObject.Properties.Name -contains "environmentalType") {
+                $byteLength = Get-Utf8ByteLength $cause.environmentalType
+                if ($byteLength -lt 1 -or $byteLength -gt 64) {
+                    $Failures.Add("$($_.Name) environmentalType must be 1-64 UTF-8 bytes (got $byteLength)") | Out-Null
+                }
+            }
+        }
     }
 }
 
@@ -277,8 +292,10 @@ foreach ($name in $SemanticSchemaValidRequests) {
             }
         }
         "cause-rank-gap.json" {
-            $ranks = @($event.causes | ForEach-Object { $_.rank }) | Sort-Object
-            if ($ranks.Count -lt 2 -or $ranks[-1] -eq $ranks.Count) {
+            $ranks = @($event.causes | ForEach-Object { [int]$_.rank }) | Sort-Object
+            if ($ranks.Count -lt 2) {
+                $Failures.Add("$name must have at least two causes to demonstrate a rank gap") | Out-Null
+            } elseif (($ranks -join ",") -eq ((1..$ranks.Count) -join ",")) {
                 $Failures.Add("$name must have a rank gap") | Out-Null
             }
         }

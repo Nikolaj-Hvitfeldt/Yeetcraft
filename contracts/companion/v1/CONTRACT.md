@@ -128,7 +128,7 @@ Hash fields (in order):
 | - | ----- | ------ |
 | 1 | Domain tag | `yeetcraft-death-v1` |
 | 2 | `clientRunId` | As defined above |
-| 3 | `victimGuid` | Combat-log player GUID of the victim |
+| 3 | `characterGuid` | Combat-log player GUID of the tracked victim |
 | 4 | `deathInstant` | Canonical RFC 3339 UTC instant of the `UNIT_DIED` event |
 | 5 | `ordinal` | Zero-based index among that victim's `UNIT_DIED` records at the **same** canonical `deathInstant` within the run |
 
