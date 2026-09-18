@@ -23,8 +23,9 @@ The Yeetcraft website must own all post-ingest reclassification so that:
 - duplicate ingest replays never undo operator corrections;
 - every classification change is auditable and idempotent.
 
-Implementation paths (routes, tables, handlers) are **deferred to WP5**. This
-ADR specifies behavior only.
+Implementation paths (routes, tables, handlers) are listed in
+[`../../contracts/companion/v1/IMPLEMENTATION_MAP.md`](../../contracts/companion/v1/IMPLEMENTATION_MAP.md)
+(WP5 file map; not implemented). This ADR specifies behavior only.
 
 ## Verified current behavior
 
@@ -141,7 +142,8 @@ correction.
 ### Audit record
 
 Every successful correction appends an immutable audit row (planned table;
-deferred to WP5) containing at minimum:
+paths in [`../../contracts/companion/v1/IMPLEMENTATION_MAP.md`](../../contracts/companion/v1/IMPLEMENTATION_MAP.md))
+containing at minimum:
 
 | Field | Content |
 | ----- | ------- |
@@ -211,5 +213,6 @@ idempotency.
 | Document | Link |
 | -------- | ---- |
 | Companion ingest contract | [`../../contracts/companion/v1/CONTRACT.md`](../../contracts/companion/v1/CONTRACT.md) |
+| Phase 3 file map | [`../../contracts/companion/v1/IMPLEMENTATION_MAP.md`](../../contracts/companion/v1/IMPLEMENTATION_MAP.md) |
 | Adjustment ledger and PATCH revision | [ADR 002](./002-revision-protected-adjustment-ledger.md) |
 | Verified API surface | [`../API.md`](../API.md) |

@@ -30,5 +30,6 @@ part of the companion wire contract.
 | [`../OFFLINE.md`](../OFFLINE.md) | Browser outbox for aggregate PATCH |
 | [`../CHARACTERS_AND_BOSS_NEMESIS.md`](../CHARACTERS_AND_BOSS_NEMESIS.md) | Character slice prerequisites |
 | [`../../contracts/companion/v1/CONTRACT.md`](../../contracts/companion/v1/CONTRACT.md) | Canonical companion ingest contract (WP1–WP3) |
+| [`../../contracts/companion/v1/IMPLEMENTATION_MAP.md`](../../contracts/companion/v1/IMPLEMENTATION_MAP.md) | WP5 Yeetcraft Phase 3 file map |
 
-Phase 2/3 implementation file paths are **deferred to WP5**.
+Phase 2/3 implementation file paths: [`../../contracts/companion/v1/IMPLEMENTATION_MAP.md`](../../contracts/companion/v1/IMPLEMENTATION_MAP.md) (Yeetcraft Phase 3). Companion Phase 2 is mapped in the sibling repository at `yeetcraft-companion/docs/PHASE_2_FILE_MAP.md`.

@@ -26,8 +26,9 @@ Manual PATCH must not fight concurrent ingest or corrections. Stale offline
 writes must surface as reviewable conflicts instead of silently overwriting
 newer server state.
 
-Implementation paths (migrations, repositories, frontend schemas) are
-**deferred to WP5**. This ADR specifies behavior only.
+Implementation paths (migrations, repositories, frontend schemas) are listed in
+[`../../contracts/companion/v1/IMPLEMENTATION_MAP.md`](../../contracts/companion/v1/IMPLEMENTATION_MAP.md)
+(WP5 file map; not implemented). This ADR specifies behavior only.
 
 ## Verified current behavior
 
@@ -84,7 +85,8 @@ player_id × season_id × dungeon_id × category
 where `category` is `death` or `yeet` (two rows per aggregate cell).
 
 The row stores the **current** adjustment scalar for that category, not a
-history of edits. History belongs in audit tables (deferred to WP5).
+history of edits. History belongs in audit tables (paths in
+[`../../contracts/companion/v1/IMPLEMENTATION_MAP.md`](../../contracts/companion/v1/IMPLEMENTATION_MAP.md)).
 
 ### Absolute PATCH semantics (planned evolution)
 
@@ -237,6 +239,7 @@ ingest or corrections.
 | -------- | ---- |
 | Classification and corrections | [ADR 001](./001-post-ingest-classification-and-corrections.md) |
 | Companion ingest (no PATCH) | [`../../contracts/companion/v1/CONTRACT.md`](../../contracts/companion/v1/CONTRACT.md) |
+| Phase 3 file map | [`../../contracts/companion/v1/IMPLEMENTATION_MAP.md`](../../contracts/companion/v1/IMPLEMENTATION_MAP.md) |
 | Offline outbox | [`../OFFLINE.md`](../OFFLINE.md) |
 | Verified PATCH route | [`../API.md`](../API.md) |
 | ADR index | [`./README.md`](./README.md) |

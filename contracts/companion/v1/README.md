@@ -56,6 +56,11 @@ Phase 1 work packages **WP1**, **WP2**, and **WP3** (this directory) define:
 - [ADR 001 — Post-ingest classification and corrections](../../../docs/adr/001-post-ingest-classification-and-corrections.md)
 - [ADR 002 — Revision-protected adjustment ledger](../../../docs/adr/002-revision-protected-adjustment-ledger.md)
 
+**WP5 — implementation file map (not code)**
+
+- Yeetcraft Phase 3: [`IMPLEMENTATION_MAP.md`](./IMPLEMENTATION_MAP.md)
+- Companion Phase 2 lives in the sibling repository at `yeetcraft-companion/docs/PHASE_2_FILE_MAP.md`
+
 No route, migration, handler, or upload client implements this contract yet.
 Do not describe `POST /api/companion/v1/deaths/batch` or related tables as
 shipping behavior until Phase 3 completes.
@@ -138,6 +143,7 @@ diagnostics, and server-side error messages are defined in
 | [`../../../docs/ARCHITECTURE.md`](../../../docs/ARCHITECTURE.md) | System context |
 | [`../../../docs/CHARACTERS_AND_BOSS_NEMESIS.md`](../../../docs/CHARACTERS_AND_BOSS_NEMESIS.md) | Character slice and Nemesis Boss prerequisites |
 | [`../../../docs/adr/README.md`](../../../docs/adr/README.md) | WP4 server ADRs (classification, corrections, adjustment ledger) |
+| [`IMPLEMENTATION_MAP.md`](./IMPLEMENTATION_MAP.md) | WP5 Yeetcraft Phase 3 file map (paths only; not implemented) |
 
 Companion-side producer review:
 `yeetcraft-companion/docs/CONTRACT_V1_WP1_REVIEW.md` (review notes only).

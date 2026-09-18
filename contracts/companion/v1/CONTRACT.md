@@ -717,7 +717,7 @@ total_mistakes = deaths + yeets
 - Corrections update one canonical event and never insert a second death.
 - Detector `confidence` is evidence only, not classification authority.
 
-Phase 2/3 implementation file paths are **deferred to WP5**.
+Phase 2/3 implementation file paths: [`IMPLEMENTATION_MAP.md`](./IMPLEMENTATION_MAP.md) (Yeetcraft Phase 3) and sibling `yeetcraft-companion/docs/PHASE_2_FILE_MAP.md` (companion Phase 2).
 
 ---
 
@@ -767,5 +767,6 @@ Phase 2/3 implementation file paths are **deferred to WP5**.
 | Error taxonomy | WP3 |
 | Response payloads | WP3 |
 | Server behavior after ingest (classification, corrections, adjustment ledger) | WP4 — [ADR index](../../../docs/adr/README.md) |
+| Phase 2/3 implementation file paths | WP5 — [`IMPLEMENTATION_MAP.md`](./IMPLEMENTATION_MAP.md) |
 
 See [`README.md`](./README.md) for ownership, versioning, and compatibility.
