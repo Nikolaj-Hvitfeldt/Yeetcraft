@@ -34,4 +34,4 @@ Additional envelope triggers without JSON fixtures (verify in implementation):
 | ---- | ---- |
 | Malformed JSON with trailing document | `trailing_json_not_allowed` (distinct from `invalid_json` when parse partially succeeds) |
 
-Validate JSON fixtures with [`scripts/validate-wp3.ps1`](../../scripts/validate-wp3.ps1).
+Validate JSON fixtures with [`scripts/validate-contract.ps1`](../../scripts/validate-contract.ps1).

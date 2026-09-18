@@ -34,14 +34,10 @@ Get-ChildItem -Path $RequestExamples -Filter "*.json" | ForEach-Object {
 }
 
 Write-Host "`n[3/6] Validate positive response examples (HTTP 200)..."
-@(
-    "all-accepted.json",
-    "mixed-duplicate-needs-review.json",
-    "unknown-character.json"
-) | ForEach-Object {
-    $path = Join-Path $ResponseExamples $_
-    Write-Host "  response: $_"
-    Invoke-Ajv @("test", $Spec, "-s", $ResponseSchema, "-d", $path, "--valid")
+Get-ChildItem -Path $ResponseExamples -Filter "*.json" | ForEach-Object {
+    if ($_.Name -eq "unsupported-version.json") { return }
+    Write-Host "  response: $($_.Name)"
+    Invoke-Ajv @("test", $Spec, "-s", $ResponseSchema, "-d", $_.FullName, "--valid")
 }
 
 Write-Host "`n[4/6] Validate error envelope examples..."
@@ -58,7 +54,15 @@ Write-Host "`n[5/6] Reject schema-invalid request fixtures..."
     "category-yeet.json",
     "extra-envelope-field.json",
     "spell-without-spell-id.json",
-    "invalid-instant-precision.json"
+    "invalid-instant-precision.json",
+    "empty-events.json",
+    "invalid-batch-id.json",
+    "invalid-character-guid.json",
+    "invalid-ordinal.json",
+    "invalid-encounter.json",
+    "too-many-causes.json",
+    "extra-cause-field.json",
+    "schema-version-mismatch.json"
 ) | ForEach-Object {
     $path = Join-Path $RequestInvalid $_
     Write-Host "  invalid request: $_"

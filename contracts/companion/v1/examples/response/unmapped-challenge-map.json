@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "batchId": "a1000001-0001-4000-8000-000000000001",
+  "results": [
+    {
+      "clientEventId": "sha256:37655d8725a8b0b2ad06261af3dbd73d17a1441fb17495b1f068f3c2d45cd543",
+      "outcome": "needs_review",
+      "code": "unmapped_challenge_map"
+    }
+  ]
+}

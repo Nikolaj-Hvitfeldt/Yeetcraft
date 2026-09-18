@@ -137,8 +137,11 @@ diagnostics, and server-side error messages are defined in
 | [`examples/request/`](./examples/request/) | Synthetic request fixtures (WP2) |
 | [`examples/response/`](./examples/response/) | Synthetic response fixtures (WP3) |
 | [`examples/error/`](./examples/error/) | Envelope error fixtures (WP3) |
-| [`scripts/validate-wp2.ps1`](./scripts/validate-wp2.ps1) | Pinned request validation (WP2) |
-| [`scripts/validate-wp3.ps1`](./scripts/validate-wp3.ps1) | Pinned full contract validation (WP3) |
+| [`scripts/validate-contract.ps1`](./scripts/validate-contract.ps1) | Phase 1 Validate gate (draft 2020-12 + examples + links + checksums) |
+| [`VALIDATION.md`](./VALIDATION.md) | Pinned validator versions, documented exceptions, deferred CI |
+| [`CHECKSUMS.sha256`](./CHECKSUMS.sha256) | Canonical SHA-256 of schemas and examples |
+| [`scripts/validate-wp2.ps1`](./scripts/validate-wp2.ps1) | Pinned request subset (WP2) |
+| [`scripts/validate-wp3.ps1`](./scripts/validate-wp3.ps1) | Pinned request/response/error subset (WP3) |
 | [`../../../docs/API.md`](../../../docs/API.md) | Current implemented web API (not companion ingest) |
 | [`../../../docs/ARCHITECTURE.md`](../../../docs/ARCHITECTURE.md) | System context |
 | [`../../../docs/CHARACTERS_AND_BOSS_NEMESIS.md`](../../../docs/CHARACTERS_AND_BOSS_NEMESIS.md) | Character slice and Nemesis Boss prerequisites |

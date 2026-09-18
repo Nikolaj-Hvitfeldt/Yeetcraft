@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "batchId": "a1000001-0001-4000-8000-000000000004",
+  "events": [
+    {
+      "clientEventId": "sha256:37655d8725a8b0b2ad06261af3dbd73d17a1441fb17495b1f068f3c2d45cd543",
+      "characterGuid": "Player-0001-00000001",
+      "deathInstant": "2026-02-10T18:45:12.123456789Z",
+      "ordinal": 0,
+      "run": {
+        "clientRunId": "sha256:8de6d05a987d9230788f5a56957a80c8608335bbc509ca5fac1a1bf17336b30d",
+        "challengeModeStartInstant": "2026-02-10T18:30:00.000000000Z",
+        "challengeMapId": 375,
+        "keystoneLevel": 12
+      },
+      "encounter": null,
+      "causes": [
+        {
+          "rank": 1,
+          "sourceType": "environmental",
+          "environmentalType": "Falling",
+          "amount": 48291,
+          "overkill": 0,
+          "confidence": "medium"
+        }
+      ]
+    },
+    {
+      "clientEventId": "sha256:e7b414d6d92fe83a6ea4e51fb434f821f6c55f59d7ad0c5723703c0e90d1037a",
+      "characterGuid": "Player-0001-00000001",
+      "deathInstant": "2026-02-10T19:02:33.987654321Z",
+      "ordinal": 0,
+      "run": {
+        "clientRunId": "sha256:8de6d05a987d9230788f5a56957a80c8608335bbc509ca5fac1a1bf17336b30d",
+        "challengeModeStartInstant": "2026-02-10T18:30:00.000000000Z",
+        "challengeMapId": 375,
+        "keystoneLevel": 12
+      },
+      "encounter": null,
+      "causes": [
+        {
+          "rank": 1,
+          "sourceType": "melee",
+          "creatureId": 165251,
+          "amount": 98450,
+          "overkill": 1200,
+          "confidence": "high"
+        }
+      ]
+    },
+    {
+      "clientEventId": "sha256:0df4a56b8cc57753750a3215224cb88eae7d54951465c07e6b2b19827e1d8dc0",
+      "characterGuid": "Player-0001-00000001",
+      "category": "death",
+      "deathInstant": "2026-02-10T18:52:00.000000000Z",
+      "ordinal": 0,
+      "run": {
+        "clientRunId": "sha256:8de6d05a987d9230788f5a56957a80c8608335bbc509ca5fac1a1bf17336b30d",
+        "challengeModeStartInstant": "2026-02-10T18:30:00.000000000Z",
+        "challengeMapId": 375,
+        "keystoneLevel": 12,
+        "seasonId": "c3000003-0003-4000-8000-000000000003"
+      },
+      "encounter": {
+        "encounterId": 2901
+      },
+      "causes": [
+        {
+          "rank": 1,
+          "sourceType": "spell",
+          "spellId": 320596,
+          "creatureId": 165408,
+          "amount": 125430,
+          "overkill": 8420,
+          "confidence": "high"
+        },
+        {
+          "rank": 2,
+          "sourceType": "range",
+          "spellId": 320784,
+          "creatureId": 165408,
+          "amount": 31820,
+          "overkill": 0,
+          "confidence": "medium"
+        }
+      ]
+    }
+  ]
+}

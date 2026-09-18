@@ -169,7 +169,7 @@ Keep handlers thin. Put SQL, joins, aggregation, and transactions in `internal/r
 | ---- | --- |
 | Character-slice Go/SQL/frontend files | Separate Yeetcraft work; blocker, not ingest implementation. See [`docs/CHARACTERS_AND_BOSS_NEMESIS.md`](../../../docs/CHARACTERS_AND_BOSS_NEMESIS.md). |
 | Companion `internal/parser`, SQLite, watcher, uploader | Companion Phase 2 / 4. See sibling `yeetcraft-companion/docs/PHASE_2_FILE_MAP.md`. |
-| Copying this contract into the companion repo as source of truth | Forbidden. Companion may hold derived fixtures with a recorded checksum later. |
+| Copying this contract into the companion repo as source of truth | Forbidden. Companion records [`CHECKSUMS.sha256`](./CHECKSUMS.sha256) and may generate derived copies in Phase 2 tests. |
 | Frontend revision / outbox (ADR 002 enablement) | Not Phase 3 backend. **Required before companion event writes are enabled** (Phase 4). Existing files to change in that later task: `frontend/src/api/schemas.ts`, `frontend/src/hooks/useStats.ts`, `frontend/src/lib/write-outbox/types.ts`, `frontend/src/lib/write-outbox/sync.ts`, `frontend/src/lib/write-outbox/handlers/set-player-stats.ts`, `docs/OFFLINE.md`. |
 | CI jobs, Wails, addon, real GUIDs/PII | Out of WP5 and out of Phase 3 ingest. |
 | Per-installation companion principals | Deferred past the fixed-group MVP (`installationId` is diagnostics only). |
@@ -178,20 +178,18 @@ Rollout reminder from the ADRs (not new protocol): frontend `expectedRevision` s
 
 ---
 
-## Validate package (not started in WP5)
+## Validate package
 
-Machine-validation harness for this map: **deferred to Validate**.
+Phase 1 machine checks: [`VALIDATION.md`](./VALIDATION.md) and
+[`scripts/validate-contract.ps1`](./scripts/validate-contract.ps1). This map
+is included in relative-link resolution. Protocol text in [`CONTRACT.md`](./CONTRACT.md)
+stays frozen.
 
-Validate should cover these files (relative-link resolution, status banners, existing vs to-create accuracy, no secrets/PII):
+**Deferred to Phase 2/3 CI (not this package):** GitHub Actions running the
+Validate script; companion `go test` derived-fixture drift; ingest handler
+suites.
 
-- [`IMPLEMENTATION_MAP.md`](./IMPLEMENTATION_MAP.md) (this file)
-- [`README.md`](./README.md)
-- [`CONTRACT.md`](./CONTRACT.md) (WP5 pointer only; protocol frozen)
-- [`docs/adr/README.md`](../../../docs/adr/README.md)
-- [`docs/adr/001-post-ingest-classification-and-corrections.md`](../../../docs/adr/001-post-ingest-classification-and-corrections.md)
-- [`docs/adr/002-revision-protected-adjustment-ledger.md`](../../../docs/adr/002-revision-protected-adjustment-ledger.md)
-
-Do not require Go or npm suites for WP5 unless those trees are edited.
+Do not require Go or npm runtime suites for Validate unless those trees are edited.
 
 ---
 

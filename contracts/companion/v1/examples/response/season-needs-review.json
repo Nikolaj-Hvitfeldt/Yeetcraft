@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "batchId": "a1000001-0001-4000-8000-000000000002",
+  "results": [
+    {
+      "clientEventId": "sha256:0df4a56b8cc57753750a3215224cb88eae7d54951465c07e6b2b19827e1d8dc0",
+      "outcome": "needs_review",
+      "code": "season_needs_review"
+    }
+  ]
+}

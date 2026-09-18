@@ -27,7 +27,15 @@ Write-Host "`n[3/3] Reject schema-invalid fixtures..."
     "category-yeet.json",
     "extra-envelope-field.json",
     "spell-without-spell-id.json",
-    "invalid-instant-precision.json"
+    "invalid-instant-precision.json",
+    "empty-events.json",
+    "invalid-batch-id.json",
+    "invalid-character-guid.json",
+    "invalid-ordinal.json",
+    "invalid-encounter.json",
+    "too-many-causes.json",
+    "extra-cause-field.json",
+    "schema-version-mismatch.json"
 ) | ForEach-Object {
     $path = Join-Path $InvalidExamples $_
     Write-Host "  invalid: $_"
