@@ -40,4 +40,3 @@ export const dungeonBannersBySeason = {
 } as const
 
 export type DungeonBannerSeasonKey = keyof typeof dungeonBannersBySeason
-

@@ -1,4 +1,12 @@
-import { createContext, useContext, useState, useEffect, useCallback, createElement, type ReactNode } from 'react'
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  createElement,
+  type ReactNode,
+} from 'react'
 import { themeBackgroundImages } from '../assets/background-themes'
 import { applyColorTheme, applyGlobalTheme, type ThemeName } from '../themes'
 

@@ -39,7 +39,9 @@ describe('fetchWithTimeout', () => {
   })
 
   it('uses a 45 second timeout budget', () => {
-    const timeoutSpy = vi.spyOn(AbortSignal, 'timeout').mockReturnValue(new AbortController().signal)
+    const timeoutSpy = vi
+      .spyOn(AbortSignal, 'timeout')
+      .mockReturnValue(new AbortController().signal)
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}', { status: 200 }))
 
     void fetchWithTimeout('https://example.com/api/seasons')

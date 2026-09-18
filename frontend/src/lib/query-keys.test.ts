@@ -12,11 +12,7 @@ describe('queryKeys', () => {
       'alpha',
       's1',
     ])
-    expect(queryKeys.dungeonLeaderboard('s1', 'd1')).toEqual([
-      'dungeon-leaderboard',
-      's1',
-      'd1',
-    ])
+    expect(queryKeys.dungeonLeaderboard('s1', 'd1')).toEqual(['dungeon-leaderboard', 's1', 'd1'])
   })
 
   it('identifies persisted query roots', () => {

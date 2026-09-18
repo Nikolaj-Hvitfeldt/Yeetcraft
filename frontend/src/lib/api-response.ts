@@ -45,11 +45,7 @@ export async function throwForFailedResponse(
   throw toHttpApiError(response.status, `API error: ${response.status} ${errorText}`)
 }
 
-export function parseApiResponse<T>(
-  json: unknown,
-  schema: z.ZodType<T>,
-  endpoint: string,
-): T {
+export function parseApiResponse<T>(json: unknown, schema: z.ZodType<T>, endpoint: string): T {
   try {
     return schema.parse(json)
   } catch (error) {

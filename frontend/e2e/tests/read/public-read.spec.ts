@@ -99,10 +99,6 @@ test.describe('public read smoke', () => {
 
     expect(patchResponse.status()).toBe(401)
 
-    runTestdb('verify', [
-      environment.apiKey,
-      environment.writeToken,
-      environment.testDatabaseURL,
-    ])
+    runTestdb('verify', [environment.apiKey, environment.writeToken, environment.testDatabaseURL])
   })
 })

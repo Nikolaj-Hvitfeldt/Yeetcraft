@@ -99,17 +99,18 @@ describe('getDangerScore', () => {
     const atAverage = { ...dungeon, totalMistakes: 4, totalDeaths: 3, totalYeets: 1 }
     expect(getDangerScore(atAverage, 4)).toBe(50)
     expect(getDangerScore({ ...atAverage, totalMistakes: 8 }, 4)).toBe(100)
-    expect(getDangerScore({ ...dungeon, totalMistakes: 0, totalDeaths: 0, totalYeets: 0 }, 4)).toBe(0)
+    expect(getDangerScore({ ...dungeon, totalMistakes: 0, totalDeaths: 0, totalYeets: 0 }, 4)).toBe(
+      0,
+    )
   })
 })
 
 describe('getYeetFactor', () => {
   it('returns zero when season has no yeets', () => {
     expect(
-      getYeetFactor(
+      getYeetFactor({ ...dungeon, totalYeets: 0, totalMistakes: 2 }, [
         { ...dungeon, totalYeets: 0, totalMistakes: 2 },
-        [{ ...dungeon, totalYeets: 0, totalMistakes: 2 }],
-      ),
+      ]),
     ).toBe(0)
   })
 
@@ -139,7 +140,12 @@ describe('getYeetFactor', () => {
 
     expect(getYeetFactor(typicalDungeon, seasonDungeons)).toBe(50)
     expect(getYeetFactor(yeetHeavyDungeon, seasonDungeons)).toBe(100)
-    expect(getYeetFactor({ ...typicalDungeon, totalMistakes: 0, totalDeaths: 0, totalYeets: 0 }, seasonDungeons)).toBe(0)
+    expect(
+      getYeetFactor(
+        { ...typicalDungeon, totalMistakes: 0, totalDeaths: 0, totalYeets: 0 },
+        seasonDungeons,
+      ),
+    ).toBe(0)
   })
 })
 
@@ -191,11 +197,10 @@ describe('getMeatGrinderSummary', () => {
       totalYeets: 0,
       totalMistakes: 0,
     }
-    const summary = getMeatGrinderSummary(
+    const summary = getMeatGrinderSummary(spotlessDungeon, leaderboard, [
       spotlessDungeon,
-      leaderboard,
-      [spotlessDungeon, allDungeons[1]!],
-    )
+      allDungeons[1]!,
+    ])
 
     expect(summary.title).toBe('The Quiet Lobby')
     expect(summary.description).toMatch(/quiet|suspiciously|ledger/i)
@@ -217,10 +222,7 @@ describe('getReputationVerdicts', () => {
     const cleanDungeon = { ...dungeon, totalDeaths: 0, totalYeets: 0, totalMistakes: 0 }
 
     expect(
-      getReputationVerdicts(
-        { dangerRating: 0, yeetFactor: 0, blameShare: 0 },
-        cleanDungeon,
-      ),
+      getReputationVerdicts({ dangerRating: 0, yeetFactor: 0, blameShare: 0 }, cleanDungeon),
     ).toEqual([
       'A quiet key so far. No recorded mistakes yet.',
       'No yeets recorded here yet.',

@@ -1,14 +1,11 @@
 import { useId } from 'react'
 import { Icon } from '../Icon'
-import { HoverTooltipPanel } from "./HoverTooltipPanel";
+import { HoverTooltipPanel } from './HoverTooltipPanel'
 
-const INFO_ICON_SIZE = 20;
+const INFO_ICON_SIZE = 20
 
-export function InfoTooltip({
-  content,
-  label = "More information",
-}: InfoTooltipProps) {
-  const tooltipId = useId();
+export function InfoTooltip({ content, label = 'More information' }: InfoTooltipProps) {
+  const tooltipId = useId()
 
   return (
     <span className="group/info relative inline-flex shrink-0">
@@ -22,17 +19,12 @@ export function InfoTooltip({
         <Icon icon="info" size={INFO_ICON_SIZE} className="size-[18px]" />
       </button>
 
-      <HoverTooltipPanel
-        id={tooltipId}
-        groupName="info"
-        placement="end"
-        content={content}
-      />
+      <HoverTooltipPanel id={tooltipId} groupName="info" placement="end" content={content} />
     </span>
-  );
+  )
 }
 
 interface InfoTooltipProps {
-  content: string;
-  label?: string;
+  content: string
+  label?: string
 }

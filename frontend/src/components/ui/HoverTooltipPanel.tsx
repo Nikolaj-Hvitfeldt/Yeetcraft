@@ -6,16 +6,13 @@ const HOVER_TOOLTIP_BASE_CLASS =
 const GROUP_VISIBILITY_CLASS = {
   crown: {
     hover: 'opacity-0 group-hover/crown:opacity-100',
-    hoverFocus:
-      'opacity-0 group-hover/crown:opacity-100 group-focus-within/crown:opacity-100',
+    hoverFocus: 'opacity-0 group-hover/crown:opacity-100 group-focus-within/crown:opacity-100',
   },
   info: {
-    hoverFocus:
-      'opacity-0 group-hover/info:opacity-100 group-focus-within/info:opacity-100',
+    hoverFocus: 'opacity-0 group-hover/info:opacity-100 group-focus-within/info:opacity-100',
   },
   banner: {
-    hoverFocus:
-      'opacity-0 group-hover/banner:opacity-100 group-focus-within/banner:opacity-100',
+    hoverFocus: 'opacity-0 group-hover/banner:opacity-100 group-focus-within/banner:opacity-100',
   },
 } as const
 

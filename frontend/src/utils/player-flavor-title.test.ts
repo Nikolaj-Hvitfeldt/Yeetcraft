@@ -112,9 +112,7 @@ describe('getPlayerFlavorTitle', () => {
           makeDungeon('d2', 'Skyreach', 5, 10, 'SR'),
         ],
         seasonLeaders: makeSeasonLeaders({
-          dungeonMistakeLeaders: [
-            { dungeonId: 'd1', playerId: PLAYER_ID, totalMistakes: 35 },
-          ],
+          dungeonMistakeLeaders: [{ dungeonId: 'd1', playerId: PLAYER_ID, totalMistakes: 35 }],
         }),
       }),
     )
@@ -130,9 +128,7 @@ describe('getPlayerFlavorTitle', () => {
         totalMistakes: 1,
         dungeons: [makeDungeon('d1', 'Skyreach', 1, 0)],
         seasonLeaders: makeSeasonLeaders({
-          dungeonMistakeLeaders: [
-            { dungeonId: 'd1', playerId: OTHER_PLAYER_ID, totalMistakes: 2 },
-          ],
+          dungeonMistakeLeaders: [{ dungeonId: 'd1', playerId: OTHER_PLAYER_ID, totalMistakes: 2 }],
         }),
       }),
     )

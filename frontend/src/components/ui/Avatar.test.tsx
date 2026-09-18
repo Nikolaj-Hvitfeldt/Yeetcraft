@@ -16,21 +16,13 @@ describe('Avatar', () => {
     expect(image).toHaveAttribute('height', '48')
     expect(image.className).toContain('size-12')
 
-    rerender(
-      <Avatar name="Seb" imageUrl="https://cdn.example.com/seb.webp" size="lg" />,
-    )
+    rerender(<Avatar name="Seb" imageUrl="https://cdn.example.com/seb.webp" size="lg" />)
     image = within(container).getByRole('img', { name: 'Seb avatar' })
     expect(image).toHaveAttribute('width', '96')
     expect(image).toHaveAttribute('height', '96')
     expect(image.className).toContain('size-24')
 
-    rerender(
-      <Avatar
-        name="Seb"
-        imageUrl="https://cdn.example.com/seb.webp"
-        size="achievement"
-      />,
-    )
+    rerender(<Avatar name="Seb" imageUrl="https://cdn.example.com/seb.webp" size="achievement" />)
     image = within(container).getByRole('img', { name: 'Seb avatar' })
     expect(image).toHaveAttribute('width', '28')
     expect(image).toHaveAttribute('height', '28')
@@ -40,9 +32,7 @@ describe('Avatar', () => {
   })
 
   it('falls back to the initial placeholder when the image errors', () => {
-    render(
-      <Avatar name="Seb" imageUrl="https://cdn.example.com/broken.webp" />,
-    )
+    render(<Avatar name="Seb" imageUrl="https://cdn.example.com/broken.webp" />)
 
     const image = screen.getByRole('img', { name: 'Seb avatar' })
     fireEvent.error(image)
@@ -59,9 +49,7 @@ describe('Avatar', () => {
     fireEvent.error(screen.getByRole('img', { name: 'Seb avatar' }))
     expect(screen.getByText('S')).toBeInTheDocument()
 
-    rerender(
-      <Avatar name="Seb" imageUrl="https://cdn.example.com/seb.webp" />,
-    )
+    rerender(<Avatar name="Seb" imageUrl="https://cdn.example.com/seb.webp" />)
 
     const recovered = screen.getByRole('img', { name: 'Seb avatar' })
     expect(recovered).toHaveAttribute('src', 'https://cdn.example.com/seb.webp')
@@ -70,11 +58,7 @@ describe('Avatar', () => {
 
   it('uses empty alt text for decorative avatars', () => {
     const { container } = render(
-      <Avatar
-        name="Seb"
-        imageUrl="https://cdn.example.com/seb.webp"
-        decorative
-      />,
+      <Avatar name="Seb" imageUrl="https://cdn.example.com/seb.webp" decorative />,
     )
 
     const image = container.querySelector('img')
@@ -83,27 +67,14 @@ describe('Avatar', () => {
   })
 
   it('omits the loading attribute when loading is not provided', () => {
-    render(
-      <Avatar name="Seb" imageUrl="https://cdn.example.com/seb.webp" />,
-    )
+    render(<Avatar name="Seb" imageUrl="https://cdn.example.com/seb.webp" />)
 
-    expect(screen.getByRole('img', { name: 'Seb avatar' })).not.toHaveAttribute(
-      'loading',
-    )
+    expect(screen.getByRole('img', { name: 'Seb avatar' })).not.toHaveAttribute('loading')
   })
 
   it('passes through an explicit loading value', () => {
-    render(
-      <Avatar
-        name="Seb"
-        imageUrl="https://cdn.example.com/seb.webp"
-        loading="eager"
-      />,
-    )
+    render(<Avatar name="Seb" imageUrl="https://cdn.example.com/seb.webp" loading="eager" />)
 
-    expect(screen.getByRole('img', { name: 'Seb avatar' })).toHaveAttribute(
-      'loading',
-      'eager',
-    )
+    expect(screen.getByRole('img', { name: 'Seb avatar' })).toHaveAttribute('loading', 'eager')
   })
 })

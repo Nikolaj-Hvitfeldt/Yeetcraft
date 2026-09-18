@@ -26,7 +26,12 @@ export function PanelState({
 
   if (error && !children) {
     return (
-      <div className={cn('rounded-md border border-border-subtle bg-surface-base px-2xl py-4xl text-center', className)}>
+      <div
+        className={cn(
+          'rounded-md border border-border-subtle bg-surface-base px-2xl py-4xl text-center',
+          className,
+        )}
+      >
         <SkullIcon className="mx-auto mb-md size-10 opacity-40 text-stat-deaths" />
         <p className="text-sm text-text-secondary">{getUserFacingErrorMessage(error)}</p>
         {onRetry && isRetryableError(error) ? (
@@ -44,7 +49,12 @@ export function PanelState({
 
   if (isEmpty && !children) {
     return (
-      <div className={cn('rounded-md border border-border-subtle bg-surface-base px-2xl py-4xl text-center text-text-secondary', className)}>
+      <div
+        className={cn(
+          'rounded-md border border-border-subtle bg-surface-base px-2xl py-4xl text-center text-text-secondary',
+          className,
+        )}
+      >
         <SkullIcon className="mx-auto mb-md size-10 opacity-40" />
         <p className="text-sm">{emptyMessage}</p>
       </div>

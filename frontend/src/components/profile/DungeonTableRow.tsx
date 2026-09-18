@@ -29,7 +29,8 @@ export function DungeonTableRow({
       <span
         className={cn(
           'truncate text-base font-semibold leading-5 text-text-tertiary transition-colors',
-          mode === 'browse' && 'group-hover:text-accent-primary group-focus-visible:text-accent-primary',
+          mode === 'browse' &&
+            'group-hover:text-accent-primary group-focus-visible:text-accent-primary',
         )}
       >
         {dungeon.dungeon.name}
@@ -61,10 +62,20 @@ export function DungeonTableRow({
         </>
       ) : (
         <>
-          <p className={cn('justify-self-center text-center font-number text-sm leading-[18px]', STAT_COLOR_BY_KIND.deaths)}>
+          <p
+            className={cn(
+              'justify-self-center text-center font-number text-sm leading-[18px]',
+              STAT_COLOR_BY_KIND.deaths,
+            )}
+          >
             {dungeon.deaths}
           </p>
-          <p className={cn('justify-self-center text-center font-number text-sm leading-[18px]', STAT_COLOR_BY_KIND.yeets)}>
+          <p
+            className={cn(
+              'justify-self-center text-center font-number text-sm leading-[18px]',
+              STAT_COLOR_BY_KIND.yeets,
+            )}
+          >
             {dungeon.yeets}
           </p>
         </>
@@ -79,9 +90,7 @@ export function DungeonTableRow({
         state={
           backTo
             ? buildDungeonDetailState(backTo, {
-                returnState: profileBackTo
-                  ? buildPageBackState(profileBackTo)
-                  : undefined,
+                returnState: profileBackTo ? buildPageBackState(profileBackTo) : undefined,
               })
             : undefined
         }
@@ -95,10 +104,7 @@ export function DungeonTableRow({
   }
 
   return (
-    <div
-      className={cn('grid h-[57px] w-full items-center px-lg', className)}
-      style={rowStyle}
-    >
+    <div className={cn('grid h-[57px] w-full items-center px-lg', className)} style={rowStyle}>
       {dungeonCell}
       {statsCells}
     </div>

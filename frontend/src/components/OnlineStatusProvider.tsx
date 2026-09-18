@@ -23,7 +23,5 @@ export function OnlineStatusProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  return (
-    <OnlineStatusContext.Provider value={isOnline}>{children}</OnlineStatusContext.Provider>
-  )
+  return <OnlineStatusContext.Provider value={isOnline}>{children}</OnlineStatusContext.Provider>
 }

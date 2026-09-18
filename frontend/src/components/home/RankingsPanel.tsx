@@ -25,9 +25,7 @@ export function RankingsPanel({
   return (
     <section className="rounded-lg border border-accent-secondary bg-surface-section p-2xl shadow-2xl">
       <div className="flex flex-col gap-lg sm:flex-row sm:items-start sm:justify-between">
-        <h2 className="font-heading text-3xl font-bold leading-9 text-text-accent">
-          Rankings
-        </h2>
+        <h2 className="font-heading text-3xl font-bold leading-9 text-text-accent">Rankings</h2>
         <SeasonPicker
           seasons={seasons}
           selectedSeasonId={selectedSeasonId}

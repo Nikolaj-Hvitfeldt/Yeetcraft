@@ -49,21 +49,15 @@ export function usePlayerProfileEdit({
     setToastMessage(null)
   }
 
-  function handleAdjustDraft(
-    dungeonId: string,
-    field: 'deaths' | 'yeets',
-    delta: 1 | -1,
-  ) {
+  function handleAdjustDraft(dungeonId: string, field: 'deaths' | 'yeets', delta: 1 | -1) {
     if (!draftDungeons) return
 
     setDraftDungeons((rows) =>
       (rows ?? []).map((row) => {
         if (row.dungeon.id !== dungeonId) return row
 
-        const nextDeaths =
-          field === 'deaths' ? Math.max(0, row.deaths + delta) : row.deaths
-        const nextYeets =
-          field === 'yeets' ? Math.max(0, row.yeets + delta) : row.yeets
+        const nextDeaths = field === 'deaths' ? Math.max(0, row.deaths + delta) : row.deaths
+        const nextYeets = field === 'yeets' ? Math.max(0, row.yeets + delta) : row.yeets
 
         return {
           ...row,
@@ -79,13 +73,9 @@ export function usePlayerProfileEdit({
     if (!playerStats || !draftDungeons || !selectedSeasonId) return
 
     const changed = draftDungeons.filter((draftRow) => {
-      const original = playerStats.dungeons.find(
-        (row) => row.dungeon.id === draftRow.dungeon.id,
-      )
+      const original = playerStats.dungeons.find((row) => row.dungeon.id === draftRow.dungeon.id)
       if (!original) return true
-      return (
-        original.deaths !== draftRow.deaths || original.yeets !== draftRow.yeets
-      )
+      return original.deaths !== draftRow.deaths || original.yeets !== draftRow.yeets
     })
 
     if (changed.length === 0) {
@@ -129,9 +119,7 @@ export function usePlayerProfileEdit({
 
   const breakdownMode: DungeonBreakdownMode = isEditing ? 'edit' : 'browse'
   const dungeonsForBreakdown =
-    breakdownMode === 'edit' && draftDungeons
-      ? draftDungeons
-      : (playerStats?.dungeons ?? [])
+    breakdownMode === 'edit' && draftDungeons ? draftDungeons : (playerStats?.dungeons ?? [])
 
   return {
     breakdownMode,

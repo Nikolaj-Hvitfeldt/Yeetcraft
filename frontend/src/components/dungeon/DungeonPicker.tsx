@@ -36,11 +36,15 @@ export function DungeonPicker({
         onClick={() => setIsOpen((current) => !current)}
       >
         <span className="truncate">{selectedDungeon?.name ?? 'Select dungeon'}</span>
-        <ChevronDownIcon className={`ml-sm size-4 shrink-0 text-text-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDownIcon
+          className={`ml-sm size-4 shrink-0 text-text-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`}
+        />
       </button>
 
       {isOpen ? (
-        <div className={`absolute left-0 top-[44px] z-20 w-full min-w-[220px] rounded-md border border-border-subtle bg-surface-section ${LISTBOX_PANEL_SHADOW}`}>
+        <div
+          className={`absolute left-0 top-[44px] z-20 w-full min-w-[220px] rounded-md border border-border-subtle bg-surface-section ${LISTBOX_PANEL_SHADOW}`}
+        >
           <ul
             role="listbox"
             aria-label="Dungeon"

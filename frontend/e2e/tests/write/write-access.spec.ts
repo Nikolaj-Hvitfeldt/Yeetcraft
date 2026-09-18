@@ -39,7 +39,10 @@ test.describe('write access', () => {
     tryResetAndVerifyBaseline()
   })
 
-  test('shared write token unlocks editing and persists a stat change', async ({ page, request }) => {
+  test('shared write token unlocks editing and persists a stat change', async ({
+    page,
+    request,
+  }) => {
     const { writeToken } = requireE2EEnvironment()
     const expectedDeaths = DUNGEON_ALPHA.baselineDeaths + 1
 

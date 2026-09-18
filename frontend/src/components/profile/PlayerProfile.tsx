@@ -1,6 +1,6 @@
-import { useEffect, useMemo } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   deriveLeaderboard,
   usePlayerProfileEdit,
@@ -8,41 +8,40 @@ import {
   useSeasonId,
   useSeasonLeaders,
   useWriteAccess,
-} from "../../hooks";
-import { usePageConnection } from "../../hooks/usePageConnectionState";
-import { useSetPlayerStatsOutboxStatus } from "../../hooks/useWriteOutboxStatus";
-import { hasRecoverableQueryError } from "../../lib/query-defaults";
-import { retryOutboxSync } from "../../lib/write-outbox/sync";
-import { PageBoundary } from "../layout/PageBoundary";
-import { buildPlayerPath, type PageBackState } from "../../utils/routes";
-import { playerSlug } from "../../utils/slug";
-import { isNotFoundApiError } from "../../utils/api-error";
-import { HomeNavigation } from "../home/HomeNavigation";
-import { DungeonBreakdownSection } from "./DungeonBreakdownSection";
-import { NemesisCard } from "./NemesisCard";
-import { PlayerProfileHeader } from "./PlayerProfileHeader";
-import { BackButton } from "../ui/BackButton";
+} from '../../hooks'
+import { usePageConnection } from '../../hooks/usePageConnectionState'
+import { useSetPlayerStatsOutboxStatus } from '../../hooks/useWriteOutboxStatus'
+import { hasRecoverableQueryError } from '../../lib/query-defaults'
+import { retryOutboxSync } from '../../lib/write-outbox/sync'
+import { PageBoundary } from '../layout/PageBoundary'
+import { buildPlayerPath, type PageBackState } from '../../utils/routes'
+import { playerSlug } from '../../utils/slug'
+import { isNotFoundApiError } from '../../utils/api-error'
+import { HomeNavigation } from '../home/HomeNavigation'
+import { DungeonBreakdownSection } from './DungeonBreakdownSection'
+import { NemesisCard } from './NemesisCard'
+import { PlayerProfileHeader } from './PlayerProfileHeader'
+import { BackButton } from '../ui/BackButton'
 import {
   getDungeonBannerImageFromStats,
   resolveDungeonBannerSeasonKey,
-} from "../../utils/dungeon-image";
-import { getPlayerFlavorTitle } from "../../utils/player-flavor-title";
-import { getNemesisDungeon } from "../../utils/player-stats";
-import { getPlayerProfile } from "../../utils/player-characters";
+} from '../../utils/dungeon-image'
+import { getPlayerFlavorTitle } from '../../utils/player-flavor-title'
+import { getNemesisDungeon } from '../../utils/player-stats'
+import { getPlayerProfile } from '../../utils/player-characters'
 
 export function PlayerProfile() {
-  const queryClient = useQueryClient();
-  const { playerSlug: playerSlugParam } = useParams<{ playerSlug: string }>();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const queryClient = useQueryClient()
+  const { playerSlug: playerSlugParam } = useParams<{ playerSlug: string }>()
+  const navigate = useNavigate()
+  const location = useLocation()
   const { seasons, isSeasonReady, selectedSeasonId, selectedSeason, setSeasonId, homePath } =
-    useSeasonId();
-  const profileBackTo =
-    (location.state as PageBackState | null)?.backTo ?? homePath;
+    useSeasonId()
+  const profileBackTo = (location.state as PageBackState | null)?.backTo ?? homePath
 
   const { data: seasonLeaders } = useSeasonLeaders(selectedSeasonId, {
     enabled: isSeasonReady,
-  });
+  })
 
   const {
     data: playerStats,
@@ -52,9 +51,9 @@ export function PlayerProfile() {
     error: playerStatsError,
     failureCount: playerStatsFailureCount,
     refetch: refetchPlayerStats,
-  } = usePlayerStatsBySlug(playerSlugParam, selectedSeasonId, { enabled: isSeasonReady });
+  } = usePlayerStatsBySlug(playerSlugParam, selectedSeasonId, { enabled: isSeasonReady })
 
-  const canWrite = useWriteAccess();
+  const canWrite = useWriteAccess()
 
   const {
     breakdownMode,
@@ -71,13 +70,10 @@ export function PlayerProfile() {
     playerStats,
     playerSlugParam,
     selectedSeasonId,
-  });
+  })
 
-  const outboxStatus = useSetPlayerStatsOutboxStatus(
-    playerStats?.player.id,
-    selectedSeasonId,
-  );
-  const pendingSyncStatus = canWrite ? outboxStatus : null;
+  const outboxStatus = useSetPlayerStatsOutboxStatus(playerStats?.player.id, selectedSeasonId)
+  const pendingSyncStatus = canWrite ? outboxStatus : null
 
   function handlePendingSyncRetry() {
     if (pendingSyncStatus?.id) {
@@ -91,25 +87,21 @@ export function PlayerProfile() {
   const nemesis = useMemo(
     () => (playerStats ? getNemesisDungeon(playerStats.dungeons) : null),
     [playerStats],
-  );
+  )
 
   const leaderboardRank = useMemo(() => {
-    if (!playerStats) return null;
+    if (!playerStats) return null
 
-    const leaderboard = deriveLeaderboard(seasonLeaders?.leaderboard ?? []);
-    const rankIndex = leaderboard.findIndex(
-      (entry) => entry.playerId === playerStats.player.id,
-    );
-    return rankIndex === -1 ? null : rankIndex + 1;
-  }, [playerStats, seasonLeaders?.leaderboard]);
+    const leaderboard = deriveLeaderboard(seasonLeaders?.leaderboard ?? [])
+    const rankIndex = leaderboard.findIndex((entry) => entry.playerId === playerStats.player.id)
+    return rankIndex === -1 ? null : rankIndex + 1
+  }, [playerStats, seasonLeaders?.leaderboard])
 
-  const isKingOfYeets =
-    playerStats?.player.id === seasonLeaders?.kingOfYeets?.playerId;
-  const isKingOfDeaths =
-    playerStats?.player.id === seasonLeaders?.kingOfDeaths?.playerId;
+  const isKingOfYeets = playerStats?.player.id === seasonLeaders?.kingOfYeets?.playerId
+  const isKingOfDeaths = playerStats?.player.id === seasonLeaders?.kingOfDeaths?.playerId
 
   const playerMeta = useMemo(() => {
-    const characters = getPlayerProfile(playerStats?.player.displayName).characters;
+    const characters = getPlayerProfile(playerStats?.player.displayName).characters
 
     const flavor = playerStats
       ? getPlayerFlavorTitle({
@@ -122,28 +114,28 @@ export function PlayerProfile() {
           leaderboardRank,
           nemesis,
         })
-      : "Season Adventurer";
+      : 'Season Adventurer'
 
-    return { characters, flavor };
-  }, [leaderboardRank, nemesis, playerStats, seasonLeaders]);
+    return { characters, flavor }
+  }, [leaderboardRank, nemesis, playerStats, seasonLeaders])
 
-  const isPlayerNotFound = isNotFoundApiError(playerStatsError);
-  const hasCachedData = playerStats !== undefined;
-  const profileError = isPlayerNotFound ? null : playerStatsError;
+  const isPlayerNotFound = isNotFoundApiError(playerStatsError)
+  const hasCachedData = playerStats !== undefined
+  const profileError = isPlayerNotFound ? null : playerStatsError
   const hasRecoverableError = hasRecoverableQueryError(
     Boolean(profileError),
     playerStatsFailureCount,
-  );
+  )
   const localOutboxScope = useMemo(
     () =>
       playerStats && selectedSeasonId
         ? { playerId: playerStats.player.id, seasonId: selectedSeasonId }
         : undefined,
     [playerStats, selectedSeasonId],
-  );
+  )
 
   function handleRetry() {
-    void refetchPlayerStats();
+    void refetchPlayerStats()
   }
 
   const { loadingMessage, showOfflineNoCache } = usePageConnection({
@@ -154,35 +146,33 @@ export function PlayerProfile() {
     hasRecoverableError,
     localOutboxScope,
     onRetry: handleRetry,
-  });
+  })
 
   const isPageLoading =
     !showOfflineNoCache &&
-    (!isSeasonReady ||
-      (isPendingPlayerStats && !playerStats && !isPlayerNotFound));
-  const isRefreshingProfile =
-    isFetchingPlayerStats && !!playerStats && !isPendingPlayerStats;
+    (!isSeasonReady || (isPendingPlayerStats && !playerStats && !isPlayerNotFound))
+  const isRefreshingProfile = isFetchingPlayerStats && !!playerStats && !isPendingPlayerStats
   const notFoundMessage =
     isSeasonReady &&
     playerSlugParam &&
     hasFetchedPlayerStats &&
     !isFetchingPlayerStats &&
     (isPlayerNotFound || (!playerStats && !playerStatsError))
-      ? "Player stats were not found."
-      : null;
-  const blockingError = profileError && !hasCachedData ? profileError : null;
+      ? 'Player stats were not found.'
+      : null
+  const blockingError = profileError && !hasCachedData ? profileError : null
 
   useEffect(() => {
-    if (!playerStats || !selectedSeason || !playerSlugParam) return;
+    if (!playerStats || !selectedSeason || !playerSlugParam) return
 
-    const canonicalSlug = playerSlug(playerStats.player);
-    if (playerSlugParam === canonicalSlug) return;
+    const canonicalSlug = playerSlug(playerStats.player)
+    if (playerSlugParam === canonicalSlug) return
 
     navigate(buildPlayerPath(selectedSeason, playerStats.player), {
       replace: true,
       state: location.state,
-    });
-  }, [location.state, navigate, playerSlugParam, playerStats, selectedSeason]);
+    })
+  }, [location.state, navigate, playerSlugParam, playerStats, selectedSeason])
 
   return (
     <PageBoundary
@@ -238,21 +228,18 @@ export function PlayerProfile() {
             onEnterEdit={handleEnterEdit}
             onCancel={handleCancelEdit}
             onDone={() => {
-              void handleDoneEdit();
+              void handleDoneEdit()
             }}
             isSaving={isSaving}
             onAdjust={handleAdjustDraft}
             season={playerStats.season}
             pendingSyncStatus={pendingSyncStatus}
             onPendingSyncRetry={handlePendingSyncRetry}
-            dungeonBackTo={buildPlayerPath(
-              playerStats.season,
-              playerStats.player,
-            )}
+            dungeonBackTo={buildPlayerPath(playerStats.season, playerStats.player)}
             profileBackTo={profileBackTo}
           />
         </div>
       ) : null}
     </PageBoundary>
-  );
+  )
 }

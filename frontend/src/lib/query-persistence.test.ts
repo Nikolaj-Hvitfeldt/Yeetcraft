@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  isPersistedQueryKey,
-  shouldDehydratePersistedQuery,
-} from './query-persistence'
+import { isPersistedQueryKey, shouldDehydratePersistedQuery } from './query-persistence'
 
 describe('query persistence allowlist', () => {
   it('allows approved read query roots', () => {

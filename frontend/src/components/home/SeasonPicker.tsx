@@ -31,11 +31,15 @@ export function SeasonPicker({
         <span className="truncate">
           {selectedSeason ? formatSeasonLabel(selectedSeason) : 'Select season'}
         </span>
-        <ChevronDownIcon className={`ml-sm size-4 shrink-0 text-text-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDownIcon
+          className={`ml-sm size-4 shrink-0 text-text-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`}
+        />
       </button>
 
       {isOpen && (
-        <div className={`absolute right-0 top-[44px] z-20 overflow-hidden rounded-md border border-border-subtle bg-surface-section ${LISTBOX_PANEL_SHADOW} ${fluid ? 'w-full' : 'w-[199px]'}`}>
+        <div
+          className={`absolute right-0 top-[44px] z-20 overflow-hidden rounded-md border border-border-subtle bg-surface-section ${LISTBOX_PANEL_SHADOW} ${fluid ? 'w-full' : 'w-[199px]'}`}
+        >
           <ul role="listbox" aria-label="Season" className="max-h-56 overflow-y-auto p-xs">
             {seasons.map((season) => (
               <ListboxOption

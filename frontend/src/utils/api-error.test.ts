@@ -51,9 +51,9 @@ describe('getUserFacingErrorMessage', () => {
   })
 
   it('maps network errors', () => {
-    expect(getUserFacingErrorMessage(new ApiError('network', 'Failed to reach the server'))).toContain(
-      'connection',
-    )
+    expect(
+      getUserFacingErrorMessage(new ApiError('network', 'Failed to reach the server')),
+    ).toContain('connection')
   })
 
   it('maps timeout errors', () => {

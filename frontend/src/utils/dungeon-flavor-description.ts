@@ -117,10 +117,7 @@ function describeSeasonRegular(ctx: FlavorDescriptionContext): string {
   return `${ctx.dungeonName} sits near the middle of the season. ${mistakeTotals(ctx)}, close to the ${ctx.seasonAverageMistakes} per-dungeon average.`
 }
 
-const FLAVOR_DESCRIPTION_BY_TITLE: Record<
-  string,
-  (ctx: FlavorDescriptionContext) => string
-> = {
+const FLAVOR_DESCRIPTION_BY_TITLE: Record<string, (ctx: FlavorDescriptionContext) => string> = {
   'The Meat Grinder': describeMeatGrinder,
   'The Launch Pad': describeLaunchPad,
   'The Graveyard Shift': describeGraveyardShift,
@@ -137,10 +134,7 @@ const FLAVOR_DESCRIPTION_BY_TITLE: Record<
   'The Season Regular': describeSeasonRegular,
 }
 
-export function getFlavorDescription(
-  title: string,
-  context: FlavorDescriptionContext,
-): string {
+export function getFlavorDescription(title: string, context: FlavorDescriptionContext): string {
   const builder = FLAVOR_DESCRIPTION_BY_TITLE[title]
   if (!builder) {
     return `${context.dungeonName} earned "${title}" this season.`

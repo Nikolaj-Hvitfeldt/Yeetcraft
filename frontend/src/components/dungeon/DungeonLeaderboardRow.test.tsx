@@ -33,9 +33,7 @@ describe('DungeonLeaderboardRow', () => {
       </MemoryRouter>,
     )
 
-    const image = container.querySelector(
-      `img[src="${PLAYER_AVATAR_BY_KEY.martin}"]`,
-    )
+    const image = container.querySelector(`img[src="${PLAYER_AVATAR_BY_KEY.martin}"]`)
     expect(image).not.toBeNull()
     expect(image).toHaveAttribute('alt', '')
     expect(image).not.toHaveAttribute('loading')

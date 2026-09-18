@@ -1,17 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import {
-  PLAYER_AVATAR_BY_KEY,
-  resolvePlayerAvatarSrc,
-} from './player-avatar'
+import { PLAYER_AVATAR_BY_KEY, resolvePlayerAvatarSrc } from './player-avatar'
 
 describe('resolvePlayerAvatarSrc', () => {
   it('resolves local bundled avatars via explicit playerKey', () => {
-    expect(resolvePlayerAvatarSrc({ playerKey: 'seb' })).toBe(
-      PLAYER_AVATAR_BY_KEY.seb,
-    )
-    expect(resolvePlayerAvatarSrc({ playerKey: 'martin' })).toBe(
-      PLAYER_AVATAR_BY_KEY.martin,
-    )
+    expect(resolvePlayerAvatarSrc({ playerKey: 'seb' })).toBe(PLAYER_AVATAR_BY_KEY.seb)
+    expect(resolvePlayerAvatarSrc({ playerKey: 'martin' })).toBe(PLAYER_AVATAR_BY_KEY.martin)
   })
 
   it('prefers explicit playerKey over displayName-derived key', () => {
@@ -25,12 +18,8 @@ describe('resolvePlayerAvatarSrc', () => {
   })
 
   it('falls back to displayName→key when playerKey is omitted', () => {
-    expect(resolvePlayerAvatarSrc({ displayName: 'Seb' })).toBe(
-      PLAYER_AVATAR_BY_KEY.seb,
-    )
-    expect(resolvePlayerAvatarSrc({ displayName: 'NIKO' })).toBe(
-      PLAYER_AVATAR_BY_KEY.niko,
-    )
+    expect(resolvePlayerAvatarSrc({ displayName: 'Seb' })).toBe(PLAYER_AVATAR_BY_KEY.seb)
+    expect(resolvePlayerAvatarSrc({ displayName: 'NIKO' })).toBe(PLAYER_AVATAR_BY_KEY.niko)
   })
 
   it('falls back to displayName→key when playerKey misses the local map', () => {

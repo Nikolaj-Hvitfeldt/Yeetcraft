@@ -13,9 +13,7 @@ export function DungeonHeroSection({
   bannerImageUrl,
   navigationState,
 }: DungeonHeroSectionProps) {
-  const seasonLabel = season
-    ? [season.name, season.expansion].filter(Boolean).join(' · ')
-    : null
+  const seasonLabel = season ? [season.name, season.expansion].filter(Boolean).join(' · ') : null
   const zoneImageUrl = getDungeonZoneImage(dungeon)
   const hasZoneBackdrop = Boolean(zoneImageUrl)
 

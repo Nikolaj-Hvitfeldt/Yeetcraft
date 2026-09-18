@@ -35,9 +35,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="max-w-md rounded-md border border-border-subtle bg-surface-base p-8 text-center">
           <h2 className="text-2xl mb-4">Something went wrong</h2>
-          <p className="mb-6 text-text-secondary">
-            {getUserFacingErrorMessage(this.state.error)}
-          </p>
+          <p className="mb-6 text-text-secondary">{getUserFacingErrorMessage(this.state.error)}</p>
           <button
             onClick={this.handleReload}
             className="rounded-sm border border-accent-primary px-6 py-2 font-heading text-sm uppercase tracking-wider text-accent-primary"
