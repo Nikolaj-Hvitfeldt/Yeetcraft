@@ -18,7 +18,10 @@ export function runTestdb(command: TestdbCommand, secrets: string[] = []): void 
   }
 }
 
-export function runTestdbAllowFail(command: TestdbCommand, secrets: string[] = []): TestdbRunResult {
+export function runTestdbAllowFail(
+  command: TestdbCommand,
+  secrets: string[] = [],
+): TestdbRunResult {
   const result = spawnSync('go', ['run', './cmd/testdb', command], {
     cwd: backendRoot,
     env: {

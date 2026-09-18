@@ -19,9 +19,7 @@ export function RankBadge({ rank }: RankBadgeProps) {
         rankIcon ? 'gap-0.5' : 'size-11 justify-center',
       )}
     >
-      {rankIcon ? (
-        <Icon icon={rankIcon} size={44} objectFit="contain" className="size-11" />
-      ) : null}
+      {rankIcon ? <Icon icon={rankIcon} size={44} objectFit="contain" className="size-11" /> : null}
       <span
         className={cn(
           'font-number font-bold leading-none text-text-secondary',

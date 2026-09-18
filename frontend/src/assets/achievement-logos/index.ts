@@ -30,8 +30,6 @@ export const achievementLogos = {
 
 export type AchievementLogoKey = keyof typeof achievementLogos
 
-export function isAchievementLogoKey(
-  icon: string,
-): icon is AchievementLogoKey {
+export function isAchievementLogoKey(icon: string): icon is AchievementLogoKey {
   return icon in achievementLogos
 }

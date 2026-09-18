@@ -54,9 +54,7 @@ describe('applyPendingStatsWritesToQueryCache', () => {
     __resetWriteOutboxStoreForTests([pendingWrite])
     applyPendingStatsWritesToQueryCache(queryClient)
 
-    const updated = queryClient.getQueryData<PlayerStatsResponse>(
-      queryKeys.playerStats('p1', 's1'),
-    )
+    const updated = queryClient.getQueryData<PlayerStatsResponse>(queryKeys.playerStats('p1', 's1'))
 
     expect(updated?.dungeons[0]?.deaths).toBe(4)
     expect(updated?.dungeons[0]?.yeets).toBe(5)

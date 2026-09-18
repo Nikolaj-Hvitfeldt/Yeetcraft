@@ -51,4 +51,3 @@ export function getDungeonBannerImageFromStats(
 ): string | null {
   return getDungeonBannerImage(seasonKey, { name: dungeonStats.dungeon.name })
 }
-

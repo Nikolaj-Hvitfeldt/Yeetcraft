@@ -32,9 +32,7 @@ export function StatItem({
       <p className={`font-number text-2xl font-bold leading-7 ${colorClassName}`}>{value}</p>
       <div className="flex items-center">
         <p className="text-[10px] leading-[14px] text-text-secondary">{label}</p>
-        {infoTooltip ? (
-          <InfoTooltip content={infoTooltip} label={`About ${label}`} />
-        ) : null}
+        {infoTooltip ? <InfoTooltip content={infoTooltip} label={`About ${label}`} /> : null}
       </div>
     </div>
   )

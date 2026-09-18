@@ -74,8 +74,8 @@ describe('route builders', () => {
       isCurrent: false,
     }
 
-    expect(
-      replaceSeasonSlugInPath('/midnight-season-1/player/seb', seasons, nextSeason),
-    ).toBe('/midnight-season-2/player/seb')
+    expect(replaceSeasonSlugInPath('/midnight-season-1/player/seb', seasons, nextSeason)).toBe(
+      '/midnight-season-2/player/seb',
+    )
   })
 })

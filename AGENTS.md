@@ -16,6 +16,17 @@ Operational guide for AI coding assistants working in this repository.
 - Inspect `git status` before editing and preserve unrelated user changes.
 - Never commit or push unless the user explicitly requests it.
 
+## Branch workflow
+
+- `dev` is the integration and default development branch.
+- Create feature branches from the latest `dev` and target pull requests to
+  `dev`.
+- `main` is the stable/release branch. Promote reviewed changes with a pull
+  request from `dev` to `main`; do not develop directly on `main`.
+- Keep cross-repository work in separate branches, commits, and pull requests
+  for each repository.
+- CI must pass before merging into either protected branch.
+
 ## Architecture
 
 ```text
@@ -121,6 +132,7 @@ go vet ./...
 
 # Frontend
 cd frontend
+npm run format:check
 npm run lint
 npm test
 npm run build

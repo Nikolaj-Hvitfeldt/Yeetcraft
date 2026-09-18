@@ -3,7 +3,12 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { buildE2EFrontend } from './helpers/build'
-import { E2E_API_HEALTH_URL, E2E_API_PORT, E2E_WEB_BASE_URL, E2E_WEB_PORT } from './helpers/constants'
+import {
+  E2E_API_HEALTH_URL,
+  E2E_API_PORT,
+  E2E_WEB_BASE_URL,
+  E2E_WEB_PORT,
+} from './helpers/constants'
 import { buildWebServerEnvironment, requireE2EEnvironment } from './helpers/env'
 import { assertPortAvailable } from './helpers/ports'
 import { backendRoot, frontendRoot } from './helpers/paths'

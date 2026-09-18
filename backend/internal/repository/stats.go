@@ -105,8 +105,8 @@ type DungeonLeaderboardEntry struct {
 }
 
 type DungeonLeaderboard struct {
-	Season      SeasonSummary           `json:"season"`
-	Dungeon     DungeonReference        `json:"dungeon"`
+	Season      SeasonSummary             `json:"season"`
+	Dungeon     DungeonReference          `json:"dungeon"`
 	Leaderboard []DungeonLeaderboardEntry `json:"leaderboard"`
 }
 

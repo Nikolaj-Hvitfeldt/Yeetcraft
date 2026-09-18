@@ -13,11 +13,7 @@ export class ApiError extends Error {
   readonly kind: ApiErrorKind
   readonly status?: number
 
-  constructor(
-    kind: ApiErrorKind,
-    message: string,
-    options?: { status?: number; cause?: unknown },
-  ) {
+  constructor(kind: ApiErrorKind, message: string, options?: { status?: number; cause?: unknown }) {
     super(message)
     this.name = 'ApiError'
     this.kind = kind

@@ -109,10 +109,7 @@ export function ConnectionStatusProvider({ children }: { children: ReactNode }) 
       }
     }
 
-    if (
-      isPageRefreshing &&
-      isBackgroundRefreshConnectionState(pageResults.connectionState)
-    ) {
+    if (isPageRefreshing && isBackgroundRefreshConnectionState(pageResults.connectionState)) {
       return null
     }
 

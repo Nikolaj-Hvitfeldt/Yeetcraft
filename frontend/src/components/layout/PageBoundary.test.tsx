@@ -30,21 +30,13 @@ describe('PageBoundary', () => {
   })
 
   it('renders blocking error when there is no content', () => {
-    render(
-      <PageBoundary error={new Error('Server unavailable')}>
-        {null}
-      </PageBoundary>,
-    )
+    render(<PageBoundary error={new Error('Server unavailable')}>{null}</PageBoundary>)
 
     expect(screen.getByText('Something went wrong. Please try again.')).toBeInTheDocument()
   })
 
   it('does not render auth required for unauthorized errors', () => {
-    render(
-      <PageBoundary error={new Error('Unauthorized')}>
-        {null}
-      </PageBoundary>,
-    )
+    render(<PageBoundary error={new Error('Unauthorized')}>{null}</PageBoundary>)
 
     expect(screen.queryByText('Access Required')).not.toBeInTheDocument()
     expect(screen.getByText('Something went wrong. Please try again.')).toBeInTheDocument()

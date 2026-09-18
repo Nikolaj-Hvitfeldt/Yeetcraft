@@ -1,10 +1,6 @@
 import type { ReactNode } from 'react'
 import { Icon } from '../Icon'
-import {
-  SPOTLIGHT_ICON_BY_KIND,
-  STAT_COLOR_BY_KIND,
-  type StatKind,
-} from '../../utils/stat-colors'
+import { SPOTLIGHT_ICON_BY_KIND, STAT_COLOR_BY_KIND, type StatKind } from '../../utils/stat-colors'
 
 function renderSpotlightIcon(categoryKind?: StatKind | 'default') {
   const iconKey = categoryKind ? SPOTLIGHT_ICON_BY_KIND[categoryKind] : undefined
@@ -16,9 +12,7 @@ function renderSpotlightIcon(categoryKind?: StatKind | 'default') {
         size={28}
         objectFit={categoryKind === 'deaths' ? 'contain' : 'cover'}
         className={
-          categoryKind === 'yeets' || categoryKind === 'default'
-            ? 'size-7 rounded-full'
-            : 'size-7'
+          categoryKind === 'yeets' || categoryKind === 'default' ? 'size-7 rounded-full' : 'size-7'
         }
       />
     )
@@ -46,9 +40,7 @@ export function SpotlightCard({
       className={`flex h-[140px] flex-col rounded-3xl border border-accent-primary bg-surface-base p-xl ${className ?? ''}`}
     >
       <div className="flex items-center justify-between">
-        <div className="shrink-0">
-          {icon ?? renderSpotlightIcon(categoryKind)}
-        </div>
+        <div className="shrink-0">{icon ?? renderSpotlightIcon(categoryKind)}</div>
         <p className={`text-xs leading-4 ${categoryClassName}`}>{category}</p>
       </div>
       <div className="mt-lg flex items-end justify-between">

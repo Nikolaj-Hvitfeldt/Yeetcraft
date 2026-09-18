@@ -58,9 +58,7 @@ export function deriveConnectionState(input: ConnectionStateInput): ConnectionSt
   return 'idle'
 }
 
-export function getConnectionBannerContent(
-  state: ConnectionState,
-): ConnectionBannerContent | null {
+export function getConnectionBannerContent(state: ConnectionState): ConnectionBannerContent | null {
   switch (state) {
     case 'restoring':
       return { message: 'Restoring saved data...', showRetry: false }

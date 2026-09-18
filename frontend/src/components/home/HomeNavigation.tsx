@@ -1,16 +1,16 @@
-import { Link } from "react-router-dom";
-import logoDaytimeFull from "../../assets/logos/logoDaytimeFull.webp";
-import logoMidnightFull from "../../assets/logos/logoMidnightFull.webp";
-import { useTheme } from "../../hooks";
-import { ThemeSwitcher } from "../ThemeSwitcher";
+import { Link } from 'react-router-dom'
+import logoDaytimeFull from '../../assets/logos/logoDaytimeFull.webp'
+import logoMidnightFull from '../../assets/logos/logoMidnightFull.webp'
+import { useTheme } from '../../hooks'
+import { ThemeSwitcher } from '../ThemeSwitcher'
 
 const logosByTheme = {
   daytime: logoDaytimeFull,
   midnight: logoMidnightFull,
-} as const;
+} as const
 
 export function HomeNavigation({ homePath }: HomeNavigationProps) {
-  const { theme } = useTheme();
+  const { theme } = useTheme()
 
   return (
     <nav className="flex w-full items-center justify-between px-xs py-sm">
@@ -28,9 +28,7 @@ export function HomeNavigation({ homePath }: HomeNavigationProps) {
           />
         </span>
         <div>
-          <p className="font-heading text-xl font-bold leading-6 text-accent-primary">
-            YeetCraft
-          </p>
+          <p className="font-heading text-xl font-bold leading-6 text-accent-primary">YeetCraft</p>
           <p className="text-on-image text-xs font-semibold leading-4 text-text-accent">
             Mythic+ Hall of Shame
           </p>
@@ -38,9 +36,9 @@ export function HomeNavigation({ homePath }: HomeNavigationProps) {
       </Link>
       <ThemeSwitcher />
     </nav>
-  );
+  )
 }
 
 interface HomeNavigationProps {
-  homePath: string;
+  homePath: string
 }

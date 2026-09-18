@@ -1,6 +1,11 @@
 import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { useCurrentSeasonDungeons, useDungeonLeaderboard, useSeasonId, useSeasonLeaders } from '../../hooks'
+import {
+  useCurrentSeasonDungeons,
+  useDungeonLeaderboard,
+  useSeasonId,
+  useSeasonLeaders,
+} from '../../hooks'
 import { usePageConnection } from '../../hooks/usePageConnectionState'
 import { hasRecoverableQueryError } from '../../lib/query-defaults'
 import { PageBoundary } from '../layout/PageBoundary'
@@ -16,10 +21,7 @@ import {
   getMistakeMix,
   sortDungeonLeaderboard,
 } from '../../utils/dungeon-stats'
-import {
-  getDungeonBannerImage,
-  resolveDungeonBannerSeasonKey,
-} from '../../utils/dungeon-image'
+import { getDungeonBannerImage, resolveDungeonBannerSeasonKey } from '../../utils/dungeon-image'
 import { BackButton } from '../ui/BackButton'
 import { AchievementsSection } from './AchievementsSection'
 import { DungeonHeroSection } from './DungeonHeroSection'
@@ -72,10 +74,7 @@ export function DungeonDetail() {
     [dungeonLeaderboardData?.leaderboard],
   )
 
-  const highlights = useMemo(
-    () => getDungeonHighlights(sortedLeaderboard),
-    [sortedLeaderboard],
-  )
+  const highlights = useMemo(() => getDungeonHighlights(sortedLeaderboard), [sortedLeaderboard])
 
   const mistakeMix = useMemo(
     () => (dungeon ? getMistakeMix(dungeon) : { deathsPercent: 0, yeetsPercent: 0 }),
@@ -132,9 +131,7 @@ export function DungeonDetail() {
   const { loadingMessage, showOfflineNoCache } = usePageConnection({
     hasCachedData,
     isFetching: isFetchingDungeons || isFetchingLeaderboard,
-    isPending:
-      !isSeasonReady ||
-      ((isPendingDungeons || isPendingLeaderboard) && !hasCachedData),
+    isPending: !isSeasonReady || ((isPendingDungeons || isPendingLeaderboard) && !hasCachedData),
     isError: Boolean(error),
     hasRecoverableError,
     onRetry: handleRetry,
@@ -225,11 +222,7 @@ export function DungeonDetail() {
             <DungeonLeaderboardSection
               leaderboard={sortedLeaderboard}
               season={selectedSeason}
-              playerBackTo={
-                selectedSeason
-                  ? buildDungeonPath(selectedSeason, dungeon)
-                  : undefined
-              }
+              playerBackTo={selectedSeason ? buildDungeonPath(selectedSeason, dungeon) : undefined}
               isLoading={isPendingLeaderboard && !dungeonLeaderboardData}
               error={leaderboardError}
               onRetry={handleRetry}

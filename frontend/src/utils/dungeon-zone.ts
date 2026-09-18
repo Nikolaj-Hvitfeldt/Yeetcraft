@@ -25,9 +25,7 @@ const NAME_TO_ZONE_KEY: Record<string, ZoneImageKey> = {
   kingsrest: 'zuldazar',
 }
 
-export function getDungeonZoneImage(
-  dungeon: Pick<DungeonSummary, 'name'>,
-): string | null {
+export function getDungeonZoneImage(dungeon: Pick<DungeonSummary, 'name'>): string | null {
   const zoneKey = NAME_TO_ZONE_KEY[normalizeDungeonName(dungeon.name)]
   if (!zoneKey) return null
 

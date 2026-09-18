@@ -71,10 +71,7 @@ export async function applyPlayerStatsUpdatesToCache(
       queryKey: slugQueryKey as PlayerStatsBySlugQueryKey,
       data: slugPlayerStats,
     })
-    queryClient.setQueryData(
-      slugQueryKey,
-      applyDungeonUpdates(slugPlayerStats, request.stats),
-    )
+    queryClient.setQueryData(slugQueryKey, applyDungeonUpdates(slugPlayerStats, request.stats))
   }
 
   return { previousPlayerStats, previousSlugQueries }

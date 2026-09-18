@@ -9,20 +9,11 @@ export function DeathsYeetsBar({
   className,
   'aria-label': ariaLabel,
 }: DeathsYeetsBarProps) {
-  const { deathsWidth, yeetsWidth } = getBarWidths(
-    deaths,
-    yeets,
-    deathsPercent,
-    yeetsPercent,
-  )
+  const { deathsWidth, yeetsWidth } = getBarWidths(deaths, yeets, deathsPercent, yeetsPercent)
 
   return (
     <div
-      className={cn(
-        'flex overflow-hidden rounded-pill bg-overlay-dark',
-        heightClass,
-        className,
-      )}
+      className={cn('flex overflow-hidden rounded-pill bg-overlay-dark', heightClass, className)}
       role="img"
       aria-label={ariaLabel}
     >

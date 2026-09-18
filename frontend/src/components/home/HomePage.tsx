@@ -16,8 +16,15 @@ import { HomeNavigation } from './HomeNavigation'
 import { RankingsPanel } from './RankingsPanel'
 
 export function HomePage() {
-  const { seasons, isPendingSeasons, isSeasonReady, selectedSeasonId, selectedSeason, setSeasonId, homePath } =
-    useSeasonId()
+  const {
+    seasons,
+    isPendingSeasons,
+    isSeasonReady,
+    selectedSeasonId,
+    selectedSeason,
+    setSeasonId,
+    homePath,
+  } = useSeasonId()
 
   const {
     data: seasonLeaders,
@@ -66,15 +73,9 @@ export function HomePage() {
     [seasonLeaders?.leaderboard],
   )
 
-  const leaderboard = useMemo(
-    () => deriveLeaderboard(leaderboardEntries),
-    [leaderboardEntries],
-  )
+  const leaderboard = useMemo(() => deriveLeaderboard(leaderboardEntries), [leaderboardEntries])
 
-  const totalStats = useMemo(
-    () => calculateTotalStats(leaderboardEntries),
-    [leaderboardEntries],
-  )
+  const totalStats = useMemo(() => calculateTotalStats(leaderboardEntries), [leaderboardEntries])
 
   const bannerSeasonKey = useMemo(
     () => (selectedSeason ? resolveDungeonBannerSeasonKey(selectedSeason.name) : undefined),
