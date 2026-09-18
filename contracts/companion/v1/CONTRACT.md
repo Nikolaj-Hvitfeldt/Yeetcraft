@@ -1,4 +1,4 @@
-# Companion ingest contract v1 — normative specification (WP1)
+# Companion ingest contract v1 — normative specification (WP1–WP2)
 
 > **Status: Draft — reviewed, not implemented**
 
@@ -10,8 +10,6 @@ dungeon resolution, and privacy rules for companion v1.
 
 | Topic | Work package |
 | ----- | ------------ |
-| Run, encounter, death, ranked-cause payload fields and cross-field invariants | WP2 |
-| `ingest-batch-request.schema.json` and synthetic request examples | WP2 |
 | Per-event acknowledgement outcomes, response/error schemas, limits, retry taxonomy | WP3 |
 | Correction transitions, revision-protected manual adjustment ledger | WP4 (Yeetcraft ADRs; linked as server context only) |
 
@@ -298,8 +296,179 @@ Unknown player-origin cause identity is **redacted locally** before upload.
 | Diagnostic logs | Identifiers and stable codes only; no credentials or full payloads |
 | Error messages surfaced to users | Actionable; no secrets or untracked PII |
 
-Server-side evidence retention for ranked causes is specified with payload
-fields in WP2.
+Server-side evidence retention for ranked causes is specified in
+[Request payloads](#request-payloads) below.
+
+---
+
+## Request payloads
+
+Normative JSON Schema:
+[`schema/ingest-batch-request.schema.json`](./schema/ingest-batch-request.schema.json).
+
+Synthetic request examples:
+[`examples/request/`](./examples/request/).
+
+### Batch envelope
+
+Top-level object for `POST /api/companion/v1/deaths/batch`:
+
+| Field | Required | Type | Description |
+| ----- | -------- | ---- | ----------- |
+| `schemaVersion` | yes | integer `1` | Must agree with path segment `v1` (matching rules deferred to WP3). |
+| `batchId` | yes | UUID string | Batch idempotency key (see [Batch idempotency](#batch-idempotency)). |
+| `installationId` | no | UUID string | Spoofable diagnostics only; excluded from ID recipes and auth. |
+| `events` | yes | array | One or more death events (array bounds deferred to WP3). |
+
+The envelope uses `additionalProperties: false`. No parallel
+`Idempotency-Key` header.
+
+### Death event
+
+Each element of `events` describes one tracked-player `UNIT_DIED` ingest
+candidate.
+
+| Field | Required | Type | Description |
+| ----- | -------- | ---- | ----------- |
+| `clientEventId` | yes | `sha256:` digest | Per [Deterministic identifiers](#clienteventid). |
+| `characterGuid` | yes | player GUID | Combat-log GUID of the **tracked** victim. Names and realms are omitted. |
+| `deathInstant` | yes | canonical instant | RFC 3339 UTC with fixed nanosecond precision at the `UNIT_DIED` envelope time. |
+| `ordinal` | yes | integer ≥ 0 | Zero-based index among this victim's `UNIT_DIED` records at the **same** canonical `deathInstant` within the run. |
+| `run` | yes | run object | Mythic+ run context used for ID hashing and server season/dungeon resolution. |
+| `encounter` | yes | encounter object or `null` | Boss journal context when an encounter was active at death; `null` for trash. |
+| `causes` | no | ranked-cause array | Up to three ranked cause records; may be omitted or empty when no damage evidence was captured. |
+| `category` | no | string | If present, must be exactly `"death"`. Omission is equivalent. |
+
+#### Server-default classification
+
+Companion v1 is **ingest-only**. The wire payload does **not** carry
+authoritative `yeet` or `ignored` classification.
+
+- Clients **omit** `category` or, if present, set `category` to `"death"` only.
+- The server assigns `category = death` on accepted events.
+- Website correction to `yeet` or `ignored` is Yeetcraft-internal (WP4) and is
+  not part of the companion wire contract.
+
+Detector `confidence` on ranked causes describes evidence quality only; it does
+not grant classification authority.
+
+#### Run object (`run`)
+
+| Field | Required | Type | Description |
+| ----- | -------- | ---- | ----------- |
+| `clientRunId` | yes | `sha256:` digest | Per [Deterministic identifiers](#clientrunid). |
+| `challengeModeStartInstant` | yes | canonical instant | Canonical instant of the run's `CHALLENGE_MODE_START`. |
+| `challengeMapId` | yes | integer ≥ 1 | Challenge map ID from `CHALLENGE_MODE_START`. |
+| `keystoneLevel` | yes | integer ≥ 0 | Keystone level from `CHALLENGE_MODE_START`. |
+| `seasonId` | no | UUID string | Yeetcraft season ID snapshot as a hint; validated server-side (see [Season and dungeon resolution](#season-and-dungeon-resolution)). |
+
+Every ingested death must include a complete run object with all hash inputs
+required to verify `clientRunId`. Deaths that cannot be bound to a
+`CHALLENGE_MODE_START` with a canonical start instant must be held for local
+review and **must not** appear in upload batches.
+
+`seasonId` is never authoritative by itself; contradictions with timestamp-based
+resolution produce `needs_review` at processing time (acknowledgement deferred
+to WP3).
+
+#### Encounter object (`encounter`)
+
+When not `null`:
+
+| Field | Required | Type | Description |
+| ----- | -------- | ---- | ----------- |
+| `encounterId` | yes | integer ≥ 1 | Journal encounter ID from `ENCOUNTER_START` active at death. |
+
+Encounter names, boss display strings, and NPC GUIDs are **not** on the wire.
+Trash deaths set `encounter` to `null`.
+
+#### Ranked cause object (`causes[]`)
+
+| Field | Required | Type | Description |
+| ----- | -------- | ---- | ----------- |
+| `rank` | yes | integer 1–3 | Contiguous ranks starting at `1` within the event (see invariants). |
+| `sourceType` | yes | enum | `spell`, `range`, `melee`, or `environmental` (normalized damage kind). |
+| `spellId` | conditional | integer ≥ 1 | Required when `sourceType` is `spell` or `range`. |
+| `creatureId` | no | integer ≥ 1 | Creature or game-object template ID when known; never a player or pet-owner GUID. |
+| `environmentalType` | conditional | string | Required when `sourceType` is `environmental`. |
+| `amount` | yes | integer ≥ 0 | Damage amount from the contributing hit. |
+| `overkill` | yes | integer ≥ 0 | Overkill from the contributing hit. |
+| `confidence` | yes | enum | `high`, `medium`, or `low` — detector evidence only. |
+
+**Forbidden on causes** (enforced structurally and semantically): player names,
+realms, untracked player or pet-owner GUIDs, spell display names, raw log lines,
+and any field not defined in the schema.
+
+Prefer `creatureId` over wire GUIDs for non-player sources. Player-origin cause
+identity is redacted locally before upload; such causes may omit `creatureId`.
+
+### Wire formats
+
+| Concept | Format |
+| ------- | ------ |
+| UUID | Lowercase RFC 4122 string `8-4-4-4-12` hex with hyphens. |
+| `sha256:` digest | Literal prefix `sha256:` followed by 64 lowercase hex digits. |
+| Player GUID | `Player-` prefix, realm segment, local segment (combat-log shape). |
+| Canonical instant | `YYYY-MM-DDTHH:MM:SS.nnnnnnnnnZ` — UTC, exactly nine fractional digits. |
+
+### Cross-field invariants
+
+The server (and companion before upload) must enforce:
+
+1. **`clientRunId` integrity** — Recomputed hash from domain tag
+   `yeetcraft-run-v1`, `run.challengeModeStartInstant`, decimal string forms of
+   `run.challengeMapId` and `run.keystoneLevel`, must equal `run.clientRunId`.
+2. **`clientEventId` integrity** — Recomputed hash from domain tag
+   `yeetcraft-death-v1`, `run.clientRunId`, `characterGuid`, `deathInstant`,
+   and decimal string form of `ordinal`, must equal `clientEventId`.
+3. **Instant alignment** — `deathInstant` must not precede
+   `run.challengeModeStartInstant` within the same run context.
+4. **Encounter consistency** — When `encounter` is non-null,
+   `encounter.encounterId` must be positive. Trash deaths use `encounter:
+   null`.
+5. **Cause ranks** — At most three causes; ranks are unique and contiguous from
+   `1` through `N` with no gaps.
+6. **Cause conditionals** — `spellId` present for `spell` and `range`;
+   `environmentalType` present for `environmental`.
+7. **Category constraint** — If `category` is present, value must be `death`.
+8. **Tracked identity** — `characterGuid` is the only character identity field;
+   it must refer to a tracked player GUID filtered client-side before upload.
+9. **Run completeness** — Events without a verifiable Mythic+ start context
+   are not valid ingest payloads.
+
+Structural checks (types, bounds, `additionalProperties`, digest and instant
+patterns) are expressed in JSON Schema. Hash recomputation, rank contiguity, and
+timestamp ordering are **semantic** checks.
+
+### Request-side semantic validation codes
+
+These stable codes describe **request payload semantics** evaluated per event or
+envelope. HTTP status mapping, batch envelopes, and retry behavior are deferred
+to WP3.
+
+| Code | Scope | When |
+| ---- | ----- | ---- |
+| `schema_version_mismatch` | envelope | `schemaVersion` does not match endpoint `v1`. |
+| `invalid_batch_id` | envelope | `batchId` is not a UUID. |
+| `empty_events` | envelope | `events` is empty. |
+| `invalid_client_run_id` | event | `clientRunId` digest format invalid or hash mismatch. |
+| `invalid_client_event_id` | event | `clientEventId` digest format invalid or hash mismatch. |
+| `invalid_instant` | event | Instant not canonical RFC 3339 UTC with required precision. |
+| `death_before_run_start` | event | `deathInstant` precedes `challengeModeStartInstant`. |
+| `invalid_character_guid` | event | `characterGuid` is not a player GUID shape. |
+| `invalid_ordinal` | event | `ordinal` is negative or inconsistent with persisted scan order. |
+| `category_not_allowed` | event | `category` present and not `death`. |
+| `run_context_incomplete` | event | Run object missing required hash inputs or Mythic+ binding. |
+| `invalid_encounter` | event | Non-null `encounter` without positive `encounterId`. |
+| `too_many_causes` | event | More than three ranked causes. |
+| `cause_rank_non_contiguous` | event | Cause ranks are not exactly `1..N`. |
+| `cause_rank_duplicate` | event | Duplicate `rank` values among causes. |
+| `cause_field_missing` | event | Required conditional cause field absent for `sourceType`. |
+| `cause_forbidden_field` | event | Cause carries a forbidden identity field (should not occur when schema-valid). |
+
+Per-event outcomes such as `needs_review`, `duplicate`, and identity resolution
+(`unknown` character GUID) are processing results, not ingest-schema defects;
+their acknowledgement codes are deferred to WP3.
 
 ---
 
@@ -313,7 +482,8 @@ fields in WP2.
 | GUID-first identity | WP1 |
 | Season and dungeon resolution | WP1 |
 | Privacy and redaction | WP1 |
-| Request/response payloads and schemas | WP2–WP3 |
+| Request payloads | WP2 (this document) |
+| Response payloads, limits, retry taxonomy | WP3 |
 | Correction and adjustment ledger | WP4 |
 
 See [`README.md`](./README.md) for ownership, versioning, and compatibility.

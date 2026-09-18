@@ -12,7 +12,7 @@ become an alternate contract editor.
 | Item | Owner |
 | ---- | ----- |
 | Normative Markdown (`README.md`, `CONTRACT.md`) | Yeetcraft |
-| JSON Schema and synthetic examples | Yeetcraft (`schema/`, `examples/` — deferred to WP2/WP3) |
+| JSON Schema and synthetic examples | Yeetcraft (`schema/`, `examples/` — request WP2; response WP3) |
 | Parser, detection, local persistence, upload client | `yeetcraft-companion` |
 | Ingest route, PostgreSQL event tables, aggregate reconciliation | Yeetcraft backend (Phase 3+) |
 
@@ -21,8 +21,9 @@ repository.
 
 ## Current status
 
-Phase 1 work package **WP1** (this directory) defines vocabulary and semantics
-for:
+Phase 1 work packages **WP1** and **WP2** (this directory) define:
+
+**WP1 — vocabulary and semantics**
 
 - endpoint and authentication surface;
 - deterministic run and event ID recipes;
@@ -32,10 +33,17 @@ for:
   hints;
 - privacy and cause redaction rules.
 
-Payload field definitions, request/response JSON Schema, synthetic examples,
-acknowledgement semantics, limits, and error taxonomies are **deferred to WP2
-and WP3**. Yeetcraft-internal correction and adjustment-ledger behavior is
-**deferred to WP4**.
+**WP2 — request payloads**
+
+- normative run, encounter, death, ranked-cause, and server-default
+  classification fields in [`CONTRACT.md`](./CONTRACT.md#request-payloads);
+- [`schema/ingest-batch-request.schema.json`](./schema/ingest-batch-request.schema.json);
+- synthetic request examples under [`examples/request/`](./examples/request/);
+- request-side semantic validation codes (HTTP mapping deferred to WP3).
+
+Per-event acknowledgement outcomes, response/error JSON Schema, limits, and
+retry taxonomies are **deferred to WP3**. Yeetcraft-internal correction and
+adjustment-ledger behavior is **deferred to WP4**.
 
 No route, migration, handler, or upload client implements this contract yet.
 Do not describe `POST /api/companion/v1/deaths/batch` or related tables as
@@ -105,7 +113,10 @@ diagnostics, and server-side error messages are defined in
 
 | Document | Role |
 | -------- | ---- |
-| [`CONTRACT.md`](./CONTRACT.md) | Normative WP1 specification |
+| [`CONTRACT.md`](./CONTRACT.md) | Normative specification (WP1–WP2) |
+| [`schema/ingest-batch-request.schema.json`](./schema/ingest-batch-request.schema.json) | Request JSON Schema (WP2) |
+| [`examples/request/`](./examples/request/) | Synthetic request fixtures (WP2) |
+| [`scripts/validate-wp2.ps1`](./scripts/validate-wp2.ps1) | Pinned schema/example validation (WP2) |
 | [`../../../docs/API.md`](../../../docs/API.md) | Current implemented web API (not companion ingest) |
 | [`../../../docs/ARCHITECTURE.md`](../../../docs/ARCHITECTURE.md) | System context |
 | [`../../../docs/CHARACTERS_AND_BOSS_NEMESIS.md`](../../../docs/CHARACTERS_AND_BOSS_NEMESIS.md) | Character slice and Nemesis Boss prerequisites |
