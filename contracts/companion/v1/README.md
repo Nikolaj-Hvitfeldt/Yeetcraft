@@ -51,8 +51,10 @@ Phase 1 work packages **WP1**, **WP2**, and **WP3** (this directory) define:
 - synthetic response examples under [`examples/response/`](./examples/response/);
 - envelope error fixtures under [`examples/error/`](./examples/error/).
 
-Yeetcraft-internal correction and adjustment-ledger behavior is **deferred to
-WP4**.
+**WP4 — server behavior context (Yeetcraft ADRs, not companion wire)**
+
+- [ADR 001 — Post-ingest classification and corrections](../../../docs/adr/001-post-ingest-classification-and-corrections.md)
+- [ADR 002 — Revision-protected adjustment ledger](../../../docs/adr/002-revision-protected-adjustment-ledger.md)
 
 No route, migration, handler, or upload client implements this contract yet.
 Do not describe `POST /api/companion/v1/deaths/batch` or related tables as
@@ -65,8 +67,9 @@ shipping behavior until Phase 3 completes.
   endpoint `v1` (see [`CONTRACT.md`](./CONTRACT.md#version-matching)).
 - **Classification locus:** authoritative `death` / `yeet` / `ignored`
   classification happens on the Yeetcraft website **post-ingest**. Companion
-  v1 is **ingest-only**; correction transitions are Yeetcraft-internal and are
-  not part of the companion wire contract (specified in WP4).
+  v1 is **ingest-only**; correction transitions are Yeetcraft-internal
+  ([`docs/adr/`](../../../docs/adr/README.md)) and are not part of the
+  companion wire contract.
 
 ### Compatibility window
 
@@ -134,6 +137,7 @@ diagnostics, and server-side error messages are defined in
 | [`../../../docs/API.md`](../../../docs/API.md) | Current implemented web API (not companion ingest) |
 | [`../../../docs/ARCHITECTURE.md`](../../../docs/ARCHITECTURE.md) | System context |
 | [`../../../docs/CHARACTERS_AND_BOSS_NEMESIS.md`](../../../docs/CHARACTERS_AND_BOSS_NEMESIS.md) | Character slice and Nemesis Boss prerequisites |
+| [`../../../docs/adr/README.md`](../../../docs/adr/README.md) | WP4 server ADRs (classification, corrections, adjustment ledger) |
 
 Companion-side producer review:
 `yeetcraft-companion/docs/CONTRACT_V1_WP1_REVIEW.md` (review notes only).

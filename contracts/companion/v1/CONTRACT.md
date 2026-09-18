@@ -7,15 +7,17 @@ identifiers, batch idempotency boundaries, GUID-first identity, season and
 dungeon resolution, privacy rules, request payloads, acknowledgement semantics,
 limits, version matching, and error taxonomy for companion v1.
 
-**Out of scope (deferred):**
+**Out of scope (companion wire):**
 
-| Topic | Work package |
-| ----- | ------------ |
-| Correction transitions, revision-protected manual adjustment ledger | WP4 (Yeetcraft ADRs; linked as server context only) |
+| Topic | Yeetcraft specification (not companion wire) |
+| ----- | -------------------------------------------- |
+| Correction transitions, event revision, audit | [ADR 001](../../../docs/adr/001-post-ingest-classification-and-corrections.md) |
+| Revision-protected manual adjustment ledger, `expectedRevision` on aggregate PATCH | [ADR 002](../../../docs/adr/002-revision-protected-adjustment-ledger.md) |
 
 Companion v1 is **ingest-only**. The server assigns default `category = death`
 on accepted events. Authoritative `death` / `yeet` / `ignored` classification
-and corrections happen on the Yeetcraft website post-ingest.
+and corrections happen on the Yeetcraft website post-ingest (see
+[Server behavior after ingest](#server-behavior-after-ingest)).
 
 ---
 
@@ -356,8 +358,9 @@ authoritative `yeet` or `ignored` classification.
 
 - Clients **omit** `category` or, if present, set `category` to `"death"` only.
 - The server assigns `category = death` on accepted events.
-- Website correction to `yeet` or `ignored` is Yeetcraft-internal (WP4) and is
-  not part of the companion wire contract.
+- Website correction to `yeet` or `ignored` is Yeetcraft-internal
+  ([ADR 001](../../../docs/adr/001-post-ingest-classification-and-corrections.md))
+  and is not part of the companion wire contract.
 
 Detector `confidence` on ranked causes describes evidence quality only; it does
 not grant classification authority.
@@ -535,7 +538,7 @@ Server behavior:
 | Condition | Outcome |
 | --------- | ------- |
 | No existing row for `clientEventId` | Process normally |
-| Existing row and identical fingerprint | `duplicate` in HTTP 200; does **not** reset a website correction (deferred to WP4) |
+| Existing row and identical fingerprint | `duplicate` in HTTP 200; does **not** reset a website correction ([ADR 001](../../../docs/adr/001-post-ingest-classification-and-corrections.md)) |
 | Existing row and different fingerprint | **409** `event_id_conflict` for the whole request |
 | Same `clientEventId` twice in one batch with different fingerprints | **409** `event_id_conflict` before commit |
 
@@ -684,7 +687,37 @@ request order.
 
 Per-event `rejected` and `needs_review` outcomes are **final for that upload
 attempt**; correcting data requires a new `clientEventId` or operator action on
-the website (corrections deferred to WP4).
+the website ([ADR 001](../../../docs/adr/001-post-ingest-classification-and-corrections.md)).
+
+---
+
+## Server behavior after ingest
+
+The sections above define the **companion wire contract** only. The following
+Yeetcraft ADRs specify **planned, not implemented** server behavior after
+ingest. They are linked here for context; they do **not** extend the ingest
+request or response schemas.
+
+| Topic | Document |
+| ----- | -------- |
+| Website-owned `death` / `yeet` / `ignored` classification; correction idempotency key, actor, `expectedEventRevision`, allowed transition matrix, audit record; structural aggregate math; duplicate ingest must not reset corrections | [ADR 001 — Post-ingest classification and corrections](../../../docs/adr/001-post-ingest-classification-and-corrections.md) |
+| Derived `player_dungeon_stats`; immutable legacy baseline; one replaceable manual adjustment per player × season × dungeon × category; `adjustment = entered_total − event_derived_total − legacy_baseline`; aggregate `expectedRevision` and **409** `stale_revision` on `PATCH /api/stats/batch`; frontend revision support before companion event writes | [ADR 002 — Revision-protected adjustment ledger](../../../docs/adr/002-revision-protected-adjustment-ledger.md) |
+
+**Structural aggregate math (identical to ADR 001):**
+
+```text
+deaths  = count(category = 'death')
+yeets   = count(category = 'yeet')
+ignored = count(category = 'ignored')   -- not added to deaths or yeets
+total_mistakes = deaths + yeets
+```
+
+- `death ↔ yeet` preserves `deaths + yeets`.
+- Transitions to or from `ignored` change total mistakes by exactly one.
+- Corrections update one canonical event and never insert a second death.
+- Detector `confidence` is evidence only, not classification authority.
+
+Phase 2/3 implementation file paths are **deferred to WP5**.
 
 ---
 
@@ -733,6 +766,6 @@ the website (corrections deferred to WP4).
 | Version matching | WP3 |
 | Error taxonomy | WP3 |
 | Response payloads | WP3 |
-| Correction and adjustment ledger | WP4 |
+| Server behavior after ingest (classification, corrections, adjustment ledger) | WP4 — [ADR index](../../../docs/adr/README.md) |
 
 See [`README.md`](./README.md) for ownership, versioning, and compatibility.
