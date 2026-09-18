@@ -70,15 +70,14 @@ Ingest-time-current assignment on missing, overlapping, or contradictory evidenc
 
 Consequence: a table or function that exists **only** in a numbered migration never appears in testdb or `go test ./internal/repository -tags=integration`. That gap already applies to [`002_functions_and_security.sql`](../../../backend/db/migrations/002_functions_and_security.sql) relative to `schema.sql`.
 
-**Phase 3 requirement (documentation + testdb work, not decided here as a new protocol):**
+**Phase 3 decision: keep schema.sql-only testdb**
 
-1. Keep `schema.sql` aligned with every table/column Phase 3 tests need (existing convention: fresh-database source of truth).
-2. Explicitly choose one testdb strategy and document it in [`docs/TESTING.md`](../../../docs/TESTING.md):
-   - **schema.sql-only (current):** all Phase 3 DDL needed by tests must live in `schema.sql`; numbered migrations remain hosted/Supabase-only and must not be the sole copy of test-required DDL; or
-   - **apply numbered migrations:** teach `testdb` `Prepare` (and `paths.go`) to apply `backend/db/migrations/` in order after or instead of today’s schema-only path.
-3. Until that choice is implemented, do not assume testdb equals a migrated hosted database.
+Phase 3 ingest does **not** teach `Prepare` to iterate `backend/db/migrations/`. That would be a separate later task (ordering, idempotency, non-empty databases).
 
-This map does not implement either strategy.
+1. Land every table/column Phase 3 tests need in [`backend/db/schema.sql`](../../../backend/db/schema.sql) (fresh-database source of truth) **and** in the next numbered migration after the character slice (hosted/Supabase). Do **not** guess `003`.
+2. Numbered migrations must not be the sole copy of test-required DDL.
+3. Record this in [`docs/TESTING.md`](../../../docs/TESTING.md) when Phase 3 lands. Do not assume testdb equals a migrated hosted database.
+4. Season bounds, `dungeons.challenge_map_id`, ingest/event/quarantine/adjustment/correction columns, and aggregate revision all follow this dual-write rule.
 
 ---
 
@@ -95,8 +94,8 @@ This map does not implement either strategy.
 | `backend/db/migrations/<NNN>_*.sql` | to create | 3 | Additive migrations. **`<NNN>` is assigned only after the character slice.** First Phase 3 migration(s): `starts_at`/`ends_at` and `challenge_map_id` before ingest tables. Later: batch fingerprint, runs, events, causes, quarantine, adjustment ledger, correction audit, aggregate revision. |
 | `backend/db/testdata/seed.sql` | existing — extend | 3 | Synthetic season bounds, challenge map IDs, character GUIDs (after character slice), ingest/quarantine/adjustment fixtures. No real GUIDs, names, realms, credentials, or URLs. |
 | `backend/db/testdata/reset_stats.sql` | existing — extend | 3 | Restore derived aggregates, revisions, and replaceable adjustments to the seeded baseline. |
-| `backend/internal/testdb/client.go` | existing — extend | 3 | `Prepare` / seed / reset / verify. Address the schema.sql-vs-migrations gap (see above). |
-| `backend/internal/testdb/paths.go` | existing — extend | 3 | Keep schema/seed/reset paths; add a migrations helper only if testdb is taught to apply numbered migrations. |
+| `backend/internal/testdb/client.go` | existing — extend | 3 | `Prepare` / seed / reset / verify. Keep applying `schema.sql` only; do not iterate numbered migrations in Phase 3. |
+| `backend/internal/testdb/paths.go` | existing — extend | 3 | Keep schema/seed/reset paths. No migrations helper in Phase 3. |
 | `backend/internal/testdb/guard.go` | existing — extend | 3 | Expand `ApplicationTables` when new public tables exist. |
 | `backend/internal/testdb/fixtures.go` | existing — extend | 3 | Synthetic IDs only. Isolation-season insert currently uses `(id, name, expansion, is_current)` — must gain bounds after `starts_at`/`ends_at`. |
 | `backend/internal/testdb/integration.go` | existing — extend | 3 | `EnsureIsolationSeasonFixtures` SQL must match the new `seasons` shape. |
@@ -129,7 +128,7 @@ Keep handlers thin. Put SQL, joins, aggregation, and transactions in `internal/r
 | `backend/internal/middleware/companion_ratelimit.go` | to create | 3 | Route-level rate limit on ingest; **429** `rate_limit_exceeded`. |
 | `backend/internal/handler/response.go` | existing — do not change public error shape by default | 3 | Current `{error, message}` helpers for existing routes. |
 | `backend/internal/handler/companion_errors.go` | to create | 3 | Contract error envelope (`error.code` / `message` / `retryable`) for ingest only. Do not silently replace existing public API errors. |
-| `backend/internal/handler/companion_ingest.go` | to create | 3 | `POST /api/companion/v1/deaths/batch`: decode, limits, schema/version checks, call ingest repository, map outcomes. Never reuse `PATCH /api/stats/batch`. |
+| `backend/internal/handler/companion_ingest.go` | to create | 3 | `POST /api/companion/v1/deaths/batch`: decode, limits, schema/version checks, call ingest repository, map outcomes. Never reuse `PATCH /api/stats/batch`. UUID check: see [UUID validation](#uuid-validation). |
 | `backend/internal/handler/corrections.go` | to create | 3 | Website correction route (not companion wire). Protect with existing `API_KEY` middleware. |
 | `backend/internal/handler/stats.go` | existing — extend | 3 | Additive `expectedRevision` on PATCH once ADR 002 ships; expose revision on editor reads. |
 | `backend/cmd/server/main.go` | existing — extend | 3 | Wire companion auth + ingest route; keep public GETs and `API_KEY` PATCH. Audit accepted/rejected **batch metadata** without payloads or credentials. |
@@ -155,7 +154,7 @@ Keep handlers thin. Put SQL, joins, aggregation, and transactions in `internal/r
 | ---- | ------ | ----- | ---- |
 | `docs/API.md` | existing — extend | 3 | Document ingest and correction routes only after they exist. Until then, keep current verified `PATCH /api/stats/batch` behavior distinct from this map. |
 | `docs/ARCHITECTURE.md` | existing — extend | 3 | Companion ingest layer, derived aggregates, separate companion key. Do not describe planned tables as shipping. |
-| `docs/TESTING.md` | existing — extend | 3 | **Must** record the testdb `schema.sql` vs numbered-migrations decision and any new integration packages. |
+| `docs/TESTING.md` | existing — extend | 3 | Record that Phase 3 **keeps schema.sql-only testdb** (decision above) and list any new integration packages. Do not document testdb as applying numbered migrations unless a later task implements that. |
 | `docs/OFFLINE.md` | existing — not Phase 3 backend | enablement (see below) | Browser outbox `stale_revision` handling. |
 | `docs/DEVELOPMENT.md` | existing — extend | 3 | `COMPANION_API_KEY` placeholder in the env table. |
 | `docs/adr/README.md` | existing | 1 (done) | Points here. |
@@ -175,6 +174,20 @@ Keep handlers thin. Put SQL, joins, aggregation, and transactions in `internal/r
 | Per-installation companion principals | Deferred past the fixed-group MVP (`installationId` is diagnostics only). |
 
 Rollout reminder from the ADRs (not new protocol): frontend `expectedRevision` support lands before enabling companion event writes. Correction route may ship in Phase 3 backend, but **do not enable companion writes** until character slice, season/dungeon columns, ingest, and frontend revision handling are live.
+
+---
+
+## Phase 3 implementation notes (not wire changes)
+
+These are implementation constraints. They do **not** amend [`CONTRACT.md`](./CONTRACT.md) or JSON Schema.
+
+### UUID validation
+
+[`CONTRACT.md`](./CONTRACT.md#wire-formats) and [`schema/ingest-batch-request.schema.json`](./schema/ingest-batch-request.schema.json) accept a lowercase hyphenated `8-4-4-4-12` hex UUID. That pattern is **looser** than existing browser/API `isValidUUID` (RFC 4122 version nibble `[1-5]` and variant `[89ab]`).
+
+- Phase 3 ingest must **not** silently reuse `isValidUUID` or tighten the schema `pattern`.
+- Companion and server **generators** should emit RFC 4122 version-4 UUIDs, matching the synthetic examples (`…-4000-8000-…`).
+- Rejecting nil UUIDs or non-v4 IDs on the wire requires an explicit v1 contract amendment, not a handler-only surprise.
 
 ---
 

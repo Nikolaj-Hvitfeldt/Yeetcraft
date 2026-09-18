@@ -102,7 +102,8 @@ changing system boundaries.
   Inspect before describing routes or tables as shipping.
 - Phase 3 implementation paths (not code):
   [`contracts/companion/v1/IMPLEMENTATION_MAP.md`](contracts/companion/v1/IMPLEMENTATION_MAP.md).
-- Companion uploads require a separately approved, versioned, idempotent API.
+- Companion ingest implements the **reviewed** v1 contract in Phase 3; do not
+  describe the route or tables as shipping.
 - Do not reuse `PATCH /api/stats/batch` as an event-ingest endpoint.
 - Do not implement companion-owned parsing, local SQLite, log watching, or
   desktop UI in this repository.

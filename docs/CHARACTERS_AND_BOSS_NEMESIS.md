@@ -8,7 +8,7 @@ preparing for a future **Nemesis Boss** insight.
 | Status | Characters: ready for implementation planning; Nemesis Boss: data-contract preparation only |
 | Primary repository | `Yeetcraft` |
 | Related repository | `yeetcraft-companion` (separate product and Git history) |
-| Last updated | 2026-08-24 |
+| Last updated | 2026-08-24 (character-slice snapshot); companion **contract** status noted 2026-09-18 |
 
 ## Start here in a new session
 
@@ -53,7 +53,10 @@ attribution.
 - Statistics are stored at player × season × dungeon granularity.
 - `PATCH /api/stats/batch` writes absolute aggregate values.
 - Reads are public; writes require the existing API key middleware.
-- There is no companion ingest endpoint or canonical companion contract.
+- There is no companion ingest **route** yet. A canonical draft contract now
+  exists at [`contracts/companion/v1/`](../contracts/companion/v1/README.md)
+  (**reviewed, not implemented**). Character-slice `characters.guid` remains a
+  blocker before that route can be built.
 
 ### Frontend
 
