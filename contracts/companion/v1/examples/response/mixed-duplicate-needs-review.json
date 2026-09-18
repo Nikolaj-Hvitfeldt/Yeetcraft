@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "batchId": "a1000001-0001-4000-8000-000000000004",
+  "results": [
+    {
+      "clientEventId": "sha256:37655d8725a8b0b2ad06261af3dbd73d17a1441fb17495b1f068f3c2d45cd543",
+      "outcome": "accepted",
+      "code": "accepted",
+      "serverEventId": "d4000004-0004-4000-8000-000000000010"
+    },
+    {
+      "clientEventId": "sha256:e7b414d6d92fe83a6ea4e51fb434f821f6c55f59d7ad0c5723703c0e90d1037a",
+      "outcome": "duplicate",
+      "code": "duplicate",
+      "serverEventId": "d4000004-0004-4000-8000-000000000011"
+    },
+    {
+      "clientEventId": "sha256:0df4a56b8cc57753750a3215224cb88eae7d54951465c07e6b2b19827e1d8dc0",
+      "outcome": "needs_review",
+      "code": "unknown_character"
+    }
+  ]
+}

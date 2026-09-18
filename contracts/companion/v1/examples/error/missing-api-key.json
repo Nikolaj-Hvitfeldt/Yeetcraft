@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "missing_api_key",
+    "message": "Companion ingest requires X-API-Key or Authorization Bearer credentials",
+    "retryable": false
+  }
+}

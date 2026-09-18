@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "batchId": "F4000004-0004-4000-8000-000000000016",
+  "events": [
+    {
+      "clientEventId": "sha256:37655d8725a8b0b2ad06261af3dbd73d17a1441fb17495b1f068f3c2d45cd543",
+      "characterGuid": "Player-0001-00000001",
+      "deathInstant": "2026-02-10T18:45:12.123456789Z",
+      "ordinal": 0,
+      "run": {
+        "clientRunId": "sha256:8de6d05a987d9230788f5a56957a80c8608335bbc509ca5fac1a1bf17336b30d",
+        "challengeModeStartInstant": "2026-02-10T18:30:00.000000000Z",
+        "challengeMapId": 375,
+        "keystoneLevel": 12
+      },
+      "encounter": null
+    }
+  ]
+}

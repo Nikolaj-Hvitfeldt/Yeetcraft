@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "rate_limit_exceeded",
+    "message": "Companion ingest rate limit exceeded",
+    "retryable": true
+  }
+}

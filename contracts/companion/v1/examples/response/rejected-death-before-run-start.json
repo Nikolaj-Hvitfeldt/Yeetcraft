@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "batchId": "f4000004-0004-4000-8000-000000000011",
+  "results": [
+    {
+      "clientEventId": "sha256:13bb73bb8c51b8a84e3af39239f7e9d9375cc9e16a39280e2e0177b63fd5d0ab",
+      "outcome": "rejected",
+      "code": "death_before_run_start"
+    }
+  ]
+}

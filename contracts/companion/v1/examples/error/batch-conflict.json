@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "batch_conflict",
+    "message": "batchId was reused with a different request body fingerprint",
+    "retryable": false
+  }
+}

@@ -97,11 +97,13 @@ changing system boundaries.
 
 ## Companion contract ownership
 
-- Yeetcraft owns the future canonical contract at
-  `contracts/companion/v1/`.
-- That path is **planned and may not exist yet**; inspect before describing it
-  as implemented.
-- Companion uploads require a separately approved, versioned, idempotent API.
+- Yeetcraft owns the canonical contract at `contracts/companion/v1/`.
+- That directory is a **draft contract** (reviewed, not implemented as an API).
+  Inspect before describing routes or tables as shipping.
+- Phase 3 implementation paths (not code):
+  [`contracts/companion/v1/IMPLEMENTATION_MAP.md`](contracts/companion/v1/IMPLEMENTATION_MAP.md).
+- Companion ingest implements the **reviewed** v1 contract in Phase 3; do not
+  describe the route or tables as shipping.
 - Do not reuse `PATCH /api/stats/batch` as an event-ingest endpoint.
 - Do not implement companion-owned parsing, local SQLite, log watching, or
   desktop UI in this repository.

@@ -90,4 +90,5 @@ PostgreSQL and preparing future encounter-derived **Nemesis Boss** insights is
 
 That work is additive. It must preserve current player-level aggregates and
 must not imply that companion ingest, death events, or boss statistics already
-exist.
+exist. Phase 3 ingest file paths (not implemented):
+[`contracts/companion/v1/IMPLEMENTATION_MAP.md`](../contracts/companion/v1/IMPLEMENTATION_MAP.md).

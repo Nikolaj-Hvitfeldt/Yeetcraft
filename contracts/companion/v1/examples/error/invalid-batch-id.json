@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "invalid_batch_id",
+    "message": "batchId must be a lowercase RFC 4122 UUID string",
+    "retryable": false
+  }
+}

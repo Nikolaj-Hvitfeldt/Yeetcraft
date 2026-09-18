@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "schema_validation_failed",
+    "message": "Request body failed companion ingest JSON Schema validation",
+    "retryable": false
+  }
+}

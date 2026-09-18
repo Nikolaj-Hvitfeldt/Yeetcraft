@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "trailing_json_not_allowed",
+    "message": "Request body contains bytes after the first JSON value",
+    "retryable": false
+  }
+}

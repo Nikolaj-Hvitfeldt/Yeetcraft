@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "json_depth_exceeded",
+    "message": "Request JSON exceeds the maximum nesting depth of 16",
+    "retryable": false
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "empty_events",
+    "message": "events must contain at least one death event",
+    "retryable": false
+  }
+}

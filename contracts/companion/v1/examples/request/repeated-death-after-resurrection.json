@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "batchId": "a1000001-0001-4000-8000-000000000003",
+  "events": [
+    {
+      "clientEventId": "sha256:e7b414d6d92fe83a6ea4e51fb434f821f6c55f59d7ad0c5723703c0e90d1037a",
+      "characterGuid": "Player-0001-00000001",
+      "deathInstant": "2026-02-10T19:02:33.987654321Z",
+      "ordinal": 0,
+      "run": {
+        "clientRunId": "sha256:8de6d05a987d9230788f5a56957a80c8608335bbc509ca5fac1a1bf17336b30d",
+        "challengeModeStartInstant": "2026-02-10T18:30:00.000000000Z",
+        "challengeMapId": 375,
+        "keystoneLevel": 12
+      },
+      "encounter": null,
+      "causes": [
+        {
+          "rank": 1,
+          "sourceType": "melee",
+          "creatureId": 165251,
+          "amount": 98450,
+          "overkill": 1200,
+          "confidence": "high"
+        }
+      ]
+    },
+    {
+      "clientEventId": "sha256:7611877cc6a477bcc000a072a27230f8f2aa333cb3f92a7d3a7f05b2c8418d05",
+      "characterGuid": "Player-0001-00000001",
+      "deathInstant": "2026-02-10T19:15:00.000000000Z",
+      "ordinal": 0,
+      "run": {
+        "clientRunId": "sha256:8de6d05a987d9230788f5a56957a80c8608335bbc509ca5fac1a1bf17336b30d",
+        "challengeModeStartInstant": "2026-02-10T18:30:00.000000000Z",
+        "challengeMapId": 375,
+        "keystoneLevel": 12
+      },
+      "encounter": null,
+      "causes": [
+        {
+          "rank": 1,
+          "sourceType": "spell",
+          "spellId": 320596,
+          "creatureId": 165408,
+          "amount": 110200,
+          "overkill": 0,
+          "confidence": "medium"
+        }
+      ]
+    }
+  ]
+}

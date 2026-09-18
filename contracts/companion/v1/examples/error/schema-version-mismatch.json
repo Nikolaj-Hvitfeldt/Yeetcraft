@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "schema_version_mismatch",
+    "message": "schemaVersion 2 is not supported on /api/companion/v1/deaths/batch",
+    "retryable": false
+  }
+}

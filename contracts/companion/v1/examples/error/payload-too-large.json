@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "payload_too_large",
+    "message": "Decoded request body exceeds the 1 MiB companion ingest limit",
+    "retryable": false
+  }
+}

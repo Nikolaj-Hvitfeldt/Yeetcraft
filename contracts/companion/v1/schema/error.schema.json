@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yeetcraft.dev/contracts/companion/v1/schema/error.schema.json",
+  "$comment": "Status: Draft — reviewed, not implemented",
+  "title": "Companion ingest error response v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["error"],
+  "properties": {
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message"],
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/errorCode"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "retryable": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "errorCode": {
+      "type": "string",
+      "enum": [
+        "invalid_json",
+        "missing_api_key",
+        "invalid_api_key",
+        "batch_conflict",
+        "event_id_conflict",
+        "payload_too_large",
+        "unsupported_media_type",
+        "unsupported_content_encoding",
+        "schema_validation_failed",
+        "schema_version_mismatch",
+        "empty_events",
+        "batch_size_exceeded",
+        "json_depth_exceeded",
+        "trailing_json_not_allowed",
+        "invalid_batch_id",
+        "rate_limit_exceeded",
+        "companion_api_unconfigured",
+        "ingest_temporarily_unavailable"
+      ]
+    }
+  }
+}
