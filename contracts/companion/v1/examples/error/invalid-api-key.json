@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "invalid_api_key",
+    "message": "The supplied companion API credential was rejected",
+    "retryable": false
+  }
+}

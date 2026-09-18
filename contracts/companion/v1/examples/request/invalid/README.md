@@ -35,4 +35,6 @@ Additional semantic-only cases (no fixture file; verify in implementation/tests)
 | Duplicate cause ranks | `cause_rank_duplicate` |
 | Empty `events` array | `empty_events` |
 
-HTTP status mapping for all codes is deferred to WP3.
+HTTP status mapping for envelope codes is in
+[`CONTRACT.md`](../../CONTRACT.md#error-taxonomy). Per-event semantic codes map
+to HTTP **200** `rejected` results.

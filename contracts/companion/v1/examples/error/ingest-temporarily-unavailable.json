@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "ingest_temporarily_unavailable",
+    "message": "Companion ingest failed before acknowledgement; retry the same batch",
+    "retryable": true
+  }
+}

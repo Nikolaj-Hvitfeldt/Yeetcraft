@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "event_id_conflict",
+    "message": "clientEventId was reused with a different immutable event fingerprint",
+    "retryable": false
+  }
+}

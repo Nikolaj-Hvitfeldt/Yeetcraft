@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "companion_api_unconfigured",
+    "message": "Companion ingest is unavailable because COMPANION_API_KEY is not configured",
+    "retryable": true
+  }
+}

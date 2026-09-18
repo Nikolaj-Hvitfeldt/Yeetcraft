@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "batch_size_exceeded",
+    "message": "events exceeds the maximum of 500 items per batch",
+    "retryable": false
+  }
+}

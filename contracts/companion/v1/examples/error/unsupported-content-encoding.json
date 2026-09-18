@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "unsupported_content_encoding",
+    "message": "Content-Encoding gzip is not supported on companion ingest v1",
+    "retryable": false
+  }
+}

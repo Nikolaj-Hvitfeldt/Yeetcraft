@@ -21,7 +21,7 @@ repository.
 
 ## Current status
 
-Phase 1 work packages **WP1** and **WP2** (this directory) define:
+Phase 1 work packages **WP1**, **WP2**, and **WP3** (this directory) define:
 
 **WP1 — vocabulary and semantics**
 
@@ -39,11 +39,20 @@ Phase 1 work packages **WP1** and **WP2** (this directory) define:
   classification fields in [`CONTRACT.md`](./CONTRACT.md#request-payloads);
 - [`schema/ingest-batch-request.schema.json`](./schema/ingest-batch-request.schema.json);
 - synthetic request examples under [`examples/request/`](./examples/request/);
-- request-side semantic validation codes (HTTP mapping deferred to WP3).
+- request-side semantic validation codes.
 
-Per-event acknowledgement outcomes, response/error JSON Schema, limits, and
-retry taxonomies are **deferred to WP3**. Yeetcraft-internal correction and
-adjustment-ledger behavior is **deferred to WP4**.
+**WP3 — acknowledgement semantics**
+
+- whole-envelope versus per-event outcomes in
+  [`CONTRACT.md`](./CONTRACT.md#acknowledgement-semantics);
+- limits, version matching, auth boundaries, and error taxonomy;
+- [`schema/ingest-batch-response.schema.json`](./schema/ingest-batch-response.schema.json);
+- [`schema/error.schema.json`](./schema/error.schema.json);
+- synthetic response examples under [`examples/response/`](./examples/response/);
+- envelope error fixtures under [`examples/error/`](./examples/error/).
+
+Yeetcraft-internal correction and adjustment-ledger behavior is **deferred to
+WP4**.
 
 No route, migration, handler, or upload client implements this contract yet.
 Do not describe `POST /api/companion/v1/deaths/batch` or related tables as
@@ -53,7 +62,7 @@ shipping behavior until Phase 3 completes.
 
 - **Contract version:** `v1` (directory name and planned URL path segment).
 - **Wire `schemaVersion`:** integer `1` on ingest requests; must agree with
-  endpoint `v1` (exact matching rules deferred to WP3).
+  endpoint `v1` (see [`CONTRACT.md`](./CONTRACT.md#version-matching)).
 - **Classification locus:** authoritative `death` / `yeet` / `ignored`
   classification happens on the Yeetcraft website **post-ingest**. Companion
   v1 is **ingest-only**; correction transitions are Yeetcraft-internal and are
@@ -65,8 +74,8 @@ shipping behavior until Phase 3 completes.
   future contract version is published under a new path (for example
   `/api/companion/v2/*`).
 - Clients must treat unsupported `schemaVersion` or HTTP `415` / `422` responses
-  as non-retryable configuration errors until upgraded (retry taxonomy deferred
-  to WP3).
+  as non-retryable configuration errors until upgraded (see
+  [`CONTRACT.md`](./CONTRACT.md#retry-guidance)).
 - Breaking semantic changes require a new major contract directory and path;
   within `v1`, additive optional fields may be introduced only through an
   explicit contract amendment and schema revision.
@@ -113,10 +122,15 @@ diagnostics, and server-side error messages are defined in
 
 | Document | Role |
 | -------- | ---- |
-| [`CONTRACT.md`](./CONTRACT.md) | Normative specification (WP1–WP2) |
+| [`CONTRACT.md`](./CONTRACT.md) | Normative specification (WP1–WP3) |
 | [`schema/ingest-batch-request.schema.json`](./schema/ingest-batch-request.schema.json) | Request JSON Schema (WP2) |
+| [`schema/ingest-batch-response.schema.json`](./schema/ingest-batch-response.schema.json) | Response JSON Schema (WP3) |
+| [`schema/error.schema.json`](./schema/error.schema.json) | Error envelope JSON Schema (WP3) |
 | [`examples/request/`](./examples/request/) | Synthetic request fixtures (WP2) |
-| [`scripts/validate-wp2.ps1`](./scripts/validate-wp2.ps1) | Pinned schema/example validation (WP2) |
+| [`examples/response/`](./examples/response/) | Synthetic response fixtures (WP3) |
+| [`examples/error/`](./examples/error/) | Envelope error fixtures (WP3) |
+| [`scripts/validate-wp2.ps1`](./scripts/validate-wp2.ps1) | Pinned request validation (WP2) |
+| [`scripts/validate-wp3.ps1`](./scripts/validate-wp3.ps1) | Pinned full contract validation (WP3) |
 | [`../../../docs/API.md`](../../../docs/API.md) | Current implemented web API (not companion ingest) |
 | [`../../../docs/ARCHITECTURE.md`](../../../docs/ARCHITECTURE.md) | System context |
 | [`../../../docs/CHARACTERS_AND_BOSS_NEMESIS.md`](../../../docs/CHARACTERS_AND_BOSS_NEMESIS.md) | Character slice and Nemesis Boss prerequisites |

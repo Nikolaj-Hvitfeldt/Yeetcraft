@@ -1,16 +1,16 @@
-# Companion ingest contract v1 — normative specification (WP1–WP2)
+# Companion ingest contract v1 — normative specification (WP1–WP3)
 
 > **Status: Draft — reviewed, not implemented**
 
 This document specifies endpoint surface, authentication, deterministic
 identifiers, batch idempotency boundaries, GUID-first identity, season and
-dungeon resolution, and privacy rules for companion v1.
+dungeon resolution, privacy rules, request payloads, acknowledgement semantics,
+limits, version matching, and error taxonomy for companion v1.
 
-**Out of scope for WP1 (deferred):**
+**Out of scope (deferred):**
 
 | Topic | Work package |
 | ----- | ------------ |
-| Per-event acknowledgement outcomes, response/error schemas, limits, retry taxonomy | WP3 |
 | Correction transitions, revision-protected manual adjustment ledger | WP4 (Yeetcraft ADRs; linked as server context only) |
 
 Companion v1 is **ingest-only**. The server assigns default `category = death`
@@ -39,9 +39,9 @@ Content-Type: application/json
   browser `API_KEY` middleware.
 - **Headers:** `X-API-Key` or `Authorization: Bearer <token>` (same header
   patterns as existing write auth).
-- **Fail-closed:** empty or missing `COMPANION_API_KEY` returns **503** with a
-  distinct stable error code on this route (exact code deferred to WP3). The
-  route does not fall back to `API_KEY` or anonymous ingest.
+- **Fail-closed:** empty or missing `COMPANION_API_KEY` returns **503** with
+  stable code `companion_api_unconfigured`. The route does not fall back to
+  `API_KEY` or anonymous ingest.
 - **Query `?token=`** is not supported on API routes.
 
 ### Credential model (MVP)
@@ -52,12 +52,19 @@ Content-Type: application/json
 - `installationId` in the request body (when present) is spoofable diagnostics
   only — not authorization and not an ID hash input.
 
-### Operational expectations (deferred detail to WP3)
+### Operational expectations
 
-- Route-level rate limits apply to this endpoint.
-- Audit accepted/rejected **batch metadata** without storing full payloads in
-  logs.
+- **Content-Type:** `application/json` only. Requests with other media types
+  receive **415** `unsupported_media_type`.
+- **Content-Encoding:** only `identity` (absent header) is accepted. Compressed
+  or other encodings receive **415** `unsupported_content_encoding`.
+- **Rate limits:** route-level limits apply. Excess traffic receives **429**
+  `rate_limit_exceeded`. Clients should honor `Retry-After` when present.
+- **Audit:** log accepted/rejected **batch metadata** (`batchId`, event count,
+  outcome summary, stable codes) without request payloads, credentials, or full
+  cause evidence.
 - Never log credentials or complete request bodies in production diagnostics.
+- Never reuse browser `API_KEY` for companion ingest.
 
 ---
 
@@ -147,8 +154,8 @@ Hash fields (in order):
 - The server stores a canonical **request-body fingerprint** keyed by `batchId`.
 - **Replay:** same `batchId` and identical body → return the prior **ordered**
   per-event results (HTTP 200).
-- **Conflict:** same `batchId` with changed event membership or body → **409**
-  `batch_conflict` (stable code; response envelope deferred to WP3).
+- **Conflict:** same `batchId` with changed decoded body fingerprint → **409**
+  `batch_conflict` (see [Request body fingerprint](#request-body-fingerprint)).
 
 ### Per-event deduplication
 
@@ -158,9 +165,12 @@ Hash fields (in order):
 - Same `clientEventId` with changed victim, run, time, or immutable context →
   **409** `event_id_conflict`.
 
-### Atomicity (summary; detail in WP3)
+### Atomicity
 
-- Envelope or schema failures reject the **whole** request.
+See [Acknowledgement semantics](#acknowledgement-semantics).
+
+- Envelope or schema failures reject the **whole** request (no per-event
+  results).
 - Semantically valid events process in **one database transaction** with one
   ordered result per input event.
 - `needs_review` outcomes are persisted in quarantine.
@@ -270,7 +280,7 @@ Prefer, when available:
 - creature or game object IDs;
 - spell IDs;
 - amount and overkill;
-- rank (contiguous unique ranks, at most three — limits deferred to WP3);
+- rank (contiguous unique ranks, at most three — see [Limits](#limits));
 - detector confidence (describes evidence quality, not classification authority).
 
 Unknown player-origin cause identity is **redacted locally** before upload.
@@ -283,7 +293,7 @@ Unknown player-origin cause identity is **redacted locally** before upload.
 
 ### `installationId`
 
-- Optional diagnostics field in the client envelope (shape deferred to WP2).
+- Optional diagnostics field in the client envelope (see [Batch envelope](#batch-envelope)).
 - Excluded from ID recipes.
 - Not an authentication principal; spoofable.
 
@@ -315,10 +325,10 @@ Top-level object for `POST /api/companion/v1/deaths/batch`:
 
 | Field | Required | Type | Description |
 | ----- | -------- | ---- | ----------- |
-| `schemaVersion` | yes | integer `1` | Must agree with path segment `v1` (matching rules deferred to WP3). |
+| `schemaVersion` | yes | integer `1` | Must agree with path segment `v1` (see [Version matching](#version-matching)). |
 | `batchId` | yes | UUID string | Batch idempotency key (see [Batch idempotency](#batch-idempotency)). |
 | `installationId` | no | UUID string | Spoofable diagnostics only; excluded from ID recipes and auth. |
-| `events` | yes | array | One or more death events (array bounds deferred to WP3). |
+| `events` | yes | array | One to 500 death events (see [Limits](#limits)). |
 
 The envelope uses `additionalProperties: false`. No parallel
 `Idempotency-Key` header.
@@ -368,8 +378,8 @@ required to verify `clientRunId`. Deaths that cannot be bound to a
 review and **must not** appear in upload batches.
 
 `seasonId` is never authoritative by itself; contradictions with timestamp-based
-resolution produce `needs_review` at processing time (acknowledgement deferred
-to WP3).
+resolution produce `needs_review` at processing time (see
+[Per-event outcomes](#per-event-outcomes)).
 
 #### Encounter object (`encounter`)
 
@@ -443,14 +453,15 @@ timestamp ordering are **semantic** checks.
 ### Request-side semantic validation codes
 
 These stable codes describe **request payload semantics** evaluated per event or
-envelope. HTTP status mapping, batch envelopes, and retry behavior are deferred
-to WP3.
+envelope. HTTP status mapping and retry behavior are in
+[Error taxonomy](#error-taxonomy).
 
 | Code | Scope | When |
 | ---- | ----- | ---- |
 | `schema_version_mismatch` | envelope | `schemaVersion` does not match endpoint `v1`. |
 | `invalid_batch_id` | envelope | `batchId` is not a UUID. |
 | `empty_events` | envelope | `events` is empty. |
+| `batch_size_exceeded` | envelope | More than 500 events. |
 | `invalid_client_run_id` | event | `clientRunId` digest format invalid or hash mismatch. |
 | `invalid_client_event_id` | event | `clientEventId` digest format invalid or hash mismatch. |
 | `invalid_instant` | event | Instant not canonical RFC 3339 UTC with required precision. |
@@ -466,9 +477,243 @@ to WP3.
 | `cause_field_missing` | event | Required conditional cause field absent for `sourceType`. |
 | `cause_forbidden_field` | event | Cause carries a forbidden identity field (should not occur when schema-valid). |
 
-Per-event outcomes such as `needs_review`, `duplicate`, and identity resolution
-(`unknown` character GUID) are processing results, not ingest-schema defects;
-their acknowledgement codes are deferred to WP3.
+Per-event processing outcomes (`accepted`, `duplicate`, `needs_review`,
+`rejected`) are defined in [Per-event outcomes](#per-event-outcomes).
+
+---
+
+## Acknowledgement semantics
+
+### Whole envelope versus per-event outcomes
+
+| Failure class | HTTP | Body | Per-event results |
+| ------------- | ---- | ---- | ----------------- |
+| Transport, auth, rate limit, envelope size, media type, encoding | 4xx / 429 / 503 (unconfigured) | Error envelope | None |
+| JSON parse, schema, version, batch bounds, depth, trailing JSON | 4xx (typically 422) | Error envelope | None |
+| `batch_conflict`, `event_id_conflict` | 409 | Error envelope | None |
+| Semantically processable batch | **200** | Batch response | Exactly one ordered result per input event |
+| Database or transient ingest failure mid-batch | 5xx | Error envelope | None — transaction rolled back, nothing acknowledged |
+
+Envelope and schema validation run **before** opening the ingest transaction.
+When the envelope is accepted for processing, the server executes **one**
+database transaction that evaluates every input event and emits one result per
+event in **input order**.
+
+### Request body fingerprint
+
+For `batchId` idempotency the server stores a fingerprint of the **decoded
+UTF-8 request body** exactly as received (after rejecting unsupported
+`Content-Encoding`). The fingerprint algorithm is implementation-defined but
+must be stable for byte-identical bodies.
+
+- **Replay:** same `batchId` and identical fingerprint → return the stored
+  ordered results with HTTP **200** (even when every event is `duplicate`).
+- **Conflict:** same `batchId` with a different fingerprint → **409**
+  `batch_conflict` without processing.
+
+There is **no** `Idempotency-Key` HTTP header in v1.
+
+### Per-event immutable fingerprint
+
+Per-event deduplication uses `clientEventId` as the primary key. The immutable
+fingerprint is the tuple:
+
+1. `clientEventId`
+2. `characterGuid`
+3. `deathInstant`
+4. `ordinal`
+5. `run.clientRunId`
+6. `run.challengeModeStartInstant`
+7. `run.challengeMapId`
+8. `run.keystoneLevel`
+9. `encounter` (JSON `null` or `{ "encounterId": <id> }`)
+10. `category` (absent treated as `death`)
+11. Normalized `causes` array (order-preserving; schema-valid content only)
+
+Server behavior:
+
+| Condition | Outcome |
+| --------- | ------- |
+| No existing row for `clientEventId` | Process normally |
+| Existing row and identical fingerprint | `duplicate` in HTTP 200; does **not** reset a website correction (deferred to WP4) |
+| Existing row and different fingerprint | **409** `event_id_conflict` for the whole request |
+| Same `clientEventId` twice in one batch with different fingerprints | **409** `event_id_conflict` before commit |
+
+### Per-event outcomes
+
+Each element of `results` in an HTTP **200** response corresponds to the
+event at the same index in the request `events` array.
+
+| `outcome` | Meaning | Persisted server state |
+| --------- | ------- | ---------------------- |
+| `accepted` | Event ingested; default `category = death` assigned server-side | Canonical event row created |
+| `duplicate` | Identical fingerprint to an existing accepted event | No new row; prior event unchanged |
+| `needs_review` | Valid wire payload held for operator review | Quarantine row created; no aggregation |
+| `rejected` | Permanent semantic rejection for this event | Rejection recorded in batch result only; no canonical event |
+
+`needs_review` stable codes (non-exhaustive):
+
+| Code | When |
+| ---- | ---- |
+| `unknown_character` | `characterGuid` is not mapped to a Yeetcraft character |
+| `unmapped_challenge_map` | `challengeMapId` has no `dungeons.challenge_map_id` |
+| `season_needs_review` | Season cannot be resolved from run-start instant and hints |
+
+`rejected` uses the request-side semantic codes in
+[Request-side semantic validation codes](#request-side-semantic-validation-codes)
+(for example `invalid_client_run_id`, `death_before_run_start`).
+
+`accepted` and `duplicate` use `code` equal to the outcome name (`accepted`,
+`duplicate`). Every `accepted` result includes `serverEventId` (UUID of the
+canonical or existing event). `duplicate` results include `serverEventId` of
+the existing event.
+
+### Database failure
+
+Any database error during the ingest transaction rolls back the **entire**
+batch, returns **5xx** with a transient error code, and stores **no**
+acknowledgement for that attempt. Clients may retry with the same `batchId` and
+body.
+
+---
+
+## Limits
+
+| Limit | Value |
+| ----- | ----- |
+| Events per batch | 1–500 inclusive |
+| Decoded request body size | 1 MiB (1 048 576 bytes) maximum |
+| Ranked causes per event | 0–3 |
+| JSON object nesting depth | 16 levels maximum (envelope through nested objects) |
+| `keystoneLevel` | 0–99 |
+| `challengeMapId`, `encounterId`, `spellId`, `creatureId` | 1–999 999 |
+| `amount`, `overkill` | 0–9 999 999 999 |
+| `environmentalType` | 1–64 UTF-8 bytes |
+| `code` / error `message` strings | See response and error schemas |
+
+Structural rules enforced before processing:
+
+- Strict lowercase UUID, `sha256:` digest, player GUID, and canonical instant
+  forms (see [Wire formats](#wire-formats)).
+- `additionalProperties: false` on every object defined by the contract schemas.
+- Cause ranks contiguous and unique from `1` through `N`.
+- Exactly **one** JSON document per request; bytes after the first value are
+  rejected (`trailing_json_not_allowed`).
+- `events` must be non-empty; more than 500 events is `batch_size_exceeded`.
+
+Oversized bodies are rejected with **413** `payload_too_large` before schema
+validation.
+
+---
+
+## Version matching
+
+- URL path segment **`v1`** and request `schemaVersion: 1` must agree.
+- Requests to `/api/companion/v1/deaths/batch` with any other `schemaVersion`
+  receive **422** `schema_version_mismatch` without processing.
+- Future major versions use a new path (for example `/api/companion/v2/...`) and
+  wire `schemaVersion` integer; v1 clients must not send unsupported versions.
+
+Response bodies on HTTP **200** always include `schemaVersion: 1` matching the
+accepted request.
+
+---
+
+## Error taxonomy
+
+Normative JSON Schemas:
+
+- Success: [`schema/ingest-batch-response.schema.json`](./schema/ingest-batch-response.schema.json)
+- Failure: [`schema/error.schema.json`](./schema/error.schema.json)
+
+Synthetic examples:
+[`examples/response/`](./examples/response/),
+[`examples/error/`](./examples/error/).
+
+### Envelope error responses
+
+All non-200 responses use the error envelope (`error.code`, `error.message`,
+optional `error.retryable`). Codes are stable across implementations.
+
+| HTTP | Code | Retryable | When |
+| ---- | ---- | --------- | ---- |
+| 400 | `invalid_json` | no | Request body is not valid JSON |
+| 401 | `missing_api_key` | no | No `X-API-Key` or `Authorization: Bearer` credential |
+| 401 | `invalid_api_key` | no | Credential present but not accepted |
+| 409 | `batch_conflict` | no | Same `batchId`, different body fingerprint |
+| 409 | `event_id_conflict` | no | `clientEventId` reuse with different immutable fingerprint |
+| 413 | `payload_too_large` | no | Decoded body exceeds 1 MiB |
+| 415 | `unsupported_media_type` | no | `Content-Type` is not `application/json` |
+| 415 | `unsupported_content_encoding` | no | `Content-Encoding` other than identity |
+| 422 | `schema_validation_failed` | no | JSON Schema structural validation failed |
+| 422 | `schema_version_mismatch` | no | `schemaVersion` does not match endpoint `v1` |
+| 422 | `empty_events` | no | `events` array is empty |
+| 422 | `batch_size_exceeded` | no | More than 500 events |
+| 422 | `json_depth_exceeded` | no | JSON nesting exceeds 16 levels |
+| 422 | `trailing_json_not_allowed` | no | Bytes after the first JSON value |
+| 422 | `invalid_batch_id` | no | `batchId` is not a lowercase UUID |
+| 429 | `rate_limit_exceeded` | yes | Route rate limit exceeded |
+| 503 | `companion_api_unconfigured` | yes | `COMPANION_API_KEY` missing or empty on server |
+| 503 | `ingest_temporarily_unavailable` | yes | Transient failure (including database) with no acknowledgement stored |
+
+`companion_api_unconfigured` is distinct from browser `API_KEY` **503** behavior
+and must not fall back to browser credentials.
+
+### HTTP 200 batch response
+
+| `outcome` | Typical `code` values |
+| --------- | --------------------- |
+| `accepted` | `accepted` |
+| `duplicate` | `duplicate` |
+| `needs_review` | `unknown_character`, `unmapped_challenge_map`, `season_needs_review` |
+| `rejected` | Semantic codes from [Request-side semantic validation codes](#request-side-semantic-validation-codes) |
+
+Cardinality: `results.length` **must** equal `events.length` and preserve
+request order.
+
+### Retry guidance
+
+| Response | Client action |
+| -------- | ------------- |
+| 200 with all `accepted` / `duplicate` / `needs_review` / `rejected` | Treat as acknowledged; persist outcomes locally |
+| 200 replay (same `batchId` + body) | Idempotent; replace local pending state with returned results |
+| 5xx transient (`retryable: true`) | Retry same `batchId` and body with backoff |
+| 409, 401, 413, 415, 422 | Fix request or configuration; do not blind-retry |
+| 429 | Retry after `Retry-After` or backoff |
+| 503 `companion_api_unconfigured` | Operator must configure server; installations retry later |
+
+Per-event `rejected` and `needs_review` outcomes are **final for that upload
+attempt**; correcting data requires a new `clientEventId` or operator action on
+the website (corrections deferred to WP4).
+
+---
+
+## Response payloads
+
+### Batch success (`HTTP 200`)
+
+| Field | Required | Type | Description |
+| ----- | -------- | ---- | ----------- |
+| `schemaVersion` | yes | integer `1` | Matches request and path `v1` |
+| `batchId` | yes | UUID | Echo of request `batchId` |
+| `results` | yes | array | One result per request event, same order |
+
+#### Event result object
+
+| Field | Required | Type | Description |
+| ----- | -------- | ---- | ----------- |
+| `clientEventId` | yes | `sha256:` digest | Echo of request event |
+| `outcome` | yes | enum | `accepted`, `duplicate`, `needs_review`, or `rejected` |
+| `code` | yes | string | Stable outcome or rejection code |
+| `serverEventId` | conditional | UUID | Present for `accepted` and `duplicate` |
+
+### Error failure (`HTTP 4xx`, `429`, `5xx`)
+
+| Field | Required | Type | Description |
+| ----- | -------- | ---- | ----------- |
+| `error.code` | yes | string | Stable machine code |
+| `error.message` | yes | string | Short human-readable summary (no secrets) |
+| `error.retryable` | no | boolean | Hint for clients; defaults by code table above |
 
 ---
 
@@ -476,14 +721,18 @@ their acknowledgement codes are deferred to WP3.
 
 | Section | WP |
 | ------- | -- |
-| Endpoint and authentication | WP1 (this document) |
+| Endpoint and authentication | WP1 + WP3 |
 | Deterministic IDs | WP1 |
-| Batch idempotency boundaries | WP1 (acknowledgement codes WP3) |
+| Batch idempotency boundaries | WP1 + WP3 |
 | GUID-first identity | WP1 |
 | Season and dungeon resolution | WP1 |
 | Privacy and redaction | WP1 |
-| Request payloads | WP2 (this document) |
-| Response payloads, limits, retry taxonomy | WP3 |
+| Request payloads | WP2 |
+| Acknowledgement semantics | WP3 |
+| Limits | WP3 |
+| Version matching | WP3 |
+| Error taxonomy | WP3 |
+| Response payloads | WP3 |
 | Correction and adjustment ledger | WP4 |
 
 See [`README.md`](./README.md) for ownership, versioning, and compatibility.
