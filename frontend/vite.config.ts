@@ -24,8 +24,7 @@ export default defineConfig({
         id: '/',
         name: 'YeetCraft',
         short_name: 'YeetCraft',
-        description:
-          'Track WoW dungeon deaths and mistakes. The Hall of Shame awaits!',
+        description: 'Track WoW dungeon deaths and mistakes. The Hall of Shame awaits!',
         theme_color: PWA_THEME_COLOR,
         background_color: PWA_BACKGROUND_COLOR,
         display: 'standalone',

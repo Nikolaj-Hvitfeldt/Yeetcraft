@@ -25,17 +25,16 @@ const DEFAULT_CONNECTION_STATUS: ConnectionStatusContextValue = {
   showOfflineNoCache: false,
 }
 
-export const ConnectionStatusContext = createContext<ConnectionStatusContextValue>(
-  DEFAULT_CONNECTION_STATUS,
-)
+export const ConnectionStatusContext =
+  createContext<ConnectionStatusContextValue>(DEFAULT_CONNECTION_STATUS)
 
 export const ConnectionStatusRegistrarContext = createContext<
   (input: PageConnectionRegistration | null) => void
 >(() => {})
 
-export const ConnectionRefreshRegistrarContext = createContext<
-  (isRefreshing: boolean) => void
->(() => {})
+export const ConnectionRefreshRegistrarContext = createContext<(isRefreshing: boolean) => void>(
+  () => {},
+)
 
 function isSameLocalOutboxScope(
   previous: LocalOutboxScope | undefined,
@@ -67,11 +66,14 @@ function isSamePageConnectionRegistration(
 export function usePageConnectionRegistrar(
   setPageInput: Dispatch<SetStateAction<PageConnectionRegistration | null>>,
 ): (input: PageConnectionRegistration | null) => void {
-  return useCallback((next: PageConnectionRegistration | null) => {
-    setPageInput((previous) =>
-      isSamePageConnectionRegistration(previous, next) ? previous : next,
-    )
-  }, [setPageInput])
+  return useCallback(
+    (next: PageConnectionRegistration | null) => {
+      setPageInput((previous) =>
+        isSamePageConnectionRegistration(previous, next) ? previous : next,
+      )
+    },
+    [setPageInput],
+  )
 }
 
 export function useReportPageConnection(input: PageConnectionInput): void {

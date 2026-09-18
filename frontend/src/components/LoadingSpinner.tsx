@@ -19,7 +19,12 @@ export function LoadingSpinner({ message = 'Loading the Hall of Shame...' }: Loa
 
 export function InlineSpinner({ message }: InlineSpinnerProps) {
   return (
-    <div role="status" aria-live="polite" aria-busy="true" className="flex flex-col items-center justify-center py-4xl text-center">
+    <div
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+      className="flex flex-col items-center justify-center py-4xl text-center"
+    >
       <SpinnerRing className="mb-3 h-6 w-6" />
       {message ? <p className="text-sm text-text-secondary">{message}</p> : null}
     </div>

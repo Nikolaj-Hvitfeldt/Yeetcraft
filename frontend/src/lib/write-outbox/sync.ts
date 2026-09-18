@@ -217,10 +217,7 @@ export async function syncOutbox(queryClient: QueryClient): Promise<void> {
   return activeSync
 }
 
-export async function retryOutboxSync(
-  queryClient: QueryClient,
-  writeId?: string,
-): Promise<void> {
+export async function retryOutboxSync(queryClient: QueryClient, writeId?: string): Promise<void> {
   if (writeId) {
     await resetWriteForManualRetry(writeId)
   } else {

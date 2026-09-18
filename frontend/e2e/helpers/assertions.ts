@@ -1,7 +1,6 @@
 import { expect, type Page } from '@playwright/test'
 
-const AUTHORIZATION_ERROR_PATTERN =
-  /access link|unauthorized|permission to view|valid token/i
+const AUTHORIZATION_ERROR_PATTERN = /access link|unauthorized|permission to view|valid token/i
 
 export async function assertNoAuthorizationError(page: Page): Promise<void> {
   await expect(page.getByRole('heading', { name: 'Something Went Wrong' })).toHaveCount(0)

@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { DungeonSummary } from '../api/types'
-import {
-  assignUniqueDungeonTitles,
-  getDungeonFlavorTitle,
-} from './dungeon-flavor-title'
+import { assignUniqueDungeonTitles, getDungeonFlavorTitle } from './dungeon-flavor-title'
 
 function makeDungeon(
   id: string,
@@ -49,10 +46,7 @@ describe('assignUniqueDungeonTitles', () => {
   })
 
   it('breaks ties with display order', () => {
-    const dungeons = [
-      makeDungeon('d1', 'Alpha', 5, 0, 1),
-      makeDungeon('d2', 'Beta', 5, 0, 2),
-    ]
+    const dungeons = [makeDungeon('d1', 'Alpha', 5, 0, 1), makeDungeon('d2', 'Beta', 5, 0, 2)]
 
     const titles = assignUniqueDungeonTitles({ allDungeons: dungeons })
 

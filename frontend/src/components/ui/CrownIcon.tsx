@@ -14,12 +14,7 @@ export function CrownIcon({ className }: CrownIconProps) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path
-        d="M5.25 14.75H12.75"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-      />
+      <path d="M5.25 14.75H12.75" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
     </svg>
   )
 }

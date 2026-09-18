@@ -17,10 +17,7 @@ export function Icon({
       height={fluid ? undefined : size}
       loading="lazy"
       aria-hidden={alt ? undefined : true}
-      className={cn(
-        objectFit === 'cover' ? 'object-cover' : 'object-contain',
-        className,
-      )}
+      className={cn(objectFit === 'cover' ? 'object-cover' : 'object-contain', className)}
       style={fluid ? undefined : { width: size, height: size }}
     />
   )

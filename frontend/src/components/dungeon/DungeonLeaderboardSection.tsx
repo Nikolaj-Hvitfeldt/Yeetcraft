@@ -1,6 +1,6 @@
-import type { DungeonLeaderboardEntry, SeasonSummary } from "../../api/types";
-import { PanelState } from "../ui/PanelState";
-import { DungeonLeaderboardRow } from "./DungeonLeaderboardRow";
+import type { DungeonLeaderboardEntry, SeasonSummary } from '../../api/types'
+import { PanelState } from '../ui/PanelState'
+import { DungeonLeaderboardRow } from './DungeonLeaderboardRow'
 
 export function DungeonLeaderboardSection({
   leaderboard,
@@ -40,14 +40,14 @@ export function DungeonLeaderboardSection({
         </div>
       </PanelState>
     </section>
-  );
+  )
 }
 
 interface DungeonLeaderboardSectionProps {
-  leaderboard: DungeonLeaderboardEntry[];
-  season?: SeasonSummary;
-  playerBackTo?: string;
-  isLoading?: boolean;
-  error?: Error | null;
-  onRetry?: () => void;
+  leaderboard: DungeonLeaderboardEntry[]
+  season?: SeasonSummary
+  playerBackTo?: string
+  isLoading?: boolean
+  error?: Error | null
+  onRetry?: () => void
 }

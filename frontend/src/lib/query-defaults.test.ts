@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { ApiError } from '../utils/api-error'
-import { MAX_QUERY_RETRY_COUNT, hasRecoverableQueryError, queryRetryDelay, shouldRetryQuery } from './query-defaults'
+import {
+  MAX_QUERY_RETRY_COUNT,
+  hasRecoverableQueryError,
+  queryRetryDelay,
+  shouldRetryQuery,
+} from './query-defaults'
 
 describe('shouldRetryQuery', () => {
   it('retries network, timeout, and server failures up to the cap', () => {
@@ -22,9 +27,7 @@ describe('shouldRetryQuery', () => {
   })
 
   it('aligns unknown HTTP 400 errors with isRetryableError', () => {
-    expect(
-      shouldRetryQuery(0, new ApiError('unknown', 'Bad request', { status: 400 })),
-    ).toBe(false)
+    expect(shouldRetryQuery(0, new ApiError('unknown', 'Bad request', { status: 400 }))).toBe(false)
   })
 })
 

@@ -1,40 +1,37 @@
-import { useId } from "react";
-import {
-  achievementLogos,
-  isAchievementLogoKey,
-} from "../../assets/achievement-logos";
+import { useId } from 'react'
+import { achievementLogos, isAchievementLogoKey } from '../../assets/achievement-logos'
 import type {
   AchievementIcon,
   DungeonAchievementHolderView,
-} from "../../utils/dungeon-achievements";
-import { icons } from "../../assets/icons";
-import { cn } from "../../utils/cn";
-import { HoverTooltipPanel } from "../ui/HoverTooltipPanel";
-import { PlayerAvatar } from "../ui/PlayerAvatar";
-import { Icon } from "../Icon";
+} from '../../utils/dungeon-achievements'
+import { icons } from '../../assets/icons'
+import { cn } from '../../utils/cn'
+import { HoverTooltipPanel } from '../ui/HoverTooltipPanel'
+import { PlayerAvatar } from '../ui/PlayerAvatar'
+import { Icon } from '../Icon'
 
 // achievementFrameSimple.webp is 256×64px (4:1) — square wells on left and right.
-const FRAME_ASPECT_PERCENT = 25;
-const BANNER_SCALE = 0.88;
-const FRAME_ICON_FR = 64;
-const FRAME_CENTER_FR = 128;
-const FRAME_AVATAR_FR = 64;
-const ICON_INSET = "23% 20% 22% 18%";
-const CENTER_TEXT_INSET_X = "1%";
+const FRAME_ASPECT_PERCENT = 25
+const BANNER_SCALE = 0.88
+const FRAME_ICON_FR = 64
+const FRAME_CENTER_FR = 128
+const FRAME_AVATAR_FR = 64
+const ICON_INSET = '23% 20% 22% 18%'
+const CENTER_TEXT_INSET_X = '1%'
 
 const ICON_EDGE_BLEND =
-  "linear-gradient(to left, rgba(128,128,128,0.16) 0%, transparent 4%)," +
-  "linear-gradient(to bottom, rgba(128,128,128,0.16) 0%, transparent 4%)," +
-  "linear-gradient(to top, rgba(128,128,128,0.16) 0%, transparent 4%)";
+  'linear-gradient(to left, rgba(128,128,128,0.16) 0%, transparent 4%),' +
+  'linear-gradient(to bottom, rgba(128,128,128,0.16) 0%, transparent 4%),' +
+  'linear-gradient(to top, rgba(128,128,128,0.16) 0%, transparent 4%)'
 
 const ICON_RIGHT_SOFT_MASK =
-  "linear-gradient(to right, #000 0%, #000 76%, rgba(0,0,0,0.6) 88%, transparent 100%)";
+  'linear-gradient(to right, #000 0%, #000 76%, rgba(0,0,0,0.6) 88%, transparent 100%)'
 
 const ICON_RIGHT_PARCHMENT_BLEND =
-  "linear-gradient(to right, transparent 68%, rgba(196, 156, 98, 0.12) 82%, rgba(126, 78, 44, 0.28) 100%)";
+  'linear-gradient(to right, transparent 68%, rgba(196, 156, 98, 0.12) 82%, rgba(126, 78, 44, 0.28) 100%)'
 
 function AchievementIconWell({ icon }: { icon: AchievementIcon }) {
-  const isCustomLogo = isAchievementLogoKey(icon);
+  const isCustomLogo = isAchievementLogoKey(icon)
 
   return (
     <div className="absolute overflow-hidden" style={{ inset: ICON_INSET }}>
@@ -57,12 +54,7 @@ function AchievementIconWell({ icon }: { icon: AchievementIcon }) {
             className="size-full scale-[1.14] object-cover"
           />
         ) : (
-          <Icon
-            icon={icon}
-            fluid
-            objectFit="cover"
-            className="size-full object-cover"
-          />
+          <Icon icon={icon} fluid objectFit="cover" className="size-full object-cover" />
         )}
         {isCustomLogo ? (
           <>
@@ -80,7 +72,7 @@ function AchievementIconWell({ icon }: { icon: AchievementIcon }) {
         ) : null}
       </div>
     </div>
-  );
+  )
 }
 
 export function AchievementBanner({
@@ -91,14 +83,14 @@ export function AchievementBanner({
   tooltip,
   className,
 }: AchievementBannerProps) {
-  const titleId = useId();
-  const descriptionId = useId();
-  const tooltipId = useId();
-  const holderId = useId();
+  const titleId = useId()
+  const descriptionId = useId()
+  const tooltipId = useId()
+  const holderId = useId()
 
   return (
     <div
-      className={cn("group/banner relative w-full max-w-full", className)}
+      className={cn('group/banner relative w-full max-w-full', className)}
       style={{ paddingBottom: `${FRAME_ASPECT_PERCENT * BANNER_SCALE}%` }}
     >
       <article
@@ -183,14 +175,14 @@ export function AchievementBanner({
         detail={tooltip}
       />
     </div>
-  );
+  )
 }
 
 interface AchievementBannerProps {
-  icon: AchievementIcon;
-  title: string;
-  holder?: DungeonAchievementHolderView;
-  description: string;
-  tooltip: string;
-  className?: string;
+  icon: AchievementIcon
+  title: string
+  holder?: DungeonAchievementHolderView
+  description: string
+  tooltip: string
+  className?: string
 }

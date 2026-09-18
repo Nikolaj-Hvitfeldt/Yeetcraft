@@ -30,14 +30,13 @@ export function DungeonReputationSection({
           <h2 className="pt-sm font-heading text-4xl font-bold leading-[42px] text-text-primary">
             {summary.title}
           </h2>
-          <p className="max-w-xl pt-md text-sm leading-5 text-text-secondary">{summary.description}</p>
+          <p className="max-w-xl pt-md text-sm leading-5 text-text-secondary">
+            {summary.description}
+          </p>
 
           <ul className="flex max-w-xl flex-col gap-sm pt-lg">
             {verdicts.map((verdict) => (
-              <li
-                key={verdict}
-                className="flex gap-sm text-sm leading-5 text-text-secondary"
-              >
+              <li key={verdict} className="flex gap-sm text-sm leading-5 text-text-secondary">
                 <span
                   className="mt-[7px] size-1.5 shrink-0 rounded-full bg-accent-primary"
                   aria-hidden="true"

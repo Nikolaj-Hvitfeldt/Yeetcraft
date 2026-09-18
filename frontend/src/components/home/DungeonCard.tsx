@@ -5,11 +5,14 @@ import { cn } from '../../utils/cn'
 import { buildDungeonDetailState, buildDungeonPath, buildSeasonHomePath } from '../../utils/routes'
 import { getDungeonBannerImage } from '../../utils/dungeon-image'
 
-export function DungeonCard({ dungeon, season, bannerSeasonKey, priority = false }: DungeonCardProps) {
+export function DungeonCard({
+  dungeon,
+  season,
+  bannerSeasonKey,
+  priority = false,
+}: DungeonCardProps) {
   const to = season ? buildDungeonPath(season, dungeon) : '#'
-  const bannerImageUrl = bannerSeasonKey
-    ? getDungeonBannerImage(bannerSeasonKey, dungeon)
-    : null
+  const bannerImageUrl = bannerSeasonKey ? getDungeonBannerImage(bannerSeasonKey, dungeon) : null
 
   return (
     <Link

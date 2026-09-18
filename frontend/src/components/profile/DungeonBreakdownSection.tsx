@@ -1,36 +1,36 @@
-import type { DungeonStats, SeasonSummary } from "../../api/types";
-import { PendingSyncStatus } from "../PendingSyncStatus";
-import { DungeonTableRow } from "./DungeonTableRow";
-import { TableHeader } from "../ui/TableHeader";
-import { STAT_COLOR_BY_KIND } from "../../utils/stat-colors";
+import type { DungeonStats, SeasonSummary } from '../../api/types'
+import { PendingSyncStatus } from '../PendingSyncStatus'
+import { DungeonTableRow } from './DungeonTableRow'
+import { TableHeader } from '../ui/TableHeader'
+import { STAT_COLOR_BY_KIND } from '../../utils/stat-colors'
 
 const FOCUS_ACCENT_BORDER =
-  "outline-none transition-colors focus:border-accent-primary focus-visible:border-accent-primary";
+  'outline-none transition-colors focus:border-accent-primary focus-visible:border-accent-primary'
 
 const DUNGEON_TABLE_GRID =
-  "minmax(0, 3.5fr) minmax(5.5rem, 1fr) minmax(5.5rem, 1fr) minmax(5.5rem, 1fr)";
+  'minmax(0, 3.5fr) minmax(5.5rem, 1fr) minmax(5.5rem, 1fr) minmax(5.5rem, 1fr)'
 
 const TABLE_COLUMNS = [
-  { id: "dungeon", label: "Dungeon", className: "text-text-secondary" },
+  { id: 'dungeon', label: 'Dungeon', className: 'text-text-secondary' },
   {
-    id: "total",
-    label: "Total",
+    id: 'total',
+    label: 'Total',
     className: `justify-self-center text-center ${STAT_COLOR_BY_KIND.total}`,
-    width: "5.5rem",
+    width: '5.5rem',
   },
   {
-    id: "deaths",
-    label: "Deaths",
+    id: 'deaths',
+    label: 'Deaths',
     className: `justify-self-center text-center ${STAT_COLOR_BY_KIND.deaths}`,
-    width: "5.5rem",
+    width: '5.5rem',
   },
   {
-    id: "yeets",
-    label: "Yeets",
+    id: 'yeets',
+    label: 'Yeets',
     className: `justify-self-center text-center ${STAT_COLOR_BY_KIND.yeets}`,
-    width: "5.5rem",
+    width: '5.5rem',
   },
-];
+]
 
 export function DungeonBreakdownSection({
   mode,
@@ -52,16 +52,16 @@ export function DungeonBreakdownSection({
       <div className="flex flex-col gap-sm">
         <div
           className={
-            mode === "edit"
-              ? "grid grid-cols-[1fr_auto_1fr] items-center gap-md"
-              : "flex items-center justify-between"
+            mode === 'edit'
+              ? 'grid grid-cols-[1fr_auto_1fr] items-center gap-md'
+              : 'flex items-center justify-between'
           }
         >
           <h2 className="font-heading text-2xl font-bold leading-[30px] text-text-accent">
             Dungeon breakdown
           </h2>
 
-          {mode === "browse" && canEdit ? (
+          {mode === 'browse' && canEdit ? (
             <button
               type="button"
               disabled={isSaving}
@@ -70,7 +70,7 @@ export function DungeonBreakdownSection({
             >
               Edit Stats
             </button>
-          ) : mode === "edit" ? (
+          ) : mode === 'edit' ? (
             <>
               <span className="inline-flex items-center justify-self-center rounded-[12px] border border-border-subtle bg-overlay-dark px-[10px] py-xs text-[11px] font-semibold text-accent-primary">
                 EDITING
@@ -112,7 +112,7 @@ export function DungeonBreakdownSection({
       <div className="pt-lg">
         <div
           className={`overflow-hidden rounded-2xl border border-accent-secondary ${
-            mode === "edit" ? "border-t-2 border-t-accent-primary/40" : ""
+            mode === 'edit' ? 'border-t-2 border-t-accent-primary/40' : ''
           }`}
         >
           <TableHeader
@@ -122,10 +122,10 @@ export function DungeonBreakdownSection({
           />
 
           <div className="divide-y divide-accent-secondary">
-          {dungeons.map((dungeon) => (
-            <DungeonTableRow
-              key={dungeon.dungeon.id}
-              dungeon={dungeon}
+            {dungeons.map((dungeon) => (
+              <DungeonTableRow
+                key={dungeon.dungeon.id}
+                dungeon={dungeon}
                 mode={mode}
                 gridTemplateColumns={DUNGEON_TABLE_GRID}
                 onAdjust={onAdjust}
@@ -139,28 +139,24 @@ export function DungeonBreakdownSection({
         </div>
       </div>
     </section>
-  );
+  )
 }
 
 interface DungeonBreakdownSectionProps {
-  mode: 'browse' | 'edit';
-  dungeons: DungeonStats[];
-  onEnterEdit: () => void;
-  onCancel: () => void;
-  onDone: () => void;
-  isSaving: boolean;
-  onAdjust: (
-    dungeonId: string,
-    field: "deaths" | "yeets",
-    delta: 1 | -1,
-  ) => void;
-  season?: SeasonSummary;
-  dungeonBackTo?: string;
-  profileBackTo?: string;
-  canEdit?: boolean;
+  mode: 'browse' | 'edit'
+  dungeons: DungeonStats[]
+  onEnterEdit: () => void
+  onCancel: () => void
+  onDone: () => void
+  isSaving: boolean
+  onAdjust: (dungeonId: string, field: 'deaths' | 'yeets', delta: 1 | -1) => void
+  season?: SeasonSummary
+  dungeonBackTo?: string
+  profileBackTo?: string
+  canEdit?: boolean
   pendingSyncStatus?: {
-    status: 'pending' | 'syncing' | 'failed';
-    lastError?: string;
-  } | null;
-  onPendingSyncRetry?: () => void;
+    status: 'pending' | 'syncing' | 'failed'
+    lastError?: string
+  } | null
+  onPendingSyncRetry?: () => void
 }

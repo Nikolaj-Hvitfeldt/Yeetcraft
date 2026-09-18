@@ -9,8 +9,7 @@ export type AvatarSize = 'sm' | 'lg' | 'achievement'
 const SIZE_CLASS_BY_VARIANT: Record<AvatarSize, string> = {
   sm: 'size-12 rounded-2xl text-lg leading-6',
   lg: 'size-24 rounded-2xl text-4xl leading-[42px]',
-  achievement:
-    'size-7 rounded-full text-[10px] leading-none ring-1 ring-black/50 sm:size-8',
+  achievement: 'size-7 rounded-full text-[10px] leading-none ring-1 ring-black/50 sm:size-8',
 }
 
 const SIZE_PX: Record<AvatarSize, number> = {

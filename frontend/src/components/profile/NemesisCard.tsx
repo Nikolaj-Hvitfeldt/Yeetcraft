@@ -32,11 +32,7 @@ export function NemesisCard({
       <div className="relative grid gap-xl p-xl lg:grid-cols-[280px_1fr]">
         <div className="relative overflow-hidden rounded-2xl border border-accent-primary bg-accent-primary">
           {bannerImageUrl ? (
-            <img
-              src={bannerImageUrl}
-              alt=""
-              className="aspect-[4/3] size-full object-cover"
-            />
+            <img src={bannerImageUrl} alt="" className="aspect-[4/3] size-full object-cover" />
           ) : (
             <div className="aspect-[4/3] w-full bg-accent-primary" aria-hidden="true" />
           )}
@@ -71,11 +67,7 @@ export function NemesisCard({
           </div>
 
           <div className="grid gap-md sm:grid-cols-2 xl:grid-cols-4">
-            <StatItem
-              label="Total"
-              value={dungeon.totalMistakes}
-              kind="total"
-            />
+            <StatItem label="Total" value={dungeon.totalMistakes} kind="total" />
             <StatItem label="Deaths" value={dungeon.deaths} kind="deaths" />
             <StatItem label="Yeets" value={dungeon.yeets} kind="yeets" />
             <StatItem

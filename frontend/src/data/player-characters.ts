@@ -1,41 +1,41 @@
-import type { ClassKey } from "../assets/classes";
+import type { ClassKey } from '../assets/classes'
 
-export type PlayerRole = "DPS" | "Healer" | "Tank";
+export type PlayerRole = 'DPS' | 'Healer' | 'Tank'
 
 export type PlayerCharacter = {
-  name: string;
-  wowClass?: ClassKey;
-};
+  name: string
+  wowClass?: ClassKey
+}
 
 export type PlayerRegistryEntry = {
-  roles: PlayerRole[];
-  characters: PlayerCharacter[];
-};
+  roles: PlayerRole[]
+  characters: PlayerCharacter[]
+}
 
 export const PLAYERS_BY_KEY: Record<string, PlayerRegistryEntry> = {
   seb: {
-    roles: ["DPS", "Healer"],
+    roles: ['DPS', 'Healer'],
     characters: [
-      { name: "MostDope", wowClass: "warlock" },
-      { name: "Nudelkriger", wowClass: "priest" },
+      { name: 'MostDope', wowClass: 'warlock' },
+      { name: 'Nudelkriger', wowClass: 'priest' },
     ],
   },
   martin: {
-    roles: ["DPS", "Healer", "Tank"],
+    roles: ['DPS', 'Healer', 'Tank'],
     characters: [
-      { name: "Zorker", wowClass: "priest" },
-      { name: "Rauw", wowClass: "shaman" },
+      { name: 'Zorker', wowClass: 'priest' },
+      { name: 'Rauw', wowClass: 'shaman' },
     ],
   },
   niklas: {
-    roles: ["DPS", "Tank"],
-    characters: [{ name: "Ungeork", wowClass: "hunter" }],
+    roles: ['DPS', 'Tank'],
+    characters: [{ name: 'Ungeork', wowClass: 'hunter' }],
   },
   niko: {
-    roles: ["DPS"],
+    roles: ['DPS'],
     characters: [
-      { name: "Freecry", wowClass: "demonhunter" },
-      { name: "LouiLoui", wowClass: "evoker" },
+      { name: 'Freecry', wowClass: 'demonhunter' },
+      { name: 'LouiLoui', wowClass: 'evoker' },
     ],
   },
-};
+}

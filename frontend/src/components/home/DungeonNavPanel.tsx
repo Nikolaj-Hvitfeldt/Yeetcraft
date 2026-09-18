@@ -15,9 +15,7 @@ export function DungeonNavPanel({
   return (
     <aside className="min-h-[586px] rounded-lg border border-accent-secondary bg-surface-section p-[17px] shadow-[0px_25px_25px_0px_rgba(0,0,0,0.2)]">
       <div className="h-[60px] pb-lg">
-        <h2 className="font-heading text-xl font-bold leading-6 text-text-primary">
-          Dungeons
-        </h2>
+        <h2 className="font-heading text-xl font-bold leading-6 text-text-primary">Dungeons</h2>
       </div>
 
       <PanelState

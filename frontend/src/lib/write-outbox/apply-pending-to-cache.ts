@@ -27,10 +27,7 @@ export function applyPendingStatsWritesToQueryCache(queryClient: QueryClient): v
     })) {
       if (!slugPlayerStats || slugPlayerStats.player.id !== playerId) continue
 
-      queryClient.setQueryData(
-        slugQueryKey,
-        applyDungeonUpdates(slugPlayerStats, stats),
-      )
+      queryClient.setQueryData(slugQueryKey, applyDungeonUpdates(slugPlayerStats, stats))
     }
   }
 }

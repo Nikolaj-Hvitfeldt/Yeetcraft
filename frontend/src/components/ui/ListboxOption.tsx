@@ -1,11 +1,7 @@
 import type { ReactNode } from 'react'
 import { cn } from '../../utils/cn'
 
-export function ListboxOption({
-  isSelected,
-  onSelect,
-  children,
-}: ListboxOptionProps) {
+export function ListboxOption({ isSelected, onSelect, children }: ListboxOptionProps) {
   return (
     <li>
       <button

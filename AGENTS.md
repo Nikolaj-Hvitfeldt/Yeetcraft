@@ -132,6 +132,7 @@ go vet ./...
 
 # Frontend
 cd frontend
+npm run format:check
 npm run lint
 npm test
 npm run build

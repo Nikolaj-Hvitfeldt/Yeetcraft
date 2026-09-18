@@ -21,21 +21,19 @@ describe('deriveConnectionState', () => {
   }
 
   it('returns restoring when cache hydrate is pending', () => {
-    expect(
-      deriveConnectionState({ ...base, isRestorePending: true }),
-    ).toBe('restoring')
+    expect(deriveConnectionState({ ...base, isRestorePending: true })).toBe('restoring')
   })
 
   it('returns offline_no_cache when offline without data', () => {
-    expect(
-      deriveConnectionState({ ...base, isOnline: false, hasCachedData: false }),
-    ).toBe('offline_no_cache')
+    expect(deriveConnectionState({ ...base, isOnline: false, hasCachedData: false })).toBe(
+      'offline_no_cache',
+    )
   })
 
   it('returns offline_cached when offline with data', () => {
-    expect(
-      deriveConnectionState({ ...base, isOnline: false, hasCachedData: true }),
-    ).toBe('offline_cached')
+    expect(deriveConnectionState({ ...base, isOnline: false, hasCachedData: true })).toBe(
+      'offline_cached',
+    )
   })
 
   it('returns first_load_slow when first visit fetch is slow', () => {
@@ -112,12 +110,8 @@ describe('deriveConnectionState', () => {
 
 describe('connection banner copy', () => {
   it('uses delayed cold-start messaging', () => {
-    expect(getConnectionBannerContent('cached_refreshing')?.message).toBe(
-      'Checking for updates...',
-    )
-    expect(getConnectionBannerContent('cached_waking')?.message).toBe(
-      'Server may be waking up...',
-    )
+    expect(getConnectionBannerContent('cached_refreshing')?.message).toBe('Checking for updates...')
+    expect(getConnectionBannerContent('cached_waking')?.message).toBe('Server may be waking up...')
     expect(getConnectionBannerContent('cached_refresh_failed')?.showRetry).toBe(true)
     expect(getConnectionBannerContent('reconnecting')?.message).toContain('Back online')
   })
@@ -127,9 +121,7 @@ describe('connection banner copy', () => {
   })
 
   it('uses cold-start loading copy after slow first load', () => {
-    expect(getPageLoadingMessage('first_load_slow')).toBe(
-      'Starting the YeetCraft server...',
-    )
+    expect(getPageLoadingMessage('first_load_slow')).toBe('Starting the YeetCraft server...')
   })
 
   it('flags offline without cache', () => {

@@ -60,11 +60,9 @@ function toFetchApiError(
   }
 
   if (options.isTimeout) {
-    return new ApiError(
-      'timeout',
-      'Request timed out. The server may still be waking up.',
-      { cause: error },
-    )
+    return new ApiError('timeout', 'Request timed out. The server may still be waking up.', {
+      cause: error,
+    })
   }
 
   if (
@@ -78,10 +76,7 @@ function toFetchApiError(
   return new ApiError('unknown', 'Something went wrong while fetching data.', { cause: error })
 }
 
-export async function fetchWithTimeout(
-  url: string,
-  init?: RequestInit,
-): Promise<Response> {
+export async function fetchWithTimeout(url: string, init?: RequestInit): Promise<Response> {
   const timeoutSignal = AbortSignal.timeout(API_REQUEST_TIMEOUT_MS)
   const callerSignal = init?.signal
 

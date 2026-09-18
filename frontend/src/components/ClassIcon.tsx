@@ -1,11 +1,7 @@
 import { classes, type ClassKey } from '../assets/classes'
 import { cn } from '../utils/cn'
 
-export function ClassIcon({
-  classKey,
-  size = 18,
-  className,
-}: ClassIconProps) {
+export function ClassIcon({ classKey, size = 18, className }: ClassIconProps) {
   const iconUrl = classes[classKey]
 
   if (!iconUrl) {

@@ -9,8 +9,7 @@ const CROWN_BY_KIND = {
     description: 'Season leader for yeets.',
     detail:
       'Awarded to the player with the most yeets this season. Ties favor the player with more deaths.',
-    iconClassName:
-      'text-stat-yeets drop-shadow-[0_0_6px_rgba(254,230,133,0.35)]',
+    iconClassName: 'text-stat-yeets drop-shadow-[0_0_6px_rgba(254,230,133,0.35)]',
     textClassName: 'text-stat-yeets',
   },
   deaths: {
@@ -18,8 +17,7 @@ const CROWN_BY_KIND = {
     description: 'Season leader for deaths.',
     detail:
       'Awarded to the player with the most deaths this season. Ties favor the player with more yeets.',
-    iconClassName:
-      'text-stat-deaths drop-shadow-[0_0_6px_rgba(218,178,255,0.35)]',
+    iconClassName: 'text-stat-deaths drop-shadow-[0_0_6px_rgba(218,178,255,0.35)]',
     textClassName: 'text-stat-deaths',
   },
 } as const
@@ -27,11 +25,7 @@ const CROWN_BY_KIND = {
 const BADGE_CLASS =
   'group/crown relative inline-flex shrink-0 cursor-help items-center gap-xs rounded-pill border border-border-subtle bg-surface-base outline-none focus-visible:ring-1 focus-visible:ring-accent-primary'
 
-export function CrownBadge({
-  kind,
-  showLabel = false,
-  className,
-}: CrownBadgeProps) {
+export function CrownBadge({ kind, showLabel = false, className }: CrownBadgeProps) {
   const crown = CROWN_BY_KIND[kind]
   const tooltipId = useId()
 
@@ -42,9 +36,7 @@ export function CrownBadge({
       aria-label={showLabel ? undefined : crown.label}
       className={cn(
         BADGE_CLASS,
-        showLabel
-          ? 'px-md py-xs text-xs font-bold uppercase tracking-wide'
-          : 'p-xs',
+        showLabel ? 'px-md py-xs text-xs font-bold uppercase tracking-wide' : 'p-xs',
         crown.textClassName,
         className,
       )}

@@ -14,9 +14,7 @@ export const STAT_ICON_BY_KIND: Record<StatKind, IconKey> = {
   yeets: 'yeets',
 }
 
-export const SPOTLIGHT_ICON_BY_KIND: Partial<
-  Record<StatKind | 'default', IconKey>
-> = {
+export const SPOTLIGHT_ICON_BY_KIND: Partial<Record<StatKind | 'default', IconKey>> = {
   deaths: 'deaths',
   yeets: 'yeets',
   default: 'safestPlayer',

@@ -74,10 +74,7 @@ function useJustReconnected(isOnline: boolean, isFetchActive: boolean): boolean 
   return justReconnected
 }
 
-function useSlowFetch(
-  isActive: boolean,
-  thresholdMs = COLD_START_MESSAGE_DELAY_MS,
-): boolean {
+function useSlowFetch(isActive: boolean, thresholdMs = COLD_START_MESSAGE_DELAY_MS): boolean {
   const [isSlow, setIsSlow] = useState(false)
 
   useEffect(() => {

@@ -26,10 +26,7 @@ export function StatCounter({
         aria-label={`Decrease ${field}`}
         disabled={isMinusDisabled}
         onClick={() => onDelta(-1)}
-        className={cn(
-          STAT_COUNTER_BUTTON_CLASS,
-          isMinusDisabled ? 'opacity-40' : 'opacity-100',
-        )}
+        className={cn(STAT_COUNTER_BUTTON_CLASS, isMinusDisabled ? 'opacity-40' : 'opacity-100')}
       >
         &minus;
       </button>
@@ -43,10 +40,7 @@ export function StatCounter({
         aria-label={`Increase ${field}`}
         disabled={disabled}
         onClick={() => onDelta(1)}
-        className={cn(
-          STAT_COUNTER_BUTTON_CLASS,
-          disabled ? 'opacity-40' : 'opacity-100',
-        )}
+        className={cn(STAT_COUNTER_BUTTON_CLASS, disabled ? 'opacity-40' : 'opacity-100')}
       >
         +
       </button>
@@ -61,4 +55,3 @@ interface StatCounterProps {
   disabled?: boolean
   className?: string
 }
-

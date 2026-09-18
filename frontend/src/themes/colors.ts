@@ -53,8 +53,7 @@ export const colorThemes = {
     overlay: sharedColors.overlay,
     brand: {
       gold: sharedColors.brand.gold,
-      titleGradient:
-        'linear-gradient(180deg, #ffd700 0%, #ffb400 40%, #e66414 70%, #b4280a 100%)',
+      titleGradient: 'linear-gradient(180deg, #ffd700 0%, #ffb400 40%, #e66414 70%, #b4280a 100%)',
       titleFilter:
         'drop-shadow(0 8px 22px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 24px rgba(255, 140, 0, 0.7)) drop-shadow(0 0 52px rgba(204, 102, 0, 0.5)) drop-shadow(0 0 90px rgba(255, 92, 0, 0.35))',
     },

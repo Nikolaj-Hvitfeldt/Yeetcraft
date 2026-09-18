@@ -79,11 +79,7 @@ describe('deriveLeaderboard', () => {
   })
 
   it('preserves server-provided order for ranking', () => {
-    const serverOrderedEntries: LeaderboardEntry[] = [
-      entries[0],
-      entries[2],
-      entries[1],
-    ]
+    const serverOrderedEntries: LeaderboardEntry[] = [entries[0], entries[2], entries[1]]
 
     const leaderboard = deriveLeaderboard(serverOrderedEntries)
 
