@@ -6,7 +6,7 @@ Local setup for the Yeetcraft monorepo. For a shorter path, see the root [README
 
 - **Go 1.25** (see `backend/go.mod`)
 - **Node.js** and npm
-- **PostgreSQL** (Supabase or local). Schema: [`backend/db/schema.sql`](../backend/db/schema.sql)
+- **PostgreSQL** — hosted **Supabase** for the running app (`DATABASE_URL`); **Docker Desktop** for testdb only. Schema: [`backend/db/schema.sql`](../backend/db/schema.sql)
 
 ## Backend
 
@@ -69,7 +69,18 @@ Open any page with `?token=<same value as API_KEY>`. The frontend stores the tok
 
 ## Test database and E2E
 
-See [TESTING.md](./TESTING.md) for `YEETCRAFT_TEST_MODE`, `TEST_DATABASE_URL`, testdb CLI, integration tests, and Playwright ports (**18080** / **14173**).
+Local testdb is Docker Compose Postgres (`yeetcraft_test` on **127.0.0.1:55432**), not the hosted Supabase project.
+
+```powershell
+# From repository root
+.\scripts\testdb.ps1 up
+.\scripts\testdb.ps1 prepare   # empty database only; then use reset/verify
+.\scripts\testdb.ps1 integration
+```
+
+`make up` / `make prepare` / `make test-integration` are the same commands if you have Make. Do not put `TEST_DATABASE_URL` in `backend/.env`.
+
+See [TESTING.md](./TESTING.md) for env vars, testdb CLI, integration tests, and Playwright ports (**18080** / **14173**).
 
 ## Useful commands
 
@@ -85,6 +96,10 @@ npm run preview
 cd backend
 go test ./...
 go build ./cmd/server
+
+# Testdb (from repository root)
+.\scripts\testdb.ps1 up
+.\scripts\testdb.ps1 prepare
 ```
 
 ### Regenerating README screenshots

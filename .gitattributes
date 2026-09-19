@@ -13,4 +13,6 @@
 *.tsx text eol=lf
 *.yaml text eol=lf
 *.yml text eol=lf
+Makefile text eol=lf
+*.ps1 text eol=lf
 *.sha256 text eol=lf

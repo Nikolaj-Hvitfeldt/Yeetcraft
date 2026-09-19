@@ -344,7 +344,8 @@ npm run build
 ```
 
 If schema/repository integration behavior changes, use only a guarded `_test`
-database as documented in [`TESTING.md`](./TESTING.md):
+database as documented in [`TESTING.md`](./TESTING.md) (Docker Compose testdb,
+not hosted Supabase):
 
 ```powershell
 cd backend
