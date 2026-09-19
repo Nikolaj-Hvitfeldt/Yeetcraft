@@ -28,9 +28,35 @@ go test ./...
 
 ## 3. Test database setup
 
-Create an **empty** PostgreSQL database whose name contains `_test` (for example `yeetcraft_test`). Do not point test tooling at your Supabase or local dev database.
+Use **local Docker Postgres**, not the hosted Yeetcraft / Supabase database. The database name must contain `_test` (the compose file uses `yeetcraft_test` on **127.0.0.1:55432**).
 
-Set these environment variables in your shell before running testdb, integration, or E2E commands. Use non-production test secrets only.
+### Docker (recommended)
+
+Requires Docker Desktop. From the repository root:
+
+```powershell
+# Windows (no Make required)
+.\scripts\testdb.ps1 up
+.\scripts\testdb.ps1 prepare
+
+# Git Bash / WSL / macOS / Linux
+make up
+make prepare
+```
+
+Equivalent Compose commands: `docker compose up -d --wait` and `docker compose down`. `make destroy` / `.\scripts\testdb.ps1 destroy` stops the container **and** deletes the local volume.
+
+`prepare` is for an **empty** database only. After the first successful prepare, use `reset` / `verify` (or `.\scripts\testdb.ps1 reset`). Do not run `prepare` against hosted Supabase.
+
+`.\scripts\testdb.ps1` sets env vars only for **that process**. For Playwright in your current shell:
+
+```powershell
+. .\scripts\testdb-env.ps1
+```
+
+### Environment
+
+Set these in your shell before running testdb, integration, or E2E commands **if you are not using** `make` / `scripts/testdb.ps1` (those set `YEETCRAFT_TEST_MODE` and `TEST_DATABASE_URL` for you). Use non-production test secrets only.
 
 | Variable | Purpose |
 | -------- | ------- |
@@ -73,13 +99,21 @@ go test ./internal/repository -tags=integration
 
 Requires `YEETCRAFT_TEST_MODE=1`, `TEST_DATABASE_URL` pointing at a `_test` database, and a prepared test DB.
 
+```powershell
+.\scripts\testdb.ps1 integration
+# or: make test-integration
+```
+
 ## 5. Playwright E2E
 
 Chromium-only smoke tests. Playwright starts its own Go API on port **18080** and Vite preview on **14173** (not dev ports 8080/4173). Service workers are blocked. The E2E frontend build targets `http://127.0.0.1:18080` directly.
 
 ```powershell
+# From repository root (Docker testdb already prepared)
+. .\scripts\testdb-env.ps1
+$env:API_KEY = 'e2e-test-token'
+$env:E2E_WRITE_TOKEN = 'e2e-test-token'
 cd frontend
-# Set YEETCRAFT_TEST_MODE, TEST_DATABASE_URL, API_KEY, E2E_WRITE_TOKEN first
 npm run test:e2e
 npm run test:e2e:ui
 ```
@@ -104,6 +138,8 @@ npx playwright install chromium
 
 ## Full local validation
 
+From the repository root. First-time testdb: `.\scripts\testdb.ps1 prepare` instead of `up` (empty database only).
+
 ```powershell
 # Frontend
 cd frontend
@@ -111,17 +147,21 @@ npm run format:check
 npm run lint
 npm test
 npm run build
+cd ..
 
 # Backend
+.\scripts\testdb.ps1 up
 cd backend
 go test ./...
-go test ./internal/repository -tags=integration
+cd ..
+.\scripts\testdb.ps1 integration
 
-# E2E (with test DB env vars set)
+# E2E
+. .\scripts\testdb-env.ps1
+$env:API_KEY = 'e2e-test-token'
+$env:E2E_WRITE_TOKEN = 'e2e-test-token'
 cd frontend
 npm run test:e2e
-
-# Confirm baseline after E2E
-cd backend
+cd ../backend
 go run ./cmd/testdb verify
 ```

@@ -106,7 +106,7 @@ Along the way it became a deliberate full-stack project: a small hardened Go API
 ### Developer Experience
 
 - Layered Go API with injectable repository boundary
-- `testdb` CLI with `_test` name guards
+- `testdb` CLI with `_test` name guards and Docker Compose local Postgres
 - Vitest + Go integration + Playwright coverage
 
 ## Architecture
@@ -161,11 +161,11 @@ Accessibility, Best Practices, and SEO scored **100** on these runs. See [docs/P
     Vitest + Go unit/handler/middleware
 ```
 
-DB tooling refuses non-`_test` databases and requires `YEETCRAFT_TEST_MODE=1`. Commands and setup: [docs/TESTING.md](docs/TESTING.md).
+DB tooling refuses non-`_test` databases and requires `YEETCRAFT_TEST_MODE=1`. Start local Postgres with `.\scripts\testdb.ps1 up` (or `make up`). Commands: [docs/TESTING.md](docs/TESTING.md).
 
 ## Running locally
 
-**Prerequisites:** Go **1.25**, Node.js/npm, PostgreSQL.
+**Prerequisites:** Go **1.25**, Node.js/npm, a Supabase (or other) Postgres URI for the app. **Docker Desktop** for testdb / integration / E2E only.
 
 ```powershell
 # Backend
@@ -195,16 +195,19 @@ Unlock editing with `?token=<API_KEY>` on any page URL. Full env and Supabase no
 
 ```text
 Yeetcraft/
-├── backend/          # Go API, schema, testdb CLI
+├── docker-compose.yml  # local testdb Postgres only (not Supabase)
+├── Makefile            # make up / prepare / test-integration
+├── scripts/            # testdb.ps1 (Windows) and testdb-env.ps1
+├── backend/            # Go API, schema, testdb CLI
 │   ├── cmd/server
 │   ├── cmd/testdb
 │   ├── db/
 │   └── internal/
-├── frontend/         # Vite React PWA + e2e
-│   ├── public/       # icons, PWA screenshots
+├── frontend/           # Vite React PWA + e2e
+│   ├── public/         # icons, PWA screenshots
 │   ├── e2e/
 │   └── src/
-└── docs/             # deep-dive docs + README assets
+└── docs/               # deep-dive docs + README assets
 ```
 
 ## Deployment
@@ -230,7 +233,7 @@ Yeetcraft/
 **Later**
 
 - [ ] GitHub Actions CI
-- [ ] Docker Compose for local Postgres
+- [x] Docker Compose for local testdb Postgres
 - [ ] Public demo URL once deployed
 
 ## License

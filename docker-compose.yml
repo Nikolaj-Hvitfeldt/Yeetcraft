@@ -1,0 +1,27 @@
+# Local PostgreSQL for testdb, repository integration tests, and Playwright E2E.
+# Not the hosted Yeetcraft / Supabase database. Do not put production credentials here.
+#
+#   docker compose up -d --wait
+#   docker compose down
+#   docker compose down -v   # wipe the local volume
+
+services:
+  testdb:
+    image: postgres:16-alpine
+    container_name: yeetcraft-testdb
+    ports:
+      - "127.0.0.1:55432:5432"
+    environment:
+      POSTGRES_DB: yeetcraft_test
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - yeetcraft_testdb_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d yeetcraft_test"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+      start_period: 5s
+
+volumes:
+  yeetcraft_testdb_data:

@@ -145,7 +145,9 @@ npm run build
 - Add frontend regression tests for changed UI, hooks, or API schemas.
 - Test failure and empty states, not only happy paths.
 - Integration and E2E tests must use guarded `_test` databases and non-
-  production credentials.
+  production credentials. Local Postgres is Docker Compose
+  ([`docker-compose.yml`](docker-compose.yml), `.\scripts\testdb.ps1`); never
+  hosted Supabase.
 - Report checks that could not be run.
 
 ## Documentation

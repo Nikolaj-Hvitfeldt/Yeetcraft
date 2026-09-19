@@ -66,7 +66,7 @@ Ingest-time-current assignment on missing, overlapping, or contradictory evidenc
 | Prepare | [`backend/internal/testdb/client.go`](../../../backend/internal/testdb/client.go) `Prepare` | Applies [`backend/db/schema.sql`](../../../backend/db/schema.sql) once on an empty `_test` database, then seeds. Does **not** iterate `backend/db/migrations/`. |
 | Schema path helper | [`backend/internal/testdb/paths.go`](../../../backend/internal/testdb/paths.go) | `SchemaSQLPath`, `SeedSQLPath`, `ResetStatsSQLPath` only. No migrations directory helper. |
 | Table probe | [`backend/internal/testdb/guard.go`](../../../backend/internal/testdb/guard.go) `ApplicationTables` | `seasons`, `players`, `dungeons`, `season_dungeons`, `player_dungeon_stats`. |
-| Docs | [`docs/TESTING.md`](../../../docs/TESTING.md) | Documents `prepare` as “apply `schema.sql` once, then seed”. |
+| Docs | [`docs/TESTING.md`](../../../docs/TESTING.md) | Documents `prepare` as “apply `schema.sql` once, then seed”. Local testdb Postgres is [`docker-compose.yml`](../../../docker-compose.yml) (`127.0.0.1:55432`), not hosted Supabase. |
 
 Consequence: a table or function that exists **only** in a numbered migration never appears in testdb or `go test ./internal/repository -tags=integration`. That gap already applies to [`002_functions_and_security.sql`](../../../backend/db/migrations/002_functions_and_security.sql) relative to `schema.sql`.
 
@@ -100,6 +100,7 @@ Phase 3 ingest does **not** teach `Prepare` to iterate `backend/db/migrations/`.
 | `backend/internal/testdb/fixtures.go` | existing — extend | 3 | Synthetic IDs only. Isolation-season insert currently uses `(id, name, expansion, is_current)` — must gain bounds after `starts_at`/`ends_at`. |
 | `backend/internal/testdb/integration.go` | existing — extend | 3 | `EnsureIsolationSeasonFixtures` SQL must match the new `seasons` shape. |
 | `backend/cmd/testdb/main.go` | existing — touch only if Prepare CLI semantics change | 3 | testdb entrypoint. |
+| `docker-compose.yml`, `Makefile`, `scripts/testdb.ps1` | existing — do not treat as ingest | DX | Local `yeetcraft_test` on `127.0.0.1:55432`. Not hosted Supabase. |
 
 Exact PostgreSQL table names for ingest batches, runs, death events, causes, quarantine, adjustments, and correction audit are **Phase 3 DDL**. Semantics are frozen: [`CONTRACT.md`](./CONTRACT.md) (batch fingerprint, `needs_review` persistence, GUID resolution) and [ADR 001](../../../docs/adr/001-post-ingest-classification-and-corrections.md) / [ADR 002](../../../docs/adr/002-revision-protected-adjustment-ledger.md) (event revision, audit row, replaceable adjustment, aggregate revision, legacy baseline).
 
