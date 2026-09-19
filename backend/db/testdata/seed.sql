@@ -46,14 +46,15 @@ on conflict (id) do update set
   active = excluded.active,
   guid = excluded.guid;
 
--- Dungeons
-insert into dungeons (id, name, short_name)
+-- Dungeons (synthetic challenge_map_id values; not real WoW MapIDs)
+insert into dungeons (id, name, short_name, challenge_map_id)
 values
-  ('eeee0003-0000-4000-8000-000000000001', 'Test Dungeon Alpha', 'Alpha'),
-  ('eeee0003-0000-4000-8000-000000000002', 'Test Dungeon Beta', 'Beta')
+  ('eeee0003-0000-4000-8000-000000000001', 'Test Dungeon Alpha', 'Alpha', 9001),
+  ('eeee0003-0000-4000-8000-000000000002', 'Test Dungeon Beta', 'Beta', 9002)
 on conflict (id) do update set
   name = excluded.name,
-  short_name = excluded.short_name;
+  short_name = excluded.short_name,
+  challenge_map_id = excluded.challenge_map_id;
 
 -- Season dungeons
 insert into season_dungeons (season_id, dungeon_id, display_order)

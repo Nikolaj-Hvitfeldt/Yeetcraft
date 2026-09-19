@@ -31,10 +31,10 @@ Handlers depend on a `StatsRepository` interface so unit tests can use fakes wit
 
 | Table | Role |
 | ----- | ---- |
-| `seasons` | Named seasons; partial unique index enforces one `is_current` |
+| `seasons` | Named seasons; optional non-overlapping `starts_at`/`ends_at`; partial unique index enforces one `is_current` (`is_current` is never ingest authority) |
 | `players` | Display names (+ optional `avatar_url`) |
 | `characters` | Server-owned WoW character metadata per player |
-| `dungeons` | Canonical dungeon list |
+| `dungeons` | Canonical dungeon list; nullable unique `challenge_map_id` |
 | `season_dungeons` | Which dungeons belong to a season (+ order) |
 | `player_dungeon_stats` | Deaths/yeets per player×season×dungeon |
 
@@ -53,7 +53,7 @@ Details: [API.md](./API.md).
 
 ## Season resolution
 
-Empty `seasonId` query params resolve to the current season. Crowns (King of Yeets / King of Deaths / Top Player) are computed in Go (`ComputeSeasonLeaders`) and covered by unit tests.
+Empty `seasonId` query params resolve to the current season (`is_current`). Optional `starts_at` / `ends_at` bounds are non-overlapping when both are set (`[)` ranges) and exist for future companion ingest; website reads do not use them yet. Crowns (King of Yeets / King of Deaths / Top Player) are computed in Go (`ComputeSeasonLeaders`) and covered by unit tests.
 
 Switching the current season is a DB ops concern today (`set_current_season` SQL function) — there is no public admin HTTP endpoint.
 

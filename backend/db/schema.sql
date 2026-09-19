@@ -1,11 +1,23 @@
 create extension if not exists pgcrypto;
+create extension if not exists btree_gist;
 
 create table seasons (
   id uuid primary key default gen_random_uuid(),
   name text not null unique,
   expansion text,
+  -- Website current-season flag only; never ingest authority.
   is_current boolean not null default false,
-  created_at timestamptz not null default now()
+  starts_at timestamptz,
+  ends_at timestamptz,
+  created_at timestamptz not null default now(),
+
+  constraint seasons_bounds_both_or_neither_chk check (
+    (starts_at is null and ends_at is null)
+    or (starts_at is not null and ends_at is not null and starts_at < ends_at)
+  ),
+  constraint seasons_bounds_non_overlapping exclude using gist (
+    tstzrange(starts_at, ends_at, '[)') with &&
+  ) where (starts_at is not null and ends_at is not null)
 );
 
 create unique index one_current_season
@@ -41,6 +53,7 @@ create table dungeons (
   id uuid primary key default gen_random_uuid(),
   name text not null unique,
   short_name text,
+  challenge_map_id integer unique,
   created_at timestamptz not null default now()
 );
 

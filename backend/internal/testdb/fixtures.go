@@ -14,10 +14,12 @@ const (
 	PlayerNiklasName = "Niklas"
 	PlayerNikoName   = "Niko"
 
-	DungeonAlphaID   = "eeee0003-0000-4000-8000-000000000001"
-	DungeonBetaID    = "eeee0003-0000-4000-8000-000000000002"
-	DungeonAlphaName = "Test Dungeon Alpha"
-	DungeonBetaName  = "Test Dungeon Beta"
+	DungeonAlphaID             = "eeee0003-0000-4000-8000-000000000001"
+	DungeonBetaID              = "eeee0003-0000-4000-8000-000000000002"
+	DungeonAlphaName           = "Test Dungeon Alpha"
+	DungeonBetaName            = "Test Dungeon Beta"
+	DungeonAlphaChallengeMapID = 9001
+	DungeonBetaChallengeMapID  = 9002
 )
 
 // SeededCharacter is one deterministic characters row in testdb seed data.
@@ -71,9 +73,10 @@ var seededPlayers = []struct {
 }
 
 var seededDungeons = []struct {
-	ID   string
-	Name string
+	ID             string
+	Name           string
+	ChallengeMapID int
 }{
-	{DungeonAlphaID, DungeonAlphaName},
-	{DungeonBetaID, DungeonBetaName},
+	{DungeonAlphaID, DungeonAlphaName, DungeonAlphaChallengeMapID},
+	{DungeonBetaID, DungeonBetaName, DungeonBetaChallengeMapID},
 }

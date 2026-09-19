@@ -93,6 +93,19 @@ func TestSeededCharactersCount(t *testing.T) {
 	}
 }
 
+func TestSeededDungeonChallengeMapIDs(t *testing.T) {
+	if DungeonAlphaChallengeMapID != 9001 || DungeonBetaChallengeMapID != 9002 {
+		t.Fatalf(
+			"expected synthetic testdb map IDs 9001/9002, got %d/%d",
+			DungeonAlphaChallengeMapID,
+			DungeonBetaChallengeMapID,
+		)
+	}
+	if DungeonAlphaChallengeMapID == DungeonBetaChallengeMapID {
+		t.Fatal("expected seeded dungeon challenge_map_id values to be unique")
+	}
+}
+
 func TestApplicationTablesIncludesCharacters(t *testing.T) {
 	tables := ApplicationTables()
 	if !containsString(tables, "characters") {

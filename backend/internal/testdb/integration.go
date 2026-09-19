@@ -101,12 +101,14 @@ func (client *Client) ResetAndVerify(ctx context.Context) error {
 // EnsureIsolationSeasonFixtures upserts the auxiliary season used by integration tests.
 func (client *Client) EnsureIsolationSeasonFixtures(ctx context.Context) error {
 	_, err := client.pool.Exec(ctx, `
-		insert into seasons (id, name, expansion, is_current)
-		values ($1::uuid, 'E2E Isolation Season', 'Test', false)
+		insert into seasons (id, name, expansion, is_current, starts_at, ends_at)
+		values ($1::uuid, 'E2E Isolation Season', 'Test', false, null, null)
 		on conflict (id) do update set
 			name = excluded.name,
 			expansion = excluded.expansion,
-			is_current = excluded.is_current
+			is_current = excluded.is_current,
+			starts_at = excluded.starts_at,
+			ends_at = excluded.ends_at
 	`, IsolationSeasonID)
 	if err != nil {
 		return fmt.Errorf("ensure isolation season: %w", err)

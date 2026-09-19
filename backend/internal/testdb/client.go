@@ -109,11 +109,13 @@ func (client *Client) Reset(ctx context.Context) error {
 func (client *Client) Verify(ctx context.Context) error {
 	var seasonName string
 	var isCurrent bool
+	var startsAt *time.Time
+	var endsAt *time.Time
 	err := client.pool.QueryRow(ctx, `
-		select name, is_current
+		select name, is_current, starts_at, ends_at
 		from seasons
 		where id = $1::uuid
-	`, SeasonID).Scan(&seasonName, &isCurrent)
+	`, SeasonID).Scan(&seasonName, &isCurrent, &startsAt, &endsAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return fmt.Errorf("verify season: seeded season %s is missing", SeasonID)
@@ -127,6 +129,10 @@ func (client *Client) Verify(ctx context.Context) error {
 
 	if !isCurrent {
 		return fmt.Errorf("verify season: expected seeded season to be current")
+	}
+
+	if startsAt != nil || endsAt != nil {
+		return fmt.Errorf("verify season: expected null bounds for seeded testdb season")
 	}
 
 	for _, player := range seededPlayers {
@@ -159,11 +165,12 @@ func (client *Client) Verify(ctx context.Context) error {
 
 	for _, dungeon := range seededDungeons {
 		var dungeonName string
+		var challengeMapID int
 		err := client.pool.QueryRow(ctx, `
-			select name
+			select name, challenge_map_id
 			from dungeons
 			where id = $1::uuid
-		`, dungeon.ID).Scan(&dungeonName)
+		`, dungeon.ID).Scan(&dungeonName, &challengeMapID)
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
 				return fmt.Errorf("verify dungeons: seeded dungeon %s (%s) is missing", dungeon.ID, dungeon.Name)
@@ -177,6 +184,15 @@ func (client *Client) Verify(ctx context.Context) error {
 				dungeon.Name,
 				dungeon.ID,
 				dungeonName,
+			)
+		}
+
+		if challengeMapID != dungeon.ChallengeMapID {
+			return fmt.Errorf(
+				"verify dungeons: expected challenge_map_id %d for %s, got %d",
+				dungeon.ChallengeMapID,
+				dungeon.ID,
+				challengeMapID,
 			)
 		}
 	}
