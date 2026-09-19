@@ -14,6 +14,7 @@ Yeetcraft exposes a small JSON HTTP API from the Go server (`backend/cmd/server`
 | Method | Path | Auth | Description |
 | ------ | ---- | ---- | ----------- |
 | `GET` | `/api/health` | No | Health check |
+| `GET` | `/api/players` | No | Player roster with characters |
 | `GET` | `/api/seasons` | No | List seasons |
 | `GET` | `/api/seasons/leaders?seasonId=` | No | Season leaderboard and crown players |
 | `GET` | `/api/seasons/current/dungeons?seasonId=` | No | Dungeons for a season |
@@ -23,6 +24,35 @@ Yeetcraft exposes a small JSON HTTP API from the Go server (`backend/cmd/server`
 | `PATCH` | `/api/stats/batch` | Yes* | Batch update player dungeon stats |
 
 Empty `seasonId` on optional query params resolves to the current season (`is_current = true`).
+
+### Player roster
+
+`GET /api/players` returns all players and their characters. Players are ordered by `displayName`. Characters are ordered by `displayOrder`, then `name`. Character `guid` values are never included in the response.
+
+```json
+{
+  "players": [
+    {
+      "id": "<uuid>",
+      "displayName": "Seb",
+      "avatarUrl": null,
+      "characters": [
+        {
+          "id": "<uuid>",
+          "name": "MostDope",
+          "realm": null,
+          "region": null,
+          "classKey": "warlock",
+          "active": true,
+          "displayOrder": 0
+        }
+      ]
+    }
+  ]
+}
+```
+
+`characters` is always an array (empty when a player has no characters).
 
 ## Write authentication
 

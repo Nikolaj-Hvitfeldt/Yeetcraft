@@ -32,8 +32,10 @@ func main() {
 	}
 
 	statsRepository := repository.NewStatsRepository(databasePool)
+	playersRepository := repository.NewPlayersRepository(databasePool)
 	healthHandler := handler.NewHealthHandler()
 	statsHandler := handler.NewStatsHandler(statsRepository)
+	playersHandler := handler.NewPlayersHandler(playersRepository)
 
 	router := chi.NewRouter()
 	router.Use(appmiddleware.RecoverJSON)
@@ -41,6 +43,7 @@ func main() {
 	router.NotFound(handler.NotFound)
 
 	router.Get("/api/health", healthHandler.Get)
+	router.Get("/api/players", playersHandler.List)
 	router.Get("/api/players/by-slug/{playerSlug}/stats", statsHandler.PlayerStatsBySlug)
 	router.Get("/api/players/{playerId}/stats", statsHandler.PlayerStats)
 	router.Get("/api/seasons", statsHandler.Seasons)
