@@ -28,6 +28,24 @@ values
 on conflict (id) do update set
   display_name = excluded.display_name;
 
+-- Characters (synthetic IDs; guid left null for testdb)
+insert into characters (id, player_id, name, class_key, display_order, active, guid)
+values
+  ('eeee0004-0000-4000-8000-000000000001', 'eeee0002-0000-4000-8000-000000000001', 'MostDope', 'warlock', 0, true, null),
+  ('eeee0004-0000-4000-8000-000000000002', 'eeee0002-0000-4000-8000-000000000001', 'Nudelkriger', 'priest', 1, true, null),
+  ('eeee0004-0000-4000-8000-000000000003', 'eeee0002-0000-4000-8000-000000000002', 'Zorker', 'priest', 0, true, null),
+  ('eeee0004-0000-4000-8000-000000000004', 'eeee0002-0000-4000-8000-000000000002', 'Rauw', 'shaman', 1, true, null),
+  ('eeee0004-0000-4000-8000-000000000005', 'eeee0002-0000-4000-8000-000000000003', 'Ungeork', 'hunter', 0, true, null),
+  ('eeee0004-0000-4000-8000-000000000006', 'eeee0002-0000-4000-8000-000000000004', 'Freecry', 'demonhunter', 0, true, null),
+  ('eeee0004-0000-4000-8000-000000000007', 'eeee0002-0000-4000-8000-000000000004', 'LouiLoui', 'evoker', 1, true, null)
+on conflict (id) do update set
+  player_id = excluded.player_id,
+  name = excluded.name,
+  class_key = excluded.class_key,
+  display_order = excluded.display_order,
+  active = excluded.active,
+  guid = excluded.guid;
+
 -- Dungeons
 insert into dungeons (id, name, short_name)
 values

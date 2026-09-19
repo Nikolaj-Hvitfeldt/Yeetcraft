@@ -20,6 +20,26 @@ const (
 	DungeonBetaName  = "Test Dungeon Beta"
 )
 
+// SeededCharacter is one deterministic characters row in testdb seed data.
+type SeededCharacter struct {
+	ID           string
+	PlayerID     string
+	Name         string
+	ClassKey     string
+	DisplayOrder int
+}
+
+// SeededCharacters is the authoritative character fixture for verify.
+var SeededCharacters = []SeededCharacter{
+	{ID: "eeee0004-0000-4000-8000-000000000001", PlayerID: PlayerSebID, Name: "MostDope", ClassKey: "warlock", DisplayOrder: 0},
+	{ID: "eeee0004-0000-4000-8000-000000000002", PlayerID: PlayerSebID, Name: "Nudelkriger", ClassKey: "priest", DisplayOrder: 1},
+	{ID: "eeee0004-0000-4000-8000-000000000003", PlayerID: PlayerMartinID, Name: "Zorker", ClassKey: "priest", DisplayOrder: 0},
+	{ID: "eeee0004-0000-4000-8000-000000000004", PlayerID: PlayerMartinID, Name: "Rauw", ClassKey: "shaman", DisplayOrder: 1},
+	{ID: "eeee0004-0000-4000-8000-000000000005", PlayerID: PlayerNiklasID, Name: "Ungeork", ClassKey: "hunter", DisplayOrder: 0},
+	{ID: "eeee0004-0000-4000-8000-000000000006", PlayerID: PlayerNikoID, Name: "Freecry", ClassKey: "demonhunter", DisplayOrder: 0},
+	{ID: "eeee0004-0000-4000-8000-000000000007", PlayerID: PlayerNikoID, Name: "LouiLoui", ClassKey: "evoker", DisplayOrder: 1},
+}
+
 // StatBaseline is one seeded player_dungeon_stats row at the known baseline.
 type StatBaseline struct {
 	PlayerID  string

@@ -86,3 +86,25 @@ func TestBaselineStatsCount(t *testing.T) {
 		t.Fatalf("expected 8 baseline stat rows, got %d", len(BaselineStats))
 	}
 }
+
+func TestSeededCharactersCount(t *testing.T) {
+	if len(SeededCharacters) != 7 {
+		t.Fatalf("expected 7 seeded characters, got %d", len(SeededCharacters))
+	}
+}
+
+func TestApplicationTablesIncludesCharacters(t *testing.T) {
+	tables := ApplicationTables()
+	if !containsString(tables, "characters") {
+		t.Fatalf("expected ApplicationTables to include characters, got %#v", tables)
+	}
+}
+
+func containsString(values []string, target string) bool {
+	for _, value := range values {
+		if value == target {
+			return true
+		}
+	}
+	return false
+}

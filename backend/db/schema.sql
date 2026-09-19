@@ -19,6 +19,24 @@ create table players (
   created_at timestamptz not null default now()
 );
 
+create table characters (
+  id uuid primary key default gen_random_uuid(),
+  player_id uuid not null references players(id) on delete cascade,
+  name text not null,
+  realm text,
+  region text,
+  class_key text,
+  guid text unique,
+  active boolean not null default true,
+  display_order int not null default 0,
+  created_at timestamptz not null default now(),
+
+  unique (player_id, name)
+);
+
+create index characters_player_order_idx
+on characters (player_id, display_order, name);
+
 create table dungeons (
   id uuid primary key default gen_random_uuid(),
   name text not null unique,

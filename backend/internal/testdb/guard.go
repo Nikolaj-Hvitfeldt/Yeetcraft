@@ -10,7 +10,7 @@ import (
 
 const testModeEnvKey = "YEETCRAFT_TEST_MODE"
 
-var applicationTables = []string{"seasons", "players", "dungeons", "season_dungeons", "player_dungeon_stats"}
+var applicationTables = []string{"seasons", "players", "characters", "dungeons", "season_dungeons", "player_dungeon_stats"}
 
 // GuardError indicates a failed test-environment guard.
 type GuardError struct {

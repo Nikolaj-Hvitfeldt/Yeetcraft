@@ -153,6 +153,10 @@ func (client *Client) Verify(ctx context.Context) error {
 		}
 	}
 
+	if err := client.verifyCharacters(ctx); err != nil {
+		return err
+	}
+
 	for _, dungeon := range seededDungeons {
 		var dungeonName string
 		err := client.pool.QueryRow(ctx, `
@@ -224,6 +228,150 @@ func (client *Client) Verify(ctx context.Context) error {
 				deaths,
 				yeets,
 			)
+		}
+	}
+
+	return nil
+}
+
+func (client *Client) verifyCharacters(ctx context.Context) error {
+	var totalCount int
+	err := client.pool.QueryRow(ctx, `select count(*) from characters`).Scan(&totalCount)
+	if err != nil {
+		return fmt.Errorf("verify characters: %w", err)
+	}
+
+	if totalCount != len(SeededCharacters) {
+		return fmt.Errorf(
+			"verify characters: expected %d rows, got %d",
+			len(SeededCharacters),
+			totalCount,
+		)
+	}
+
+	for _, character := range SeededCharacters {
+		var playerID string
+		var name string
+		var classKey *string
+		var displayOrder int
+		var active bool
+		var guid *string
+		err := client.pool.QueryRow(ctx, `
+			select player_id, name, class_key, display_order, active, guid
+			from characters
+			where id = $1::uuid
+		`, character.ID).Scan(&playerID, &name, &classKey, &displayOrder, &active, &guid)
+		if err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				return fmt.Errorf(
+					"verify characters: seeded character %s (%s) is missing",
+					character.ID,
+					character.Name,
+				)
+			}
+			return fmt.Errorf("verify characters: %w", err)
+		}
+
+		if playerID != character.PlayerID {
+			return fmt.Errorf(
+				"verify characters: expected player %s for %s, got %s",
+				character.PlayerID,
+				character.Name,
+				playerID,
+			)
+		}
+
+		if name != character.Name {
+			return fmt.Errorf(
+				"verify characters: expected name %q for %s, got %q",
+				character.Name,
+				character.ID,
+				name,
+			)
+		}
+
+		if classKey == nil || *classKey != character.ClassKey {
+			actualClassKey := ""
+			if classKey != nil {
+				actualClassKey = *classKey
+			}
+			return fmt.Errorf(
+				"verify characters: expected class_key %q for %s, got %q",
+				character.ClassKey,
+				character.Name,
+				actualClassKey,
+			)
+		}
+
+		if displayOrder != character.DisplayOrder {
+			return fmt.Errorf(
+				"verify characters: expected display_order %d for %s, got %d",
+				character.DisplayOrder,
+				character.Name,
+				displayOrder,
+			)
+		}
+
+		if !active {
+			return fmt.Errorf("verify characters: expected %s to be active", character.Name)
+		}
+
+		if guid != nil {
+			return fmt.Errorf("verify characters: expected null guid for %s", character.Name)
+		}
+	}
+
+	for _, player := range seededPlayers {
+		rows, err := client.pool.Query(ctx, `
+			select name
+			from characters
+			where player_id = $1::uuid
+			order by display_order, name
+		`, player.ID)
+		if err != nil {
+			return fmt.Errorf("verify character order: %w", err)
+		}
+
+		var actualNames []string
+		for rows.Next() {
+			var characterName string
+			if err := rows.Scan(&characterName); err != nil {
+				rows.Close()
+				return fmt.Errorf("verify character order: %w", err)
+			}
+			actualNames = append(actualNames, characterName)
+		}
+		if err := rows.Err(); err != nil {
+			return fmt.Errorf("verify character order: %w", err)
+		}
+		rows.Close()
+
+		var expectedNames []string
+		for _, character := range SeededCharacters {
+			if character.PlayerID == player.ID {
+				expectedNames = append(expectedNames, character.Name)
+			}
+		}
+
+		if len(actualNames) != len(expectedNames) {
+			return fmt.Errorf(
+				"verify character order: player %s expected %d characters, got %d",
+				player.DisplayName,
+				len(expectedNames),
+				len(actualNames),
+			)
+		}
+
+		for index, expectedName := range expectedNames {
+			if actualNames[index] != expectedName {
+				return fmt.Errorf(
+					"verify character order: player %s position %d expected %q, got %q",
+					player.DisplayName,
+					index,
+					expectedName,
+					actualNames[index],
+				)
+			}
 		}
 	}
 
