@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { fetchSeasons } from './api'
+import { fetchPlayerRoster, fetchSeasons } from './api'
 
 vi.mock('../lib/fetch-with-timeout', () => ({
   fetchWithTimeout: vi.fn(),
@@ -25,6 +25,20 @@ describe('api request auth headers', () => {
     const [, options] = vi.mocked(fetchWithTimeout).mock.calls[0] ?? []
     const headers = options?.headers as Record<string, string> | undefined
 
+    expect(headers?.['X-API-Key']).toBeUndefined()
+  })
+
+  it('fetches the public player roster without write-auth headers', async () => {
+    vi.mocked(fetchWithTimeout).mockResolvedValueOnce(
+      new Response(JSON.stringify({ players: [] }), { status: 200 }),
+    )
+
+    await fetchPlayerRoster()
+
+    const [endpoint, options] = vi.mocked(fetchWithTimeout).mock.calls[0] ?? []
+    const headers = options?.headers as Record<string, string> | undefined
+
+    expect(endpoint).toContain('/api/players')
     expect(headers?.['X-API-Key']).toBeUndefined()
   })
 })

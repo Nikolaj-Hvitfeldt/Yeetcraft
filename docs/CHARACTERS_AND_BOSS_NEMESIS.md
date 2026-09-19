@@ -5,10 +5,10 @@ preparing for a future **Nemesis Boss** insight.
 
 | Field | Value |
 | --- | --- |
-| Status | Characters: ready for implementation planning; Nemesis Boss: data-contract preparation only |
+| Status | Characters: public roster + profile tags from API; Nemesis Boss: data-contract preparation only |
 | Primary repository | `Yeetcraft` |
 | Related repository | `yeetcraft-companion` (separate product and Git history) |
-| Last updated | 2026-08-24 (character-slice snapshot); companion **contract** status noted 2026-09-18 |
+| Last updated | 2026-09-19 (character slice WP1–WP3); companion **contract** status noted 2026-09-18 |
 
 ## Start here in a new session
 
@@ -47,24 +47,30 @@ attribution.
 
 ### Database and API
 
-- `backend/db/schema.sql` contains `players`, `seasons`, `dungeons`,
-  `season_dungeons`, and `player_dungeon_stats`.
-- There is no `characters`, `encounters`, `runs`, or `death_events` table.
+- `backend/db/schema.sql` contains `players`, `characters`, `seasons`,
+  `dungeons`, `season_dungeons`, and `player_dungeon_stats`.
+- There is no `encounters`, `runs`, or `death_events` table.
 - Statistics are stored at player × season × dungeon granularity.
 - `PATCH /api/stats/batch` writes absolute aggregate values.
 - Reads are public; writes require the existing API key middleware.
+- Public `GET /api/players` returns the player roster with characters and
+  **never** includes character `guid` values.
 - There is no companion ingest **route** yet. A canonical draft contract now
   exists at [`contracts/companion/v1/`](../contracts/companion/v1/README.md)
-  (**reviewed, not implemented**). Character-slice `characters.guid` remains a
-  blocker before that route can be built.
+  (**reviewed, not implemented**).
 
 ### Frontend
 
-- Character names/classes are hardcoded in
-  `frontend/src/data/player-characters.ts`.
-- Roles are also hardcoded there at the player level.
+- Profile character tags load from `GET /api/players` (`usePlayerRoster`).
+  `classKey` maps to existing `wowClass`. Roster queries persist under the
+  `players` / `player-roster` roots.
+- Roles and avatar keys remain in `frontend/src/data/player-characters.ts`
+  (`PLAYERS_BY_KEY`). Leaderboard rows stay **roles-only**; this slice does
+  not add leaderboard CharacterTags.
+- Hardcoded character lists are a **temporary fallback** when the roster
+  cache is empty. Unknown/guest players keep a synthetic `{ name: displayName }`
+  tag from `getPlayerProfile`.
 - Character tags are cosmetic; no per-character statistics exist.
-- Player API schemas in `frontend/src/api/schemas.ts` contain no character data.
 - The current `NemesisCard` means **Nemesis Dungeon**, calculated client-side
   from dungeon aggregate mistakes.
 

@@ -12,6 +12,14 @@ export type PlayerRegistryEntry = {
   characters: PlayerCharacter[]
 }
 
+/**
+ * Frontend registry for player-level roles and avatar keys.
+ *
+ * Character lists are a temporary cache-empty fallback only: profile tags
+ * load from `GET /api/players` when a roster is available (network or
+ * persisted query cache). Do not treat these characters as the live source
+ * of truth.
+ */
 export const PLAYERS_BY_KEY: Record<string, PlayerRegistryEntry> = {
   seb: {
     roles: ['DPS', 'Healer'],

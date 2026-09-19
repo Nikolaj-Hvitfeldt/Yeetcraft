@@ -22,6 +22,27 @@ export const PlayerSummarySchema = z.object({
   avatarUrl: z.string().nullable(),
 })
 
+export const CharacterRosterSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  realm: z.string().nullable(),
+  region: z.string().nullable(),
+  classKey: z.string().nullable(),
+  active: z.boolean(),
+  displayOrder: z.number(),
+})
+
+export const PlayerRosterEntrySchema = z.object({
+  id: z.string(),
+  displayName: z.string(),
+  avatarUrl: z.string().nullable(),
+  characters: z.array(CharacterRosterSchema),
+})
+
+export const PlayersResponseSchema = z.object({
+  players: z.array(PlayerRosterEntrySchema),
+})
+
 export const DungeonSummarySchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -149,6 +170,9 @@ export const SeasonLeadersResponseSchema = z.object({
 export type SeasonSummary = z.infer<typeof SeasonSummarySchema>
 export type LeaderboardEntry = z.infer<typeof LeaderboardEntrySchema>
 export type PlayerSummary = z.infer<typeof PlayerSummarySchema>
+export type CharacterRosterEntry = z.infer<typeof CharacterRosterSchema>
+export type PlayerRosterEntry = z.infer<typeof PlayerRosterEntrySchema>
+export type PlayersResponse = z.infer<typeof PlayersResponseSchema>
 export type DungeonSummary = z.infer<typeof DungeonSummarySchema>
 export type DungeonReference = z.infer<typeof DungeonReferenceSchema>
 export type DungeonLeaderboardEntry = z.infer<typeof DungeonLeaderboardEntrySchema>

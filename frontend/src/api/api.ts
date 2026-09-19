@@ -3,6 +3,7 @@ import {
   CurrentSeasonDungeonsResponseSchema,
   DungeonLeaderboardResponseSchema,
   PlayerStatsResponseSchema,
+  PlayersResponseSchema,
   SeasonLeadersResponseSchema,
   SeasonsResponseSchema,
   SetStatsBatchRequestSchema,
@@ -71,6 +72,10 @@ async function fetchApiWithBody<T>(
 
 export async function fetchSeasonLeaders(seasonId?: string) {
   return fetchApi(`/api/seasons/leaders${buildSeasonQuery(seasonId)}`, SeasonLeadersResponseSchema)
+}
+
+export async function fetchPlayerRoster() {
+  return fetchApi('/api/players', PlayersResponseSchema)
 }
 
 export async function fetchPlayerStats(playerId: string, seasonId?: string) {

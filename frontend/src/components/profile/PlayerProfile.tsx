@@ -3,7 +3,9 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import {
   deriveLeaderboard,
+  resolvePlayerCharacters,
   usePlayerProfileEdit,
+  usePlayerRoster,
   usePlayerStatsBySlug,
   useSeasonId,
   useSeasonLeaders,
@@ -28,7 +30,6 @@ import {
 } from '../../utils/dungeon-image'
 import { getPlayerFlavorTitle } from '../../utils/player-flavor-title'
 import { getNemesisDungeon } from '../../utils/player-stats'
-import { getPlayerProfile } from '../../utils/player-characters'
 
 export function PlayerProfile() {
   const queryClient = useQueryClient()
@@ -52,6 +53,8 @@ export function PlayerProfile() {
     failureCount: playerStatsFailureCount,
     refetch: refetchPlayerStats,
   } = usePlayerStatsBySlug(playerSlugParam, selectedSeasonId, { enabled: isSeasonReady })
+
+  const { data: playerRoster } = usePlayerRoster()
 
   const canWrite = useWriteAccess()
 
@@ -101,7 +104,11 @@ export function PlayerProfile() {
   const isKingOfDeaths = playerStats?.player.id === seasonLeaders?.kingOfDeaths?.playerId
 
   const playerMeta = useMemo(() => {
-    const characters = getPlayerProfile(playerStats?.player.displayName).characters
+    const characters = resolvePlayerCharacters({
+      rosterPlayers: playerRoster?.players,
+      playerId: playerStats?.player.id,
+      displayName: playerStats?.player.displayName,
+    })
 
     const flavor = playerStats
       ? getPlayerFlavorTitle({
@@ -117,7 +124,7 @@ export function PlayerProfile() {
       : 'Season Adventurer'
 
     return { characters, flavor }
-  }, [leaderboardRank, nemesis, playerStats, seasonLeaders])
+  }, [leaderboardRank, nemesis, playerRoster?.players, playerStats, seasonLeaders])
 
   const isPlayerNotFound = isNotFoundApiError(playerStatsError)
   const hasCachedData = playerStats !== undefined

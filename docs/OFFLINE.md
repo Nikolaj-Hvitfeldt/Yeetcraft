@@ -24,7 +24,8 @@ Vercel cache headers (`frontend/vercel.json`): long-cache hashed `/assets/*`; `m
 
 - Storage: IndexedDB via `idb-keyval` (`yeetcraft-query-cache-v1`)
 - Max age: **7 days**
-- Persisted roots: seasons, leaders, dungeons, player stats, dungeon leaderboard
+- Persisted roots: seasons, leaders, dungeons, player roster (`players` /
+  `player-roster`), player stats, dungeon leaderboard
 - `networkMode: 'offlineFirst'`
 - Stale time ~5 minutes; GC ~24 hours
 

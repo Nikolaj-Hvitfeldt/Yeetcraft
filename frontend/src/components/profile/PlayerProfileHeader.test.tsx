@@ -50,6 +50,50 @@ describe('PlayerProfileHeader', () => {
     expect(image).toHaveAttribute('width', '96')
     expect(image).toHaveAttribute('height', '96')
     expect(image.className).toContain('drop-shadow-[0_12px_25px_rgba(0,0,0,0.35)]')
+    expect(screen.getByText('Ungeork')).toBeInTheDocument()
+    expect(screen.getByText('1 characters tracked this season')).toBeInTheDocument()
+  })
+
+  it('renders multiple character tags from roster-backed props', () => {
+    render(
+      <PlayerProfileHeader
+        playerStats={playerStats}
+        seasons={[season]}
+        selectedSeasonId={season.id}
+        onSeasonChange={vi.fn()}
+        isEditing={false}
+        isKingOfYeets={false}
+        isKingOfDeaths={false}
+        flavor="Test flavor"
+        characters={[
+          { name: 'MostDope', wowClass: 'warlock' },
+          { name: 'Nudelkriger', wowClass: 'priest' },
+        ]}
+      />,
+    )
+
+    expect(screen.getByText('2 characters tracked this season')).toBeInTheDocument()
+    expect(screen.getByText('MostDope')).toBeInTheDocument()
+    expect(screen.getByText('Nudelkriger')).toBeInTheDocument()
+  })
+
+  it('renders an empty character tag list', () => {
+    render(
+      <PlayerProfileHeader
+        playerStats={playerStats}
+        seasons={[season]}
+        selectedSeasonId={season.id}
+        onSeasonChange={vi.fn()}
+        isEditing={false}
+        isKingOfYeets={false}
+        isKingOfDeaths={false}
+        flavor="Test flavor"
+        characters={[]}
+      />,
+    )
+
+    expect(screen.getByText('0 characters tracked this season')).toBeInTheDocument()
+    expect(screen.queryByText('Ungeork')).not.toBeInTheDocument()
   })
 
   it('shows the initial placeholder for unmapped players without avatarUrl', () => {
@@ -76,5 +120,7 @@ describe('PlayerProfileHeader', () => {
 
     expect(screen.queryByRole('img', { name: 'Guest avatar' })).not.toBeInTheDocument()
     expect(screen.getByText('G')).toBeInTheDocument()
+    expect(screen.getByText('1 characters tracked this season')).toBeInTheDocument()
+    expect(screen.getByText('GuestAlt')).toBeInTheDocument()
   })
 })

@@ -33,6 +33,7 @@ Handlers depend on a `StatsRepository` interface so unit tests can use fakes wit
 | ----- | ---- |
 | `seasons` | Named seasons; partial unique index enforces one `is_current` |
 | `players` | Display names (+ optional `avatar_url`) |
+| `characters` | Server-owned WoW character metadata per player |
 | `dungeons` | Canonical dungeon list |
 | `season_dungeons` | Which dungeons belong to a season (+ order) |
 | `player_dungeon_stats` | Deaths/yeets per player×season×dungeon |
@@ -81,14 +82,20 @@ sequenceDiagram
 
 See [OFFLINE.md](./OFFLINE.md) for service worker, query persistence, and connection UX.
 
-## Planned character and event evolution
+## Character metadata and planned event evolution
 
-Characters are currently frontend-only presentation metadata; statistics remain
-owned by players. The implementation brief for moving character metadata into
-PostgreSQL and preparing future encounter-derived **Nemesis Boss** insights is
-[`CHARACTERS_AND_BOSS_NEMESIS.md`](./CHARACTERS_AND_BOSS_NEMESIS.md).
+Characters are **server-owned presentation metadata**. Public `GET /api/players`
+returns ordered characters (never GUIDs). Profile tags use that roster;
+`classKey` maps to existing `wowClass`. Statistics remain owned by players at
+season × dungeon granularity — there are no per-character stats.
 
-That work is additive. It must preserve current player-level aggregates and
-must not imply that companion ingest, death events, or boss statistics already
-exist. Phase 3 ingest file paths (not implemented):
+The frontend still uses `PLAYERS_BY_KEY` for **roles and avatar keys**. Hardcoded
+character lists are a **temporary fallback** only when the roster query has no
+persisted cache (offline first visit or a failed fetch). Guest/unknown players
+keep a synthetic `{ name: displayName }` tag.
+
+Companion ingest, death events, and **Nemesis Boss** statistics are **not**
+implemented. The implementation brief is
+[`CHARACTERS_AND_BOSS_NEMESIS.md`](./CHARACTERS_AND_BOSS_NEMESIS.md). Phase 3
+ingest file paths (not implemented):
 [`contracts/companion/v1/IMPLEMENTATION_MAP.md`](../contracts/companion/v1/IMPLEMENTATION_MAP.md).

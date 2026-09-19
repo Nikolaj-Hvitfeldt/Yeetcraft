@@ -2,6 +2,9 @@ export const PERSISTED_QUERY_ROOTS = [
   'seasons',
   'season-leaders',
   'season-dungeons',
+  // GET /api/players roster: queried as `player-roster`; both names persist.
+  'players',
+  'player-roster',
   'player-stats',
   'player-stats-by-slug',
   'dungeon-leaderboard',
@@ -21,6 +24,7 @@ export const queryKeys = {
     ['season-leaders', seasonId ?? 'current'] as const,
   seasonDungeons: (seasonId: string | undefined) =>
     ['season-dungeons', seasonId ?? 'current'] as const,
+  playerRoster: () => ['player-roster'] as const,
   playerStats: (playerId: string | undefined, seasonId: string | undefined) =>
     ['player-stats', playerId, seasonId] as const,
   playerStatsRoot: () => ['player-stats'] as const,
